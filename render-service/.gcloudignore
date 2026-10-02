@@ -1,0 +1,11 @@
+preview.html
+preview.png
+*.pdf
+__pycache__/
+*.pyc
+schema/
+DESIGN_GUIDE.md
+README.md
+DEPLOY.md
+fonts/REQUIRED.txt
+fly.toml

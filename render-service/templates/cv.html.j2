@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="{{ meta.lang | default('en') }}">
+<head>
+<meta charset="utf-8">
+<title>{{ p.name }} — CV</title>
+<style>
+/* ============================================================================
+   Fermata CV — EDITORIAL (single fixed format, English)
+   모든 수치는 DESIGN_GUIDE.md 를 진실원천으로 한다. 여기서 임의 값을 쓰지 않는다.
+   토큰(:root)은 가이드 §2~§5 를 그대로 옮긴 것 — 가이드가 바뀌면 여기만 바꾼다.
+   PDF(WeasyPrint)와 웹 프로필이 이 한 벌을 공유한다. @page 는 웹에서 무시된다.
+   ============================================================================ */
+@font-face{font-family:"Pre";src:url("../fonts/Pretendard-Light.otf");font-weight:300}
+@font-face{font-family:"Pre";src:url("../fonts/Pretendard-Regular.otf");font-weight:400}
+@font-face{font-family:"Pre";src:url("../fonts/Pretendard-Medium.otf");font-weight:500}
+@font-face{font-family:"Pre";src:url("../fonts/Pretendard-SemiBold.otf");font-weight:600}
+@font-face{font-family:"Mono";src:url("../fonts/IBMPlexMono-Regular.ttf");font-weight:400}
+@font-face{font-family:"Mono";src:url("../fonts/IBMPlexMono-Medium.ttf");font-weight:500}
+
+:root{
+  /* §4 색 — 5단계, 강조색 없음 */
+  --ink:#16140F; --body:#45403A; --muted:#837C73; --faint:#B4ADA3;
+  --rule:#E4DFD8; --rule-strong:#16140F; --photo-bg:#EFECE7;
+  /* §2 타입 스케일 */
+  --t-display:28pt; --t-h1:8.4pt; --t-body-lg:9.6pt; --t-body:8.4pt;
+  --t-caption:7.6pt; --t-micro:6.4pt;
+  /* §3 자간 (라틴 — 영어 단일 고정) */
+  --ls-display:-.022em; --ls-h1:.04em; --ls-title:-.011em; --ls-body:-.004em;
+  --ls-micro:.22em; --ls-instrument:.2em;
+  /* §5 간격 (3pt 배수) */
+  --gap-photo:7mm; --gap-header:6mm; --gap-section:15pt;
+  --gap-title:7pt; --gap-entry:7.5pt; --gap-detail:2pt;
+  --year-col:54pt;      /* §8 연도 칼럼 고정폭 */
+}
+
+/* §5 페이지 여백: 상 20 / 좌우 19 / 하 15 */
+@page{ size:A4; margin:20mm 19mm 15mm 19mm; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"Pre",sans-serif; font-size:var(--t-body); line-height:1.45;
+  color:var(--body); letter-spacing:var(--ls-body);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* 웹 프로필: 화면에서만 A4 카드처럼 보이게 (PDF 출력엔 영향 없음) */
+@media screen{
+  html{background:#F3F1ED}
+  body{width:210mm;min-height:297mm;margin:24px auto;padding:20mm 19mm 15mm 19mm;
+       background:#fff;box-shadow:0 1px 40px rgba(20,19,15,.10)}
+}
+
+/* ---------- §6 헤더: 사진 좌측 25×33mm, 텍스트 우측 ---------- */
+.header{width:100%;border-collapse:collapse}
+.header td{padding:0;vertical-align:top}
+.col-photo{width:25mm;padding-right:var(--gap-photo)}
+.ph-box{width:25mm;height:33mm;overflow:hidden;background:var(--photo-bg)}   /* 3:4 고정 */
+.ph-box img{width:25mm;height:33mm;object-fit:cover;object-position:center 20%;
+            display:block;filter:grayscale(100%) contrast(1.03)}
+
+.eyebrow{font-family:"Mono";font-size:var(--t-micro);letter-spacing:var(--ls-micro);
+         text-transform:uppercase;color:var(--muted)}
+.name{font-weight:400;font-size:var(--t-display);letter-spacing:var(--ls-display);
+      line-height:1.05;color:var(--ink);margin-top:3pt}
+.instrument{margin-top:4pt;font-weight:500;font-size:var(--t-body);
+            letter-spacing:var(--ls-instrument);text-transform:uppercase;color:var(--body)}
+
+/* 연락처: 이름 블록과 한 덩어리로 읽히게 좁게 (근접성) */
+.info{width:100%;border-collapse:collapse;margin-top:5mm}
+.info td{padding:0 0 2.3pt 0;vertical-align:baseline}
+.info .k{width:52pt;font-family:"Mono";font-size:var(--t-micro);letter-spacing:.09em;
+         text-transform:uppercase;color:var(--muted)}
+.info .v{font-size:var(--t-caption);color:var(--ink)}
+.info .v .num{font-family:"Mono";font-size:7.4pt;letter-spacing:0}
+
+/* §6 헤더 아래 0.7pt 진한 기준선 */
+.rule-strong{border:0;border-top:.7pt solid var(--rule-strong);
+             margin-top:var(--gap-header);margin-bottom:0}
+
+/* ---------- §7 섹션 헤더 ---------- */
+.sec{margin-top:var(--gap-section)}
+.sec-first{margin-top:12pt}
+.sec-title{
+  font-weight:600;font-size:var(--t-h1);letter-spacing:var(--ls-h1);
+  text-transform:uppercase;color:var(--ink);            /* §10 회색 잔글씨 금지 */
+  padding-bottom:3pt;border-bottom:.6pt solid var(--rule);
+}
+.sec-body{margin-top:var(--gap-title)}
+
+/* ---------- 공통 요소 ---------- */
+.yr{width:var(--year-col);padding-right:8pt;font-family:"Mono";font-size:var(--t-caption);
+    letter-spacing:0;color:var(--faint);vertical-align:top;white-space:nowrap}
+/* 학력은 '2022 – Present' 같은 기간 범위라 연도 칼럼을 넓힌다 (4자리 연도만 54pt) */
+.se .yr{width:96pt}
+.etitle{font-weight:600;font-size:var(--t-body-lg);letter-spacing:var(--ls-title);color:var(--ink)}
+.eorg{margin-top:1pt;font-size:var(--t-caption);color:var(--muted)}
+.edetail{margin-top:var(--gap-detail);font-weight:300;font-size:var(--t-body);
+         line-height:1.5;color:var(--body)}
+.mlabel{font-family:"Mono";font-size:var(--t-micro);letter-spacing:.12em;
+        text-transform:uppercase;color:var(--muted)}
+/* §9 검증 표시: ● 기관 / ○ 동료, 6pt faint, 제목 뒤 3pt */
+.vm{font-size:6pt;color:var(--faint);padding-left:3pt;vertical-align:.5pt}
+
+/* result_list (콩쿠르) — §7 결과 우측 정렬 강조 */
+.rl{width:100%;border-collapse:collapse}
+.rl td{padding:0 0 var(--gap-entry) 0;vertical-align:top}
+.rl .rl-main .rl-title{font-weight:500;font-size:var(--t-body-lg);
+        letter-spacing:var(--ls-title);color:var(--ink)}
+.rl .rl-main .rl-place{margin-top:1pt;font-size:var(--t-caption);color:var(--muted)}
+.rl .rl-result{text-align:right;white-space:nowrap;font-weight:600;
+        font-size:var(--t-body-lg);letter-spacing:var(--ls-title);color:var(--ink)}
+
+/* year_group (연주) — §7 연도 그룹 헤더 */
+.yg{width:100%;border-collapse:collapse}
+.yg td{padding:0 0 var(--gap-entry) 0;vertical-align:top}
+.yg-item + .yg-item{margin-top:var(--gap-entry)}
+
+/* stack_edu (학력·사사) — §7 스택형 */
+.se{width:100%;border-collapse:collapse}
+.se td{padding:0 0 var(--gap-entry) 0;vertical-align:top}
+.se-inst{font-weight:600;font-size:var(--t-body-lg);letter-spacing:var(--ls-title);color:var(--ink)}
+.se-degree{margin-top:1pt;font-size:var(--t-caption);color:var(--body)}
+.se-teacher{margin-top:1pt;font-size:var(--t-caption);color:var(--muted)}
+
+/* two_up (마스터클래스) — §7 2단 압축 */
+.tu{width:100%;border-collapse:collapse}
+.tu td{width:50%;padding:0 5mm var(--gap-entry) 0;vertical-align:top}
+.tu td.r{padding:0 0 var(--gap-entry) 5mm}
+.tu-title{font-weight:500;font-size:var(--t-body);letter-spacing:var(--ls-title);color:var(--ink)}
+.tu-sub{margin-top:1pt;font-family:"Mono";font-size:var(--t-micro);color:var(--muted)}
+
+/* inline (레퍼토리) — §7 구분점 연결 */
+.inline{font-size:var(--t-body);line-height:1.6;color:var(--body)}
+.inline .sep{color:var(--faint);padding:0 .35em}
+
+/* §9 각주 + 하단 프로필 주소 (유일한 브랜딩) */
+.legend{margin-top:9mm;font-family:"Mono";font-size:var(--t-micro);
+        letter-spacing:.05em;color:var(--faint)}
+.foot{margin-top:2mm;text-align:center;font-family:"Mono";font-size:6.2pt;
+      letter-spacing:.05em;color:var(--faint)}
+
+/* 소개(About) — 헤더 아래 한 문단 */
+.bio{margin-top:5mm;font-weight:300;font-size:var(--t-body);line-height:1.55;
+     color:var(--body);letter-spacing:var(--ls-body)}
+
+/* 언어 스위처 — 화면에서만 (PDF 엔 안 나옴) */
+.lang-switch{display:none}
+@media screen{
+  .lang-switch{display:block;margin-bottom:10px;font-family:"Mono";font-size:11px;
+               letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .lang-switch a{color:var(--muted);text-decoration:none;margin-right:12px}
+  .lang-switch a.cur{color:var(--ink);font-weight:500;border-bottom:1.5px solid var(--ink)}
+}
+</style>
+</head>
+<body>
+
+{# ---------- 언어 스위처 (화면 전용) ---------- #}
+{% set langs = meta.available_langs | default(['en']) %}
+{% if langs | length > 1 %}
+<div class="lang-switch">
+  {% for l in langs %}
+  <a href="?lang={{ l }}"{% if l == meta.lang %} class="cur"{% endif %}>{{ {'ko':'한국어','en':'English','de':'Deutsch'}.get(l, l) }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{# ---------- 검증 표시 매크로 (§9) ---------- #}
+{% macro vmark(v) -%}
+{%- if v == 'institution' %}<span class="vm" title="Institution verified">&#9679;</span>
+{%- elif v == 'peer' %}<span class="vm" title="Peer confirmed">&#9675;</span>{% endif -%}
+{% endmacro %}
+
+{# ---------- §7 섹션별 레이아웃 매크로 ---------- #}
+
+{% macro year_group(entries) %}
+<table class="yg">
+  {% for year, group in entries | groupby('year') | reverse %}
+  <tr>
+    <td class="yr">{{ year }}</td>
+    <td>
+      {% for e in group %}
+      <div class="yg-item">
+        <div class="etitle">{{ e.title }}{{ vmark(e.verification) }}</div>
+        <div class="eorg">{{ e.org }}{% if e.place %} · {{ e.place }}{% endif %}</div>
+        {% if e.detail %}<div class="edetail">{{ e.detail }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endmacro %}
+
+{% macro result_list(entries) %}
+<table class="rl">
+  {% for e in entries %}
+  <tr>
+    <td class="yr">{{ e.period }}</td>
+    <td class="rl-main">
+      <div class="rl-title">{{ e.title }}{{ vmark(e.verification) }}</div>
+      {% if e.place %}<div class="rl-place">{{ e.place }}</div>{% endif %}
+    </td>
+    <td class="rl-result">{{ e.result }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endmacro %}
+
+{% macro stack_edu(entries) %}
+<table class="se">
+  {% for e in entries %}
+  <tr>
+    <td class="yr">{{ e.period }}</td>
+    <td>
+      <div class="se-inst">{{ e.institution }}{{ vmark(e.verification) }}</div>
+      {% if e.degree %}<div class="se-degree">{{ e.degree }}{% if e.place %} · {{ e.place }}{% endif %}</div>{% endif %}
+      {% if e.teacher %}<div class="se-teacher"><span class="mlabel">with</span> {{ e.teacher }}</div>{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endmacro %}
+
+{% macro two_up(entries) %}
+<table class="tu">
+  {% for row in entries | batch(2) %}
+  <tr>
+    {% for e in row %}
+    <td{% if loop.index0 == 1 %} class="r"{% endif %}>
+      <div class="tu-title">{{ e.institution }}</div>
+      <div class="tu-sub">
+        {%- if e.teacher %}with {{ e.teacher }}{% endif -%}
+        {%- if e.place %} · {{ e.place }}{% endif -%}
+        {%- if e.period %} · {{ e.period }}{% endif -%}
+      </div>
+    </td>
+    {% endfor %}
+    {% if row | length == 1 %}<td class="r"></td>{% endif %}
+  </tr>
+  {% endfor %}
+</table>
+{% endmacro %}
+
+{% macro inline(items) %}
+<div class="inline">
+  {%- for it in items -%}
+    {%- if not loop.first %}<span class="sep">·</span>{% endif -%}{{ it }}
+  {%- endfor -%}
+</div>
+{% endmacro %}
+
+{# ---------- 헤더 ---------- #}
+<table class="header"><tr>
+  {% if p.photo %}
+  <td class="col-photo"><div class="ph-box"><img src="{{ p.photo }}" alt=""></div></td>
+  {% endif %}
+  <td class="col-text">
+    {% if meta.eyebrow %}<div class="eyebrow">{{ meta.eyebrow }}</div>{% endif %}
+    <div class="name">{{ p.name }}</div>
+    {% if p.instrument %}<div class="instrument">{{ p.instrument }}</div>{% endif %}
+
+    <table class="info">
+      {% if p.address %}<tr><td class="k">Address</td><td class="v">{{ p.address }}</td></tr>{% endif %}
+      {% if p.email %}<tr><td class="k">Email</td><td class="v"><span class="num">{{ p.email }}</span></td></tr>{% endif %}
+      {% if p.phone %}<tr><td class="k">Phone</td><td class="v"><span class="num">{{ p.phone }}</span></td></tr>{% endif %}
+      {% if p.birth_year %}<tr><td class="k">Born</td><td class="v"><span class="num">{{ p.birth_year }}</span></td></tr>{% endif %}
+      {% if p.based_in %}<tr><td class="k">Based in</td><td class="v">{{ p.based_in | join(' / ') }}</td></tr>{% endif %}
+      {% if meta.profile_url %}<tr><td class="k">Profile</td><td class="v"><span class="num">{{ meta.profile_url }}</span></td></tr>{% endif %}
+    </table>
+  </td>
+</tr></table>
+<hr class="rule-strong">
+
+{% if p.bio %}<div class="bio">{{ p.bio }}</div>{% endif %}
+
+{# ---------- 섹션 디스패치 (순서·레이아웃 모두 데이터 주도) ---------- #}
+{% for s in sections %}
+<div class="sec{% if loop.first %} sec-first{% endif %}">
+  <div class="sec-title">{{ s.label }}</div>
+  <div class="sec-body">
+    {% if s.layout == 'year_group' %}{{ year_group(s.entries) }}
+    {% elif s.layout == 'result_list' %}{{ result_list(s.entries) }}
+    {% elif s.layout == 'stack_edu' %}{{ stack_edu(s.entries) }}
+    {% elif s.layout == 'two_up' %}{{ two_up(s.entries) }}
+    {% elif s.layout == 'inline' %}{{ inline(s['items']) }}
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+{% if has_verification %}
+<div class="legend">&#9679; institution verified&nbsp;&nbsp;&nbsp;&#9675; peer confirmed</div>
+{% endif %}
+<div class="foot">{{ p.name }} — {{ meta.profile_url }}</div>
+
+</body>
+</html>

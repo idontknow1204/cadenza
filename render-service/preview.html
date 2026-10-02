@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hyewon Heo — CV</title>
+<style>
+/* ============================================================================
+   Fermata CV — EDITORIAL (single fixed format, English)
+   모든 수치는 DESIGN_GUIDE.md 를 진실원천으로 한다. 여기서 임의 값을 쓰지 않는다.
+   토큰(:root)은 가이드 §2~§5 를 그대로 옮긴 것 — 가이드가 바뀌면 여기만 바꾼다.
+   PDF(WeasyPrint)와 웹 프로필이 이 한 벌을 공유한다. @page 는 웹에서 무시된다.
+   ============================================================================ */
+@font-face{font-family:"Pre";src:url("../fonts/Pretendard-Light.otf");font-weight:300}
+@font-face{font-family:"Pre";src:url("../fonts/Pretendard-Regular.otf");font-weight:400}
+@font-face{font-family:"Pre";src:url("../fonts/Pretendard-Medium.otf");font-weight:500}
+@font-face{font-family:"Pre";src:url("../fonts/Pretendard-SemiBold.otf");font-weight:600}
+@font-face{font-family:"Mono";src:url("../fonts/IBMPlexMono-Regular.ttf");font-weight:400}
+@font-face{font-family:"Mono";src:url("../fonts/IBMPlexMono-Medium.ttf");font-weight:500}
+
+:root{
+  /* §4 색 — 5단계, 강조색 없음 */
+  --ink:#16140F; --body:#45403A; --muted:#837C73; --faint:#B4ADA3;
+  --rule:#E4DFD8; --rule-strong:#16140F; --photo-bg:#EFECE7;
+  /* §2 타입 스케일 */
+  --t-display:28pt; --t-h1:8.4pt; --t-body-lg:9.6pt; --t-body:8.4pt;
+  --t-caption:7.6pt; --t-micro:6.4pt;
+  /* §3 자간 (라틴 — 영어 단일 고정) */
+  --ls-display:-.022em; --ls-h1:.04em; --ls-title:-.011em; --ls-body:-.004em;
+  --ls-micro:.22em; --ls-instrument:.2em;
+  /* §5 간격 (3pt 배수) */
+  --gap-photo:7mm; --gap-header:6mm; --gap-section:15pt;
+  --gap-title:7pt; --gap-entry:7.5pt; --gap-detail:2pt;
+  --year-col:54pt;      /* §8 연도 칼럼 고정폭 */
+}
+
+/* §5 페이지 여백: 상 20 / 좌우 19 / 하 15 */
+@page{ size:A4; margin:20mm 19mm 15mm 19mm; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"Pre",sans-serif; font-size:var(--t-body); line-height:1.45;
+  color:var(--body); letter-spacing:var(--ls-body);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* 웹 프로필: 화면에서만 A4 카드처럼 보이게 (PDF 출력엔 영향 없음) */
+@media screen{
+  html{background:#F3F1ED}
+  body{width:210mm;min-height:297mm;margin:24px auto;padding:20mm 19mm 15mm 19mm;
+       background:#fff;box-shadow:0 1px 40px rgba(20,19,15,.10)}
+}
+
+/* ---------- §6 헤더: 사진 좌측 25×33mm, 텍스트 우측 ---------- */
+.header{width:100%;border-collapse:collapse}
+.header td{padding:0;vertical-align:top}
+.col-photo{width:25mm;padding-right:var(--gap-photo)}
+.ph-box{width:25mm;height:33mm;overflow:hidden;background:var(--photo-bg)}   /* 3:4 고정 */
+.ph-box img{width:25mm;height:33mm;object-fit:cover;object-position:center 20%;
+            display:block;filter:grayscale(100%) contrast(1.03)}
+
+.eyebrow{font-family:"Mono";font-size:var(--t-micro);letter-spacing:var(--ls-micro);
+         text-transform:uppercase;color:var(--muted)}
+.name{font-weight:400;font-size:var(--t-display);letter-spacing:var(--ls-display);
+      line-height:1.05;color:var(--ink);margin-top:3pt}
+.instrument{margin-top:4pt;font-weight:500;font-size:var(--t-body);
+            letter-spacing:var(--ls-instrument);text-transform:uppercase;color:var(--body)}
+
+/* 연락처: 이름 블록과 한 덩어리로 읽히게 좁게 (근접성) */
+.info{width:100%;border-collapse:collapse;margin-top:5mm}
+.info td{padding:0 0 2.3pt 0;vertical-align:baseline}
+.info .k{width:52pt;font-family:"Mono";font-size:var(--t-micro);letter-spacing:.09em;
+         text-transform:uppercase;color:var(--muted)}
+.info .v{font-size:var(--t-caption);color:var(--ink)}
+.info .v .num{font-family:"Mono";font-size:7.4pt;letter-spacing:0}
+
+/* §6 헤더 아래 0.7pt 진한 기준선 */
+.rule-strong{border:0;border-top:.7pt solid var(--rule-strong);
+             margin-top:var(--gap-header);margin-bottom:0}
+
+/* ---------- §7 섹션 헤더 ---------- */
+.sec{margin-top:var(--gap-section)}
+.sec-first{margin-top:12pt}
+.sec-title{
+  font-weight:600;font-size:var(--t-h1);letter-spacing:var(--ls-h1);
+  text-transform:uppercase;color:var(--ink);            /* §10 회색 잔글씨 금지 */
+  padding-bottom:3pt;border-bottom:.6pt solid var(--rule);
+}
+.sec-body{margin-top:var(--gap-title)}
+
+/* ---------- 공통 요소 ---------- */
+.yr{width:var(--year-col);font-family:"Mono";font-size:var(--t-caption);
+    letter-spacing:0;color:var(--faint);vertical-align:top;white-space:nowrap}
+.etitle{font-weight:600;font-size:var(--t-body-lg);letter-spacing:var(--ls-title);color:var(--ink)}
+.eorg{margin-top:1pt;font-size:var(--t-caption);color:var(--muted)}
+.edetail{margin-top:var(--gap-detail);font-weight:300;font-size:var(--t-body);
+         line-height:1.5;color:var(--body)}
+.mlabel{font-family:"Mono";font-size:var(--t-micro);letter-spacing:.12em;
+        text-transform:uppercase;color:var(--muted)}
+/* §9 검증 표시: ● 기관 / ○ 동료, 6pt faint, 제목 뒤 3pt */
+.vm{font-size:6pt;color:var(--faint);padding-left:3pt;vertical-align:.5pt}
+
+/* result_list (콩쿠르) — §7 결과 우측 정렬 강조 */
+.rl{width:100%;border-collapse:collapse}
+.rl td{padding:0 0 var(--gap-entry) 0;vertical-align:top}
+.rl .rl-main .rl-title{font-weight:500;font-size:var(--t-body-lg);
+        letter-spacing:var(--ls-title);color:var(--ink)}
+.rl .rl-main .rl-place{margin-top:1pt;font-size:var(--t-caption);color:var(--muted)}
+.rl .rl-result{text-align:right;white-space:nowrap;font-weight:600;
+        font-size:var(--t-body-lg);letter-spacing:var(--ls-title);color:var(--ink)}
+
+/* year_group (연주) — §7 연도 그룹 헤더 */
+.yg{width:100%;border-collapse:collapse}
+.yg td{padding:0 0 var(--gap-entry) 0;vertical-align:top}
+.yg-item + .yg-item{margin-top:var(--gap-entry)}
+
+/* stack_edu (학력·사사) — §7 스택형 */
+.se{width:100%;border-collapse:collapse}
+.se td{padding:0 0 var(--gap-entry) 0;vertical-align:top}
+.se-inst{font-weight:600;font-size:var(--t-body-lg);letter-spacing:var(--ls-title);color:var(--ink)}
+.se-degree{margin-top:1pt;font-size:var(--t-caption);color:var(--body)}
+.se-teacher{margin-top:1pt;font-size:var(--t-caption);color:var(--muted)}
+
+/* two_up (마스터클래스) — §7 2단 압축 */
+.tu{width:100%;border-collapse:collapse}
+.tu td{width:50%;padding:0 5mm var(--gap-entry) 0;vertical-align:top}
+.tu td.r{padding:0 0 var(--gap-entry) 5mm}
+.tu-title{font-weight:500;font-size:var(--t-body);letter-spacing:var(--ls-title);color:var(--ink)}
+.tu-sub{margin-top:1pt;font-family:"Mono";font-size:var(--t-micro);color:var(--muted)}
+
+/* inline (레퍼토리) — §7 구분점 연결 */
+.inline{font-size:var(--t-body);line-height:1.6;color:var(--body)}
+.inline .sep{color:var(--faint);padding:0 .35em}
+
+/* §9 각주 + 하단 프로필 주소 (유일한 브랜딩) */
+.legend{margin-top:9mm;font-family:"Mono";font-size:var(--t-micro);
+        letter-spacing:.05em;color:var(--faint)}
+.foot{margin-top:2mm;text-align:center;font-family:"Mono";font-size:6.2pt;
+      letter-spacing:.05em;color:var(--faint)}
+</style>
+</head>
+<body>
+
+
+
+
+
+
+
+
+<table class="header"><tr>
+  <td class="col-text">
+<div class="eyebrow">CELLIST · BERLIN</div>    <div class="name">Hyewon Heo</div>
+<div class="instrument">Violin</div>
+    <table class="info">
+<tr><td class="k">Based in</td><td class="v">Seoul, KR / Berlin, DE</td></tr><tr><td class="k">Profile</td><td class="v"><span class="num">fermata.app/p/u-2788e0c8</span></td></tr>    </table>
+  </td>
+</tr></table>
+<hr class="rule-strong">
+
+<div class="sec sec-first">
+  <div class="sec-title">Professional Experience</div>
+  <div class="sec-body">
+<table class="yg">
+  <tr>
+    <td class="yr">2026</td>
+    <td>
+      <div class="yg-item">
+        <div class="etitle">Chuseok Autumn Gala Concert</div>
+        <div class="eorg">Seoul Philharmonic · Seoul Arts Center</div>
+<div class="edetail">Soloist</div>      </div>
+    </td>
+  </tr>
+</table>
+
+  </div>
+</div>
+<div class="sec">
+  <div class="sec-title">Competitions</div>
+  <div class="sec-body">
+<table class="rl">
+  <tr>
+    <td class="yr">2026</td>
+    <td class="rl-main">
+      <div class="rl-title">Queen Elisabeth Competition</div>
+<div class="rl-place">Brussels</div>    </td>
+    <td class="rl-result">Finalist</td>
+  </tr>
+</table>
+
+  </div>
+</div>
+<div class="sec">
+  <div class="sec-title">Education</div>
+  <div class="sec-body">
+<table class="se">
+  <tr>
+    <td class="yr">2022 – Present</td>
+    <td>
+      <div class="se-inst">Hochschule für Musik Hanns Eisler Berlin</div>
+<div class="se-degree">Bachelor of Music, Violin</div>    </td>
+  </tr>
+  <tr>
+    <td class="yr">2021 – Present</td>
+    <td>
+      <div class="se-inst">Seoul Arts High School</div>
+    </td>
+  </tr>
+</table>
+
+  </div>
+</div>
+<div class="sec">
+  <div class="sec-title">Masterclasses</div>
+  <div class="sec-body">
+<table class="tu">
+  <tr>
+    <td>
+      <div class="tu-title">ISA Music Festival</div>
+      <div class="tu-sub">with H. Krebbers · Reichenau · 2024</div>
+    </td>
+<td class="r"></td>  </tr>
+</table>
+
+  </div>
+</div>
+<div class="sec">
+  <div class="sec-title">Selected Repertoire</div>
+  <div class="sec-body">
+<div class="inline">Tchaikovsky — Violin Concerto<span class="sep">·</span>Bach — Partita No. 2<span class="sep">·</span>Ysaÿe — Sonata No. 3</div>
+
+  </div>
+</div>
+
+<div class="foot">Hyewon Heo — fermata.app/p/u-2788e0c8</div>
+
+</body>
+</html>

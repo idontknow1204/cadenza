@@ -1,0 +1,48 @@
+name: CadenzaLoadingPreview
+options:
+  deploymentTarget:
+    iOS: "17.0"
+targets:
+  CadenzaLoadingPreview:
+    type: application
+    platform: iOS
+    sources:
+      - ${CADENZA_ROOT}/Tests/LoadingIndicator/Sources/PreviewApp.swift
+      - ${CADENZA_ROOT}/Cadenza/Features/Components/CadenzaLoadingView.swift
+      - ${CADENZA_ROOT}/Cadenza/Core/AppLocalization.swift
+      - ${CADENZA_ROOT}/Cadenza/Resources/Assets.xcassets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cadenza.loading-preview
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        CODE_SIGNING_ALLOWED: NO
+  LoadingMotionTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - ${CADENZA_ROOT}/Tests/LoadingIndicator/Sources/LoadingMotionTests.swift
+    dependencies:
+      - target: CadenzaLoadingPreview
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
+  LoadingUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - ${CADENZA_ROOT}/Tests/LoadingIndicator/Sources/LoadingUITests.swift
+    dependencies:
+      - target: CadenzaLoadingPreview
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
+schemes:
+  CadenzaLoadingPreview:
+    build:
+      targets:
+        CadenzaLoadingPreview: all
+    test:
+      targets: [LoadingMotionTests, LoadingUITests]

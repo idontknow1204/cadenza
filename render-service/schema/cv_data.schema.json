@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Fermata CV — canonical render contract",
+  "description": "렌더러 입력 계약. Supabase Edge Function 이 profiles/activities/lineage 에서 이 형태로 조립한다. 섹션 순서와 레이아웃은 데이터 주도(sections 배열 순서 = 출력 순서).",
+  "type": "object",
+  "required": ["meta", "person", "sections"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["profile_url"],
+      "properties": {
+        "lang": { "type": "string", "const": "en", "description": "영어 단일 고정 (가이드 확정사항)" },
+        "profile_url": { "type": "string" },
+        "eyebrow": { "type": "string", "description": "선택 — 이름 위 마이크로 라벨 (예: 'VIOLINIST · BERLIN')" }
+      }
+    },
+    "person": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "instrument": { "type": "string" },
+        "photo": { "type": ["string", "null"] },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "birth_year": { "type": "integer" },
+        "address": { "type": "string" },
+        "based_in": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "description": "각 섹션은 layout 으로 렌더 매크로를 디스패치한다. kind 는 원본 activity_type 추적용(선택).",
+      "items": {
+        "type": "object",
+        "required": ["label", "layout"],
+        "properties": {
+          "kind": { "type": "string", "description": "performance|competition|education|masterclass|recording|repertoire (activities.type 매핑)" },
+          "layout": {
+            "type": "string",
+            "enum": ["year_group", "result_list", "stack_edu", "two_up", "inline"]
+          },
+          "label": { "type": "string" },
+          "entries": {
+            "type": "array",
+            "description": "layout=inline 이면 대신 items 사용",
+            "items": {
+              "type": "object",
+              "properties": {
+                "period": { "type": "string", "description": "표시용 연도/기간 (result_list, stack_edu, two_up)" },
+                "year": { "type": "integer", "description": "year_group 그룹 키 (activity_date 에서 추출)" },
+                "place": { "type": "string", "description": "activities.location" },
+                "title": { "type": "string", "description": "year_group/result_list: 곡명·대회명 (activities.title)" },
+                "org": { "type": "string", "description": "year_group: 주최/기관 (activities.organizer)" },
+                "detail": { "type": "string", "description": "year_group: 부가 설명" },
+                "result": { "type": "string", "description": "result_list: 결과 (activities.prize)" },
+                "institution": { "type": "string", "description": "stack_edu/two_up: 기관명" },
+                "degree": { "type": "string", "description": "stack_edu: 학위" },
+                "teacher": { "type": "string", "description": "stack_edu/two_up: 사사 교수 (lineage)" },
+                "verification": {
+                  "type": ["string", "null"],
+                  "enum": ["institution", "peer", null],
+                  "description": "verification_status 매핑: institution_verified→institution, peer_confirmed→peer, pending→null"
+                }
+              }
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "layout=inline 전용 (레퍼토리)"
+          }
+        }
+      }
+    }
+  }
+}
