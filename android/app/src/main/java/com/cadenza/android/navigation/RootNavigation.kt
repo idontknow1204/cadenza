@@ -27,6 +27,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.cadenza.android.R
 import com.cadenza.android.core.session.SessionViewModel
+import com.cadenza.android.ui.activity.CreateActivitySheet
 import com.cadenza.android.ui.feed.FeedScreen
 import com.cadenza.android.ui.jobs.JobsScreen
 import com.cadenza.android.ui.notifications.NotificationsScreen
@@ -49,7 +50,6 @@ sealed class Tab(
 }
 
 private val tabs = listOf(Tab.Feed, Tab.Notifications, Tab.Create, Tab.Jobs, Tab.Profile)
-private val navTabs = listOf(Tab.Feed, Tab.Notifications, Tab.Jobs, Tab.Profile)
 
 @Composable
 fun RootNavigation(
@@ -132,9 +132,13 @@ fun RootNavigation(
         }
     }
 
-    // TODO(5단계-5d): CreateActivitySheet 구현 후 연결
-    if (showCreateActivity) {
-        // CreateActivitySheet(onDismiss = { showCreateActivity = false })
-        showCreateActivity = false
+    val createActivityUserId = if (showCreateActivity) session.currentUserId else null
+    if (showCreateActivity && createActivityUserId != null) {
+        CreateActivitySheet(
+            userId = createActivityUserId,
+            repository = session.repository,
+            onDismiss = { showCreateActivity = false },
+            onPosted = { showCreateActivity = false },
+        )
     }
 }

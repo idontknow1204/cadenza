@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SessionViewModel @Inject constructor(
     private val client: SupabaseClient,
-    private val repository: Repository,
+    val repository: Repository,
 ) : ViewModel() {
 
     private val _sessionStatus = MutableStateFlow<SessionStatus>(SessionStatus.LoadingFromStorage)
