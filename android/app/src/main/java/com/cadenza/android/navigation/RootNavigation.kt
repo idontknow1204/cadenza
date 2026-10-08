@@ -103,12 +103,19 @@ fun RootNavigation(
                 )
             }
             composable(Tab.Jobs.route)          { JobsScreen(contentPadding = padding, session = session) }
-            composable(Tab.Profile.route)       { ProfileScreen(contentPadding = padding, session = session) }
+            composable(Tab.Profile.route) {
+                ProfileScreen(
+                    contentPadding = padding,
+                    session = session,
+                    onNavigateToUser = { userId -> navController.navigate("public_profile/$userId") },
+                )
+            }
             composable("public_profile/{userId}") { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId") ?: return@composable
                 PublicProfileScreen(
                     userId = userId,
                     onBack = { navController.popBackStack() },
+                    onNavigateToUser = { targetId -> navController.navigate("public_profile/$targetId") },
                     session = session,
                 )
             }

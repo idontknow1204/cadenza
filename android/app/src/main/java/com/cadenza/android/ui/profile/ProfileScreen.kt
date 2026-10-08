@@ -85,6 +85,7 @@ import com.cadenza.android.ui.profile.sheets.RecommendationEditSheet
 @Composable
 fun ProfileScreen(
     contentPadding: PaddingValues = PaddingValues(),
+    onNavigateToUser: (String) -> Unit = {},
     session: SessionViewModel = hiltViewModel(),
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -99,6 +100,7 @@ fun ProfileScreen(
     val connectionCount by viewModel.connectionCount.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
+    var showConnectionsList by remember { mutableStateOf(false) }
     var showBasicEdit by remember { mutableStateOf(false) }
     var showAffiliationAdd by remember { mutableStateOf(false) }
     var showAffiliationEdit by remember { mutableStateOf<Affiliation?>(null) }
@@ -168,7 +170,7 @@ fun ProfileScreen(
                                 affiliations = affiliations,
                                 connectionCount = connectionCount,
                                 onEditBasic = { showBasicEdit = true },
-                                onShowConnections = { /* TODO: ConnectionsListView */ },
+                                onShowConnections = { showConnectionsList = true },
                             )
                         }
                         if (p.showsSection(ProfileSection.BIO)) {
@@ -334,6 +336,14 @@ fun ProfileScreen(
 
     // ── Sheets ──────────────────────────────────────────────────────────────────
 
+    if (showConnectionsList && userId != null) {
+        ConnectionsListSheet(
+            userId = userId,
+            repository = viewModel.repository,
+            onNavigateToUser = onNavigateToUser,
+            onDismiss = { showConnectionsList = false },
+        )
+    }
     if (showBasicEdit && profile != null && userId != null) {
         EditProfileSheet(
             profile = profile!!,

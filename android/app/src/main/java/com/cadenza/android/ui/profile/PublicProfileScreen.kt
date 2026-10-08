@@ -1,5 +1,6 @@
 package com.cadenza.android.ui.profile
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -157,6 +158,7 @@ class PublicProfileViewModel @Inject constructor(
 fun PublicProfileScreen(
     userId: String,
     onBack: () -> Unit,
+    onNavigateToUser: (String) -> Unit = {},
     session: SessionViewModel = hiltViewModel(),
     viewModel: PublicProfileViewModel = hiltViewModel(),
 ) {
@@ -177,6 +179,7 @@ fun PublicProfileScreen(
     val currentUserId = session.currentUserId
     val isOwnProfile = currentUserId == userId
     val scope = rememberCoroutineScope()
+    var showConnectionsList by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -269,6 +272,7 @@ fun PublicProfileScreen(
                                     AppLocale.localized("${connectionCount}명과 연결됨", "Connected with $connectionCount", "Verbunden mit $connectionCount"),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.clickable(enabled = connectionCount > 0) { showConnectionsList = true },
                                 )
                                 if (p.homeCities.isNotEmpty()) {
                                     Spacer(Modifier.height(4.dp))
@@ -363,6 +367,15 @@ fun PublicProfileScreen(
                 }
             }
         }
+    }
+
+    if (showConnectionsList) {
+        ConnectionsListSheet(
+            userId = userId,
+            repository = viewModel.repository,
+            onNavigateToUser = { targetId -> showConnectionsList = false; onNavigateToUser(targetId) },
+            onDismiss = { showConnectionsList = false },
+        )
     }
 }
 

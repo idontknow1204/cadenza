@@ -70,7 +70,7 @@ v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위
   - [x] Profile (ProfileScreen, PublicProfileScreen, ProfileViewModel, PublicProfileViewModel, SectionCard, ActivityPagerCard, CareerRow, AffiliationRow, RecommendationRow, 편집 시트 일체)
   - [x] Jobs (JobsScreen, JobsViewModel, JobDetailSheet, CreateJobSheet, JobFilterSheet)
   - [x] Notifications (NotificationsScreen, NotificationsViewModel)
-  - [ ] Connections
+  - [x] Connections (ConnectionsListSheet, ProfileScreen·PublicProfileScreen 연동)
   - [ ] Org
   - [ ] CV Editor
   - [ ] Settings / Privacy
