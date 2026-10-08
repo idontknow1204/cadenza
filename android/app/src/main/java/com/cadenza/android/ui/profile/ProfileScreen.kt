@@ -113,7 +113,8 @@ fun ProfileScreen(
     var showRecommendationAdd by remember { mutableStateOf(false) }
     var showRecommendationEdit by remember { mutableStateOf<Recommendation?>(null) }
     var showManageSections by remember { mutableStateOf(false) }
-    var showSettings by remember { mutableStateOf(false) }
+    var showSettings   by remember { mutableStateOf(false) }
+    var showCVEditor   by remember { mutableStateOf(false) }
 
     val userId = session.currentUserId
 
@@ -482,8 +483,16 @@ fun ProfileScreen(
             appPreferences = viewModel.appPreferences,
             onDismiss = { showSettings = false },
             onSignOut = { session.signOut(); showSettings = false },
-            onEditCv = { /* TODO: CV Editor */ },
+            onEditCv = { showSettings = false; showCVEditor = true },
             onEditLanguages = { showLanguageEdit = true },
+        )
+    }
+    if (showCVEditor && userId != null) {
+        com.cadenza.android.ui.cv.CVEditorScreen(
+            userId = userId,
+            profile = profile,
+            onDismiss = { showCVEditor = false },
+            onProfileUpdated = { session.refreshProfile() },
         )
     }
 }

@@ -63,7 +63,7 @@ v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위
 - [x] **2단계**: 로드맵 작성 + 결정사항 확정 → `docs/android-roadmap.md`
 - [x] **3단계**: 프로젝트 뼈대 (Gradle KTS+VersionCatalog, Hilt, supabase-kt, M3 테마, 5탭 스캐폴드, strings 3언어)
 - [x] **4단계**: 데이터 계층 (Models, Repository, Supabase 연동)
-- [ ] **5단계**: 화면 이식
+- [x] **5단계**: 화면 이식
   - [x] Auth / Onboarding (LanguagePicker, AuthScreen, OnboardingScreen 1–8단계, AppNavigation)
   - [x] Root Tab Navigation
   - [x] Feed (FeedScreen, FeedViewModel, ActivityCard, CommentsSheet, LinkPreviewCard, ImageViewerDialog, ML Kit 번역, 검색)
@@ -72,7 +72,7 @@ v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위
   - [x] Notifications (NotificationsScreen, NotificationsViewModel)
   - [x] Connections (ConnectionsListSheet, ProfileScreen·PublicProfileScreen 연동)
   - [x] Org (OrgPageScreen, OrgPageViewModel, CreateOrgSheet, OrgAvatarView)
-  - [ ] CV Editor
+  - [x] CV Editor (CVEditorScreen, CVEditorViewModel, CVEntryComposerSheet, CVEntryOverrideSheet, AI 번역 제안, PDF 내보내기)
   - [x] Settings / Privacy (SettingsScreen, DataPrivacySheet, 앱 언어 전환, 계정 삭제)
 - [ ] **6단계**: 플랫폼 전용 기능
   - [ ] 푸시 알림 (FCM)
