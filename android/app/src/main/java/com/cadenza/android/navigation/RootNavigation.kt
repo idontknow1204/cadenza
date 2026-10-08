@@ -96,7 +96,7 @@ fun RootNavigation(
                 )
             }
             composable(Tab.Notifications.route) { NotificationsScreen(contentPadding = padding) }
-            composable(Tab.Jobs.route)          { JobsScreen(contentPadding = padding) }
+            composable(Tab.Jobs.route)          { JobsScreen(contentPadding = padding, session = session) }
             composable(Tab.Profile.route)       { ProfileScreen(contentPadding = padding, session = session) }
             composable("public_profile/{userId}") { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId") ?: return@composable
