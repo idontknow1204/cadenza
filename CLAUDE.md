@@ -20,11 +20,18 @@
 | 아키텍처 | MVVM + Repository |
 | DI | Hilt |
 | 로컬 DB | Room |
-| 네트워크 | Ktor (Supabase Kotlin SDK) |
-| 인증 | Supabase Auth (Kotlin SDK) |
-| 이미지 | Coil |
+| 네트워크 | supabase-kt (Ktor 엔진) |
+| 인증 | supabase-kt Auth — 이메일/비번 + Google(Credential Manager). Apple은 후순위 |
+| 직렬화 | kotlinx.serialization |
+| 비동기 | Coroutines + Flow/StateFlow |
+| 이미지 | Coil 3 |
+| 번역 | ML Kit 온디바이스 번역 (피드 게시글, v1 포함) |
 | 최소 SDK | API 26 (Android 8.0) |
 | 타겟 SDK | API 35 |
+| appId | `com.cadenza.android` |
+
+v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위), Instagram 가져오기(토큰 대기), 푸시 알림(미도입), 전면 오프라인 캐시(후순위).
+자세한 내용: `docs/android-roadmap.md`, `docs/product-structure.md`
 
 ## 이식 규칙
 
@@ -52,9 +59,9 @@
 ## 이식 진행 현황
 
 - [x] **0단계**: 저장소 정리 (ios/ 이동, android/ 생성)
-- [ ] **1단계**: 제품 구조 파악 → `docs/product-structure.md`
-- [ ] **2단계**: 로드맵 작성 → `docs/android-roadmap.md`
-- [ ] **3단계**: 프로젝트 뼈대 (Gradle, Hilt, Room, Ktor 설정)
+- [x] **1단계**: 제품 구조 파악 → `docs/product-structure.md`
+- [x] **2단계**: 로드맵 작성 + 결정사항 확정 → `docs/android-roadmap.md`
+- [x] **3단계**: 프로젝트 뼈대 (Gradle KTS+VersionCatalog, Hilt, supabase-kt, M3 테마, 5탭 스캐폴드, strings 3언어)
 - [ ] **4단계**: 데이터 계층 (Models, Repository, Supabase 연동)
 - [ ] **5단계**: 화면 이식
   - [ ] Auth / Onboarding

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English translations -->
+<resources>
+    <string name="app_name">Cadenza</string>
+
+    <string name="tab_feed">Feed</string>
+    <string name="tab_notifications">Notifications</string>
+    <string name="tab_record">Record</string>
+    <string name="tab_jobs">Opportunities</string>
+    <string name="tab_profile">Profile</string>
+
+    <string name="common_ok">OK</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_save">Save</string>
+    <string name="common_edit">Edit</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_done">Done</string>
+    <string name="common_skip">Skip</string>
+    <string name="common_next">Next</string>
+    <string name="common_back">Back</string>
+    <string name="common_loading">Loading…</string>
+    <string name="common_retry">Retry</string>
+    <string name="error_title">Error</string>
+    <string name="error_network">A network error occurred.</string>
+
+    <string name="auth_sign_up">Sign Up</string>
+    <string name="auth_sign_in">Log In</string>
+    <string name="auth_sign_out">Sign Out</string>
+    <string name="auth_name_hint">Name</string>
+    <string name="auth_email_hint">Email</string>
+    <string name="auth_password_hint">Password (6+ chars)</string>
+    <string name="auth_password_hint_short">Password</string>
+    <string name="auth_get_started">Get Started</string>
+    <string name="auth_continue_google">Continue with Google</string>
+    <string name="auth_forgot_password">Forgot password?</string>
+    <string name="auth_heading_signup">Create your\nAccount</string>
+    <string name="auth_heading_signin">Sign in to your\nAccount</string>
+    <string name="auth_subtitle_signup">Start recording your music career.</string>
+    <string name="auth_subtitle_signin">Welcome back.</string>
+
+    <string name="onboarding_consent_title">Terms &amp; Consent</string>
+    <string name="onboarding_step_instrument">Major &amp; Instrument</string>
+    <string name="onboarding_step_affiliation">School / Institution</string>
+    <string name="onboarding_step_teacher">Teacher</string>
+    <string name="onboarding_step_profile">Profile</string>
+    <string name="onboarding_step_activity">Activities</string>
+    <string name="onboarding_step_contacts">Find Contacts</string>
+    <string name="onboarding_step_visibility">Visibility</string>
+
+    <string name="section_bio">About</string>
+    <string name="section_activities">My Activities</string>
+    <string name="section_career">Career</string>
+    <string name="section_education">Education</string>
+    <string name="section_awards">Honors &amp; Awards</string>
+    <string name="section_languages">Languages</string>
+    <string name="section_cv_website">CV / Website</string>
+    <string name="section_recommendations">Recommendations</string>
+    <string name="section_org">Organization Page</string>
+
+    <string name="activity_type_performance">Performance</string>
+    <string name="activity_type_competition">Competition</string>
+    <string name="activity_type_education">Education</string>
+    <string name="activity_type_recording">Recording</string>
+
+    <string name="visibility_public">Public</string>
+    <string name="visibility_industry">Industry + followers</string>
+    <string name="visibility_followers">Followers only</string>
+    <string name="visibility_private">Private</string>
+
+    <string name="job_type_audition">Audition</string>
+    <string name="job_type_position">Position</string>
+    <string name="job_type_lesson">Lesson</string>
+    <string name="job_type_gig">Gig</string>
+    <string name="jobs_filter_open">Open</string>
+    <string name="jobs_search_hint">Search opportunities</string>
+
+    <string name="connection_connect">Connect</string>
+    <string name="connection_cancel">Cancel Request</string>
+    <string name="connection_accept">Accept</string>
+    <string name="connection_decline">Decline</string>
+    <string name="connection_disconnect">Disconnect</string>
+    <string name="connection_pending">Pending</string>
+    <string name="connection_connected">Connected</string>
+    <string name="connection_error">Unable to update the connection. The request may have been withdrawn or the network is unavailable. Please try again.</string>
+
+    <string name="notif_like">%1$s liked your post</string>
+    <string name="notif_comment">%1$s commented on your post</string>
+    <string name="notif_follow">%1$s sent you a connection request</string>
+    <string name="notif_tag">%1$s tagged you in a post</string>
+
+    <string name="cv_export">Export CV</string>
+    <string name="cv_export_pdf">Export as PDF</string>
+    <string name="cv_translate">Suggest Translation</string>
+
+    <string name="language_korean">한국어</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+</resources>

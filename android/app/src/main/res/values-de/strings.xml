@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Deutsche Übersetzungen -->
+<resources>
+    <string name="app_name">Cadenza</string>
+
+    <string name="tab_feed">Feed</string>
+    <string name="tab_notifications">Benachrichtigungen</string>
+    <string name="tab_record">Aufzeichnen</string>
+    <string name="tab_jobs">Möglichkeiten</string>
+    <string name="tab_profile">Profil</string>
+
+    <string name="common_ok">OK</string>
+    <string name="common_cancel">Abbrechen</string>
+    <string name="common_save">Speichern</string>
+    <string name="common_edit">Bearbeiten</string>
+    <string name="common_delete">Löschen</string>
+    <string name="common_done">Fertig</string>
+    <string name="common_skip">Überspringen</string>
+    <string name="common_next">Weiter</string>
+    <string name="common_back">Zurück</string>
+    <string name="common_loading">Lädt…</string>
+    <string name="common_retry">Erneut versuchen</string>
+    <string name="error_title">Fehler</string>
+    <string name="error_network">Ein Netzwerkfehler ist aufgetreten.</string>
+
+    <string name="auth_sign_up">Registrieren</string>
+    <string name="auth_sign_in">Anmelden</string>
+    <string name="auth_sign_out">Abmelden</string>
+    <string name="auth_name_hint">Name</string>
+    <string name="auth_email_hint">E-Mail</string>
+    <string name="auth_password_hint">Passwort (mind. 6)</string>
+    <string name="auth_password_hint_short">Passwort</string>
+    <string name="auth_get_started">Loslegen</string>
+    <string name="auth_continue_google">Mit Google fortfahren</string>
+    <string name="auth_forgot_password">Passwort vergessen?</string>
+    <string name="auth_heading_signup">Konto\nerstellen</string>
+    <string name="auth_heading_signin">Wieder\nda?</string>
+    <string name="auth_subtitle_signup">Dokumentiere deine Musikkarriere.</string>
+    <string name="auth_subtitle_signin">Willkommen zurück.</string>
+
+    <string name="onboarding_consent_title">Nutzungsbedingungen</string>
+    <string name="onboarding_step_instrument">Fach &amp; Instrument</string>
+    <string name="onboarding_step_affiliation">Hochschule / Institution</string>
+    <string name="onboarding_step_teacher">Lehrer</string>
+    <string name="onboarding_step_profile">Profil</string>
+    <string name="onboarding_step_activity">Aktivitäten</string>
+    <string name="onboarding_step_contacts">Kontakte finden</string>
+    <string name="onboarding_step_visibility">Sichtbarkeit</string>
+
+    <string name="section_bio">Über mich</string>
+    <string name="section_activities">Meine Aktivitäten</string>
+    <string name="section_career">Berufserfahrung</string>
+    <string name="section_education">Ausbildung</string>
+    <string name="section_awards">Auszeichnungen</string>
+    <string name="section_languages">Sprachen</string>
+    <string name="section_cv_website">CV / Webseite</string>
+    <string name="section_recommendations">Empfehlungen</string>
+    <string name="section_org">Organisationsseite</string>
+
+    <string name="activity_type_performance">Auftritt</string>
+    <string name="activity_type_competition">Wettbewerb</string>
+    <string name="activity_type_education">Ausbildung</string>
+    <string name="activity_type_recording">Aufnahme</string>
+
+    <string name="visibility_public">Öffentlich</string>
+    <string name="visibility_industry">Branche + Follower</string>
+    <string name="visibility_followers">Nur Follower</string>
+    <string name="visibility_private">Privat</string>
+
+    <string name="job_type_audition">Vorspiel</string>
+    <string name="job_type_position">Stelle</string>
+    <string name="job_type_lesson">Unterricht</string>
+    <string name="job_type_gig">Engagement</string>
+    <string name="jobs_filter_open">Offen</string>
+    <string name="jobs_search_hint">Möglichkeiten suchen</string>
+
+    <string name="connection_connect">Vernetzen</string>
+    <string name="connection_cancel">Anfrage zurückziehen</string>
+    <string name="connection_accept">Annehmen</string>
+    <string name="connection_decline">Ablehnen</string>
+    <string name="connection_disconnect">Verbindung trennen</string>
+    <string name="connection_pending">Ausstehend</string>
+    <string name="connection_connected">Verbunden</string>
+    <string name="connection_error">Die Verbindung konnte nicht geändert werden. Die Anfrage wurde möglicherweise zurückgezogen oder das Netzwerk ist nicht verfügbar. Bitte versuche es erneut.</string>
+
+    <string name="notif_like">%1$s mag deinen Beitrag</string>
+    <string name="notif_comment">%1$s hat kommentiert</string>
+    <string name="notif_follow">%1$s hat eine Verbindungsanfrage gesendet</string>
+    <string name="notif_tag">%1$s hat dich in einem Beitrag markiert</string>
+
+    <string name="cv_export">CV exportieren</string>
+    <string name="cv_export_pdf">Als PDF exportieren</string>
+    <string name="cv_translate">Übersetzung vorschlagen</string>
+
+    <string name="language_korean">한국어</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+</resources>
