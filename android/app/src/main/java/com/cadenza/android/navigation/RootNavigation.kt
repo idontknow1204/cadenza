@@ -30,6 +30,7 @@ import com.cadenza.android.core.session.SessionViewModel
 import com.cadenza.android.ui.feed.FeedScreen
 import com.cadenza.android.ui.jobs.JobsScreen
 import com.cadenza.android.ui.notifications.NotificationsScreen
+import com.cadenza.android.ui.org.OrgPageScreen
 import com.cadenza.android.ui.profile.ProfileScreen
 import com.cadenza.android.ui.profile.PublicProfileScreen
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -92,7 +93,7 @@ fun RootNavigation(
                     session = session,
                     onCreateActivity = { showCreateActivity = true },
                     onNavigateToUser = { userId -> navController.navigate("public_profile/$userId") },
-                    onNavigateToOrg = { /* TODO: OrgPageScreen */ },
+                    onNavigateToOrg = { orgId -> navController.navigate("org_page/$orgId") },
                 )
             }
             composable(Tab.Notifications.route) {
@@ -108,6 +109,15 @@ fun RootNavigation(
                     contentPadding = padding,
                     session = session,
                     onNavigateToUser = { userId -> navController.navigate("public_profile/$userId") },
+                )
+            }
+            composable("org_page/{orgId}") { backStackEntry ->
+                val orgId = backStackEntry.arguments?.getString("orgId") ?: return@composable
+                OrgPageScreen(
+                    orgId = orgId,
+                    onBack = { navController.popBackStack() },
+                    onNavigateToUser = { userId -> navController.navigate("public_profile/$userId") },
+                    session = session,
                 )
             }
             composable("public_profile/{userId}") { backStackEntry ->

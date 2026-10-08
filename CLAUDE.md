@@ -71,7 +71,7 @@ v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위
   - [x] Jobs (JobsScreen, JobsViewModel, JobDetailSheet, CreateJobSheet, JobFilterSheet)
   - [x] Notifications (NotificationsScreen, NotificationsViewModel)
   - [x] Connections (ConnectionsListSheet, ProfileScreen·PublicProfileScreen 연동)
-  - [ ] Org
+  - [x] Org (OrgPageScreen, OrgPageViewModel, CreateOrgSheet, OrgAvatarView)
   - [ ] CV Editor
   - [ ] Settings / Privacy
 - [ ] **6단계**: 플랫폼 전용 기능

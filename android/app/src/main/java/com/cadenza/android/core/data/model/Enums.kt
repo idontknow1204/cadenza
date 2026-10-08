@@ -35,12 +35,12 @@ enum class OrgCategory {
     @SerialName("other")     OTHER;
 
     val label: String get() = when (this) {
-        ORCHESTRA -> "오케스트라/앙상블"
-        SCHOOL    -> "음악학교/대학교"
-        LABEL     -> "음반사/레이블"
-        VENUE     -> "공연장"
-        AGENCY    -> "에이전시/프로덕션"
-        OTHER     -> "기타"
+        ORCHESTRA -> AppLocale.localized("오케스트라/앙상블", "Orchestra/Ensemble", "Orchester/Ensemble")
+        SCHOOL    -> AppLocale.localized("음악학교/대학교",   "Music School",        "Musikschule")
+        LABEL     -> AppLocale.localized("음반사/레이블",     "Label/Publisher",     "Label")
+        VENUE     -> AppLocale.localized("공연장",           "Venue",               "Veranstaltungsort")
+        AGENCY    -> AppLocale.localized("에이전시/프로덕션", "Agency",              "Agentur")
+        OTHER     -> AppLocale.localized("기타",             "Other",               "Sonstiges")
     }
 }
 
