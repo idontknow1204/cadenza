@@ -1,0 +1,30 @@
+name: Import curated jobs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3,15 * * *"
+
+concurrency:
+  group: curated-jobs-import
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate importer
+        run: python -m unittest discover -s Tests -p 'test_import_curated_jobs.py'
+      - name: Import verified opportunities
+        env:
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python scripts/import_curated_jobs.py --apply
+ㅈ

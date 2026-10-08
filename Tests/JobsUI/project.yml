@@ -1,0 +1,53 @@
+name: CadenzaJobsPreview
+options:
+  deploymentTarget:
+    iOS: "17.0"
+targets:
+  CadenzaJobsPreview:
+    type: application
+    platform: iOS
+    sources:
+      - ${CADENZA_ROOT}/Tests/JobsUI/Sources/PreviewApp.swift
+      - ${JOBS_SHARED}
+      - ${CADENZA_ROOT}/Cadenza/Features/Jobs
+      - ${CADENZA_ROOT}/Cadenza/Core/Models.swift
+      - ${CADENZA_ROOT}/Cadenza/Core/AppLocalization.swift
+      - ${CADENZA_ROOT}/Cadenza/Core/OnboardingData.swift
+      - ${CADENZA_ROOT}/Cadenza/Features/Components/CadenzaLoadingView.swift
+      - ${CADENZA_ROOT}/Cadenza/Resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cadenza.jobs-preview
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGNING_ALLOWED: NO
+  JobFilterTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - ${CADENZA_ROOT}/Tests/JobsUI/Sources/JobFilterTests.swift
+    dependencies:
+      - target: CadenzaJobsPreview
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
+  JobsUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - ${CADENZA_ROOT}/Tests/JobsUI/Sources/JobsUITests.swift
+    dependencies:
+      - target: CadenzaJobsPreview
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
+schemes:
+  CadenzaJobsPreview:
+    build:
+      targets:
+        CadenzaJobsPreview: all
+    test:
+      targets: [JobFilterTests, JobsUITests]

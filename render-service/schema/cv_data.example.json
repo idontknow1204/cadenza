@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "lang": "en",
+    "profile_url": "fermata.app/p/jihoon-kim",
+    "eyebrow": "VIOLINIST · BERLIN"
+  },
+  "person": {
+    "name": "Jihoon Kim",
+    "instrument": "Violin",
+    "photo": "portrait_placeholder.jpg",
+    "email": "jihoon.kim@example.com",
+    "phone": "+49 30 000 0000",
+    "birth_date": "2001-03-27",
+    "address": "Torstraße 12, 10119 Berlin",
+    "based_in": ["Berlin, DE", "Seoul, KR"]
+  },
+  "sections": [
+    {
+      "kind": "performance",
+      "layout": "year_group",
+      "label": "Professional Experience",
+      "entries": [
+        {
+          "year": 2026,
+          "place": "Seoul",
+          "title": "Brahms — Violin Concerto, Op. 77",
+          "org": "Seoul Philharmonic Orchestra",
+          "detail": "Soloist at Lotte Concert Hall, conducted by G. Muster. Broadcast live on national radio.",
+          "verification": "institution"
+        },
+        {
+          "year": 2025,
+          "place": "Berlin",
+          "title": "Solo Recital",
+          "org": "UdK Berlin",
+          "detail": "Full recital programme featuring Beethoven, Prokofiev and Ysaÿe at the Kleiner Saal.",
+          "verification": "institution"
+        },
+        {
+          "year": 2025,
+          "place": "Berlin",
+          "title": "Schumann — Piano Quintet, Op. 44",
+          "org": "Konzerthaus Berlin",
+          "detail": "First violin in the chamber music series, Werner-Otto-Saal.",
+          "verification": "peer"
+        },
+        {
+          "year": 2024,
+          "place": "Berlin",
+          "title": "Mahler — Symphony No. 5",
+          "org": "Guest Musician",
+          "detail": "Guest musician, second violin section, for the full concert cycle.",
+          "verification": null
+        }
+      ]
+    },
+    {
+      "kind": "competition",
+      "layout": "result_list",
+      "label": "Competitions",
+      "entries": [
+        { "period": "2026", "place": "Geneva", "title": "Concours de Genève", "result": "Semi-finalist", "verification": "institution" },
+        { "period": "2025", "place": "Munich", "title": "ARD International Music Competition", "result": "First round", "verification": "institution" },
+        { "period": "2023", "place": "Seoul", "title": "Dong-A Music Competition", "result": "2nd Prize", "verification": "peer" }
+      ]
+    },
+    {
+      "kind": "education",
+      "layout": "stack_edu",
+      "label": "Education",
+      "entries": [
+        { "period": "2024 – Present", "place": "Berlin", "institution": "Universität der Künste Berlin", "degree": "Master of Music, Violin", "teacher": "C. Muster", "verification": "institution" },
+        { "period": "2020 – 2024", "place": "Seoul", "institution": "Korea National University of Arts", "degree": "Bachelor of Music, Violin", "verification": "institution" }
+      ]
+    },
+    {
+      "kind": "masterclass",
+      "layout": "two_up",
+      "label": "Masterclasses",
+      "entries": [
+        { "period": "2025", "place": "Kronberg", "institution": "Kronberg Academy", "teacher": "C. Muster" },
+        { "period": "2024", "place": "Salzburg", "institution": "Salzburg Summer Academy", "teacher": "D. Muster" }
+      ]
+    },
+    {
+      "kind": "repertoire",
+      "layout": "inline",
+      "label": "Selected Repertoire",
+      "items": [
+        "Brahms — Violin Concerto",
+        "Beethoven — Sonata No. 9 'Kreutzer'",
+        "Prokofiev — Sonata No. 1",
+        "Ysaÿe — Sonata No. 3 'Ballade'",
+        "Bach — Partita No. 2"
+      ]
+    }
+  ]
+}

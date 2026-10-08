@@ -1,0 +1,9 @@
+preview.html
+preview.png
+*.pdf
+__pycache__/
+*.pyc
+schema/
+DESIGN_GUIDE.md
+README.md
+fonts/REQUIRED.txt

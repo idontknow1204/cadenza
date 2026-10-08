@@ -1,0 +1,23 @@
+# Fermata render-service — Fly.io 배포 설정
+# 앱 이름은 최초 배포 시 `fly launch --no-deploy` 로 확정하거나 아래 값을 바꾼다.
+app = "fermata-render"
+primary_region = "cdg"          # Supabase 프로젝트가 eu-west-1 이므로 유럽 리전 권장 (cdg/ams)
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"     # 트래픽 없으면 정지 → 콜드스타트 감수, 비용 절감
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1gb"                  # WeasyPrint 렌더 여유. 512mb 로 줄여도 되지만 OOM 시 1gb 유지
+
+# 환경변수(비밀 아님)는 여기, 비밀은 `fly secrets set` 으로:
+#   fly secrets set SUPABASE_URL=https://vcxllrzpolymzylrfscb.supabase.co
+#   fly secrets set SUPABASE_ANON_KEY=<anon key>
+#   fly secrets set RENDER_TOKEN=<랜덤 시크릿 — supabase 함수 secret 과 동일 값>
