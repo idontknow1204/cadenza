@@ -1,6 +1,8 @@
 package com.cadenza.android.core.di
 
 import com.cadenza.android.core.AppConfig
+import com.cadenza.android.core.data.repository.Repository
+import com.cadenza.android.core.session.ConnectionStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,4 +35,12 @@ object AppModule {
         install(Storage)
         install(Functions)
     }
+
+    @Provides
+    @Singleton
+    fun provideRepository(client: SupabaseClient): Repository = Repository(client)
+
+    @Provides
+    @Singleton
+    fun provideConnectionStore(repository: Repository): ConnectionStore = ConnectionStore(repository)
 }
