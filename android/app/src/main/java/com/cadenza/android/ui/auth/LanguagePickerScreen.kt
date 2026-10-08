@@ -1,0 +1,188 @@
+package com.cadenza.android.ui.auth
+
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.cadenza.android.core.data.preferences.AppPreferences
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+private data class LangOption(val code: String, val display: String, val tag: String)
+
+private val langOptions = listOf(
+    LangOption("ko", "한국어", "KO"),
+    LangOption("en", "English", "EN"),
+    LangOption("de", "Deutsch", "DE"),
+)
+
+@Composable
+fun LanguagePickerScreen(
+    prefs: AppPreferences,
+    alreadyChosen: Boolean,
+    onChosen: () -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    // If user came back from AuthScreen, skip the splash
+    var showSelection by remember { mutableStateOf(alreadyChosen) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        AnimatedContent(
+            targetState = showSelection,
+            transitionSpec = {
+                if (targetState) {
+                    slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
+                } else {
+                    slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
+                }
+            },
+            label = "langPicker",
+        ) { showSel ->
+            if (showSel) {
+                LanguageSelectionPage(onSelect = { code ->
+                    scope.launch {
+                        prefs.setLanguage(code)
+                        onChosen()
+                    }
+                })
+            } else {
+                SplashPage(onTimeout = { showSelection = true })
+            }
+        }
+    }
+}
+
+@Composable
+private fun SplashPage(onTimeout: () -> Unit) {
+    LaunchedEffect(Unit) {
+        delay(2_000)
+        onTimeout()
+    }
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Placeholder logo circle — replaced by actual logo once asset is in drawable
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .background(Color(0xFF781F35).copy(alpha = 0.12f), RoundedCornerShape(24.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("♪", fontSize = 48.sp, color = Color(0xFF781F35))
+            }
+            Spacer(Modifier.height(12.dp))
+            Text(
+                "Cadenza",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black,
+            )
+        }
+    }
+}
+
+@Composable
+private fun LanguageSelectionPage(onSelect: (String) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 28.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            "♪",
+            fontSize = 36.sp,
+            color = Color(0xFF781F35).copy(alpha = 0.5f),
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
+        Text(
+            "언어를 선택하세요\nSelect your language\nSprache wählen",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray,
+            textAlign = TextAlign.Center,
+            lineHeight = 22.sp,
+            modifier = Modifier.padding(bottom = 36.dp),
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            langOptions.forEach { lang ->
+                Surface(
+                    onClick = { onSelect(lang.code) },
+                    shape = RoundedCornerShape(14.dp),
+                    color = Color(0xFFF2F2F7),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(Color.White, RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                lang.tag,
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                color = Color.Black,
+                            )
+                        }
+                        Text(
+                            lang.display,
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                            color = Color.Black,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = Color.LightGray,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

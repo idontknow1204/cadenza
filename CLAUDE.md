@@ -62,10 +62,10 @@ v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위
 - [x] **1단계**: 제품 구조 파악 → `docs/product-structure.md`
 - [x] **2단계**: 로드맵 작성 + 결정사항 확정 → `docs/android-roadmap.md`
 - [x] **3단계**: 프로젝트 뼈대 (Gradle KTS+VersionCatalog, Hilt, supabase-kt, M3 테마, 5탭 스캐폴드, strings 3언어)
-- [ ] **4단계**: 데이터 계층 (Models, Repository, Supabase 연동)
+- [x] **4단계**: 데이터 계층 (Models, Repository, Supabase 연동)
 - [ ] **5단계**: 화면 이식
-  - [ ] Auth / Onboarding
-  - [ ] Root Tab Navigation
+  - [x] Auth / Onboarding (LanguagePicker, AuthScreen, OnboardingScreen 1–8단계, AppNavigation)
+  - [x] Root Tab Navigation
   - [ ] Feed
   - [ ] Profile
   - [ ] Jobs

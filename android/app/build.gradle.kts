@@ -107,6 +107,9 @@ dependencies {
     // ML Kit 번역 (피드 게시글 번역 — Apple Translation 대체)
     implementation(libs.mlkit.translate)
 
+    // Accompanist FlowLayout (chip wrap layout)
+    implementation(libs.accompanist.flowlayout)
+
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 
