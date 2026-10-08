@@ -11,6 +11,7 @@ import com.cadenza.android.core.data.model.ProfileAward
 import com.cadenza.android.core.data.model.ProfileLanguage
 import com.cadenza.android.core.data.model.ProfileSection
 import com.cadenza.android.core.data.model.Recommendation
+import com.cadenza.android.core.data.preferences.AppPreferences
 import com.cadenza.android.core.data.repository.Repository
 import com.cadenza.android.core.session.ConnectionStore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +27,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     val repository: Repository,
     val connectionStore: ConnectionStore,
+    val appPreferences: AppPreferences,
 ) : ViewModel() {
 
     private val _activities = MutableStateFlow<List<ActivityWithAuthor>>(emptyList())

@@ -477,8 +477,13 @@ fun ProfileScreen(
     }
     if (showSettings) {
         ProfileSettingsSheet(
+            session = session,
+            repository = viewModel.repository,
+            appPreferences = viewModel.appPreferences,
             onDismiss = { showSettings = false },
             onSignOut = { session.signOut(); showSettings = false },
+            onEditCv = { /* TODO: CV Editor */ },
+            onEditLanguages = { showLanguageEdit = true },
         )
     }
 }
@@ -705,37 +710,3 @@ private fun ManageSectionsButton(onClick: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ProfileSettingsSheet(
-    onDismiss: () -> Unit,
-    onSignOut: () -> Unit,
-) {
-    androidx.compose.material3.ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = androidx.compose.material3.rememberModalBottomSheetState(),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Text(
-                AppLocale.localized("설정", "Settings", "Einstellungen"),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
-            HorizontalDivider()
-            TextButton(
-                onClick = onSignOut,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
-            ) {
-                Text(AppLocale.localized("로그아웃", "Sign Out", "Abmelden"))
-            }
-            Spacer(Modifier.height(16.dp))
-        }
-    }
-}

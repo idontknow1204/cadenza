@@ -73,7 +73,7 @@ v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위
   - [x] Connections (ConnectionsListSheet, ProfileScreen·PublicProfileScreen 연동)
   - [x] Org (OrgPageScreen, OrgPageViewModel, CreateOrgSheet, OrgAvatarView)
   - [ ] CV Editor
-  - [ ] Settings / Privacy
+  - [x] Settings / Privacy (SettingsScreen, DataPrivacySheet, 앱 언어 전환, 계정 삭제)
 - [ ] **6단계**: 플랫폼 전용 기능
   - [ ] 푸시 알림 (FCM)
   - [ ] 이미지 업로드 / 스토리지
