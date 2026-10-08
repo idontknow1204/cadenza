@@ -95,7 +95,13 @@ fun RootNavigation(
                     onNavigateToOrg = { /* TODO: OrgPageScreen */ },
                 )
             }
-            composable(Tab.Notifications.route) { NotificationsScreen(contentPadding = padding) }
+            composable(Tab.Notifications.route) {
+                NotificationsScreen(
+                    contentPadding = padding,
+                    session = session,
+                    onNavigateToUser = { userId -> navController.navigate("public_profile/$userId") },
+                )
+            }
             composable(Tab.Jobs.route)          { JobsScreen(contentPadding = padding, session = session) }
             composable(Tab.Profile.route)       { ProfileScreen(contentPadding = padding, session = session) }
             composable("public_profile/{userId}") { backStackEntry ->
