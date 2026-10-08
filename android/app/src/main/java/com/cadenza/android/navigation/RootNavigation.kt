@@ -31,6 +31,7 @@ import com.cadenza.android.ui.feed.FeedScreen
 import com.cadenza.android.ui.jobs.JobsScreen
 import com.cadenza.android.ui.notifications.NotificationsScreen
 import com.cadenza.android.ui.profile.ProfileScreen
+import com.cadenza.android.ui.profile.PublicProfileScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 
 // iOS RootTabView 상당 — 5탭 (tab 2 = 활동 기록 액션, 네비게이션 아님)
@@ -90,13 +91,21 @@ fun RootNavigation(
                     contentPadding = padding,
                     session = session,
                     onCreateActivity = { showCreateActivity = true },
-                    onNavigateToUser = { /* TODO: ProfileScreen */ },
+                    onNavigateToUser = { userId -> navController.navigate("public_profile/$userId") },
                     onNavigateToOrg = { /* TODO: OrgPageScreen */ },
                 )
             }
             composable(Tab.Notifications.route) { NotificationsScreen(contentPadding = padding) }
             composable(Tab.Jobs.route)          { JobsScreen(contentPadding = padding) }
-            composable(Tab.Profile.route)       { ProfileScreen(contentPadding = padding) }
+            composable(Tab.Profile.route)       { ProfileScreen(contentPadding = padding, session = session) }
+            composable("public_profile/{userId}") { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: return@composable
+                PublicProfileScreen(
+                    userId = userId,
+                    onBack = { navController.popBackStack() },
+                    session = session,
+                )
+            }
         }
     }
 

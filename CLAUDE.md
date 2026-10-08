@@ -67,7 +67,7 @@ v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위
   - [x] Auth / Onboarding (LanguagePicker, AuthScreen, OnboardingScreen 1–8단계, AppNavigation)
   - [x] Root Tab Navigation
   - [x] Feed (FeedScreen, FeedViewModel, ActivityCard, CommentsSheet, LinkPreviewCard, ImageViewerDialog, ML Kit 번역, 검색)
-  - [ ] Profile
+  - [x] Profile (ProfileScreen, PublicProfileScreen, ProfileViewModel, PublicProfileViewModel, SectionCard, ActivityPagerCard, CareerRow, AffiliationRow, RecommendationRow, 편집 시트 일체)
   - [ ] Jobs
   - [ ] Notifications
   - [ ] Connections
