@@ -66,7 +66,7 @@ v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위
 - [ ] **5단계**: 화면 이식
   - [x] Auth / Onboarding (LanguagePicker, AuthScreen, OnboardingScreen 1–8단계, AppNavigation)
   - [x] Root Tab Navigation
-  - [ ] Feed
+  - [x] Feed (FeedScreen, FeedViewModel, ActivityCard, CommentsSheet, LinkPreviewCard, ImageViewerDialog, ML Kit 번역, 검색)
   - [ ] Profile
   - [ ] Jobs
   - [ ] Notifications

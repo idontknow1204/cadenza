@@ -43,4 +43,5 @@ object AppModule {
     @Provides
     @Singleton
     fun provideConnectionStore(repository: Repository): ConnectionStore = ConnectionStore(repository)
+    // AppPreferences is @Singleton with @Inject constructor — no manual @Provides needed.
 }

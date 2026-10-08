@@ -104,8 +104,9 @@ dependencies {
     // DataStore (언어 설정, 세션 등)
     implementation(libs.datastore.preferences)
 
-    // ML Kit 번역 (피드 게시글 번역 — Apple Translation 대체)
+    // ML Kit 번역 + 언어 감지 (피드 게시글 번역 — Apple Translation 대체)
     implementation(libs.mlkit.translate)
+    implementation(libs.mlkit.language.id)
 
     // Accompanist FlowLayout (chip wrap layout)
     implementation(libs.accompanist.flowlayout)

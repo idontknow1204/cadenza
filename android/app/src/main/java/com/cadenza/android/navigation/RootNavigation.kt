@@ -26,10 +26,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.cadenza.android.R
+import com.cadenza.android.core.session.SessionViewModel
 import com.cadenza.android.ui.feed.FeedScreen
 import com.cadenza.android.ui.jobs.JobsScreen
 import com.cadenza.android.ui.notifications.NotificationsScreen
 import com.cadenza.android.ui.profile.ProfileScreen
+import androidx.hilt.navigation.compose.hiltViewModel
 
 // iOS RootTabView 상당 — 5탭 (tab 2 = 활동 기록 액션, 네비게이션 아님)
 sealed class Tab(
@@ -48,7 +50,9 @@ private val tabs = listOf(Tab.Feed, Tab.Notifications, Tab.Create, Tab.Jobs, Tab
 private val navTabs = listOf(Tab.Feed, Tab.Notifications, Tab.Jobs, Tab.Profile)
 
 @Composable
-fun RootNavigation() {
+fun RootNavigation(
+    session: SessionViewModel = hiltViewModel(),
+) {
     val navController = rememberNavController()
     var showCreateActivity by remember { mutableStateOf(false) }
 
@@ -81,7 +85,15 @@ fun RootNavigation() {
         }
     ) { padding ->
         NavHost(navController = navController, startDestination = Tab.Feed.route) {
-            composable(Tab.Feed.route)          { FeedScreen(contentPadding = padding) }
+            composable(Tab.Feed.route) {
+                FeedScreen(
+                    contentPadding = padding,
+                    session = session,
+                    onCreateActivity = { showCreateActivity = true },
+                    onNavigateToUser = { /* TODO: ProfileScreen */ },
+                    onNavigateToOrg = { /* TODO: OrgPageScreen */ },
+                )
+            }
             composable(Tab.Notifications.route) { NotificationsScreen(contentPadding = padding) }
             composable(Tab.Jobs.route)          { JobsScreen(contentPadding = padding) }
             composable(Tab.Profile.route)       { ProfileScreen(contentPadding = padding) }
