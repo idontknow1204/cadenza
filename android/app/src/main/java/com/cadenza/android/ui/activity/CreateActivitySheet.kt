@@ -1,15 +1,21 @@
 package com.cadenza.android.ui.activity
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,10 +24,14 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,9 +63,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.cadenza.android.core.data.model.ActivityType
 import com.cadenza.android.core.data.model.ActivityWithAuthor
 import com.cadenza.android.core.data.model.NewActivity
@@ -80,6 +94,7 @@ fun CreateActivitySheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     // Form state
     var type by remember { mutableStateOf(ActivityType.PERFORMANCE) }
@@ -93,6 +108,7 @@ fun CreateActivitySheet(
     var personalNote by remember { mutableStateOf("") }
     var visibility by remember { mutableStateOf(Visibility.INDUSTRY_FOLLOWERS) }
     var selectedOrgId by remember { mutableStateOf<String?>(null) }
+    var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
     // People / orgs loaded async
     var people by remember { mutableStateOf<List<ProfileLite>>(emptyList()) }
@@ -106,6 +122,10 @@ fun CreateActivitySheet(
     var typeExpanded by remember { mutableStateOf(false) }
     var visibilityExpanded by remember { mutableStateOf(false) }
     var orgExpanded by remember { mutableStateOf(false) }
+
+    val pickImages = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickMultipleVisualMedia(maxItems = 5)
+    ) { uris -> selectedImageUris = (selectedImageUris + uris).take(5) }
 
     LaunchedEffect(userId) {
         people = runCatching { repository.people(userId) }.getOrElse { emptyList() }
@@ -185,9 +205,14 @@ fun CreateActivitySheet(
                                         personalNote = personalNote.trim().takeIf { it.isNotEmpty() },
                                         visibility = visibility,
                                     )
+                                    val imageBytes = selectedImageUris.mapNotNull { uri ->
+                                        runCatching {
+                                            context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                                        }.getOrNull()
+                                    }
                                     val created = repository.createActivity(
                                         activity = payload,
-                                        imageBytes = emptyList(),
+                                        imageBytes = imageBytes,
                                         taggedUserIds = taggedIds.toList(),
                                     )
                                     val completed = ActivityWithAuthor(
@@ -384,6 +409,54 @@ fun CreateActivitySheet(
                             if (!p.instrument.isNullOrEmpty()) Text(p.instrument, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         if (isTagged) Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                    }
+                }
+
+                // ── Images ────────────────────────────────────────────────────
+                FormSectionLabel(AppLocale.localized("사진", "Photos", "Fotos"))
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    items(selectedImageUris) { uri ->
+                        Box(modifier = Modifier.size(80.dp)) {
+                            AsyncImage(
+                                model = uri,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
+                            )
+                            IconButton(
+                                onClick = { selectedImageUris = selectedImageUris - uri },
+                                modifier = Modifier.size(20.dp).align(Alignment.TopEnd),
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Close, contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        }
+                    }
+                    if (selectedImageUris.size < 5) {
+                        item {
+                            Surface(
+                                onClick = {
+                                    pickImages.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                },
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                modifier = Modifier.size(80.dp),
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        Icons.Outlined.AddPhotoAlternate,
+                                        contentDescription = AppLocale.localized("사진 추가", "Add photo", "Foto hinzufügen"),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 

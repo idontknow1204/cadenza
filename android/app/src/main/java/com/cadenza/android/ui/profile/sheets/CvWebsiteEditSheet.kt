@@ -1,5 +1,8 @@
 package com.cadenza.android.ui.profile.sheets
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,12 +13,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +41,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -50,10 +62,35 @@ fun CvWebsiteEditSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     var cvUrl by remember { mutableStateOf(currentCvUrl ?: "") }
     var websiteUrl by remember { mutableStateOf(currentWebsiteUrl ?: "") }
     var saving by remember { mutableStateOf(false) }
+    var uploadingPdf by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf<String?>(null) }
+
+    val pickPdf = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        uploadingPdf = true
+        errorText = null
+        scope.launch {
+            try {
+                val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                    ?: return@launch
+                cvUrl = repository.uploadCV(bytes)
+            } catch (e: Throwable) {
+                errorText = AppLocale.localized(
+                    "PDF 업로드 실패: ${e.message}",
+                    "PDF upload failed: ${e.message}",
+                    "PDF-Upload fehlgeschlagen: ${e.message}",
+                )
+            } finally {
+                uploadingPdf = false
+            }
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -112,21 +149,85 @@ fun CvWebsiteEditSheet(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
-                    AppLocale.localized("CV / 이력서 URL", "CV / Resume URL", "CV / Lebenslauf URL"),
+                    AppLocale.localized("CV / 이력서", "CV / Resume", "CV / Lebenslauf"),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                OutlinedTextField(
-                    value = cvUrl,
-                    onValueChange = { cvUrl = it },
-                    placeholder = { Text("https://...") },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Uri,
-                        imeAction = ImeAction.Next,
-                    ),
-                    singleLine = true,
-                )
+                // Show uploaded file name if cvUrl looks like a storage URL
+                if (cvUrl.isNotEmpty() && cvUrl.contains("/cv/")) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Icon(
+                            Icons.Outlined.Description,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                        Text(
+                            cvUrl.substringAfterLast("/"),
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1,
+                        )
+                        IconButton(onClick = { cvUrl = "" }, modifier = Modifier.size(24.dp)) {
+                            Icon(Icons.Outlined.Close, contentDescription = null, modifier = Modifier.size(16.dp))
+                        }
+                    }
+                }
+                if (uploadingPdf) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Text(
+                            AppLocale.localized("업로드 중…", "Uploading…", "Wird hochgeladen…"),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                } else {
+                    Button(
+                        onClick = { pickPdf.launch(arrayOf("application/pdf")) },
+                        colors = ButtonDefaults.outlinedButtonColors(),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Icon(Icons.Outlined.UploadFile, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(
+                            AppLocale.localized(
+                                if (cvUrl.isEmpty()) "PDF 파일 업로드" else "파일 교체",
+                                if (cvUrl.isEmpty()) "Upload PDF" else "Replace file",
+                                if (cvUrl.isEmpty()) "PDF hochladen" else "Datei ersetzen",
+                            ),
+                            modifier = Modifier.padding(start = 6.dp),
+                        )
+                    }
+                }
+                if (cvUrl.isEmpty() || !cvUrl.contains("/cv/")) {
+                    Text(
+                        AppLocale.localized(
+                            "또는 링크 붙여넣기 (Google Drive 등)",
+                            "Or paste a link (Google Drive, etc.)",
+                            "Oder Link einfügen (Google Drive, etc.)",
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    OutlinedTextField(
+                        value = cvUrl,
+                        onValueChange = { cvUrl = it },
+                        placeholder = { Text("https://...") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Uri,
+                            imeAction = ImeAction.Next,
+                        ),
+                        singleLine = true,
+                    )
+                }
                 Text(
                     AppLocale.localized("홈페이지 URL", "Website URL", "Webseite URL"),
                     style = MaterialTheme.typography.labelMedium,

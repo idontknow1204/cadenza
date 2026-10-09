@@ -74,10 +74,10 @@ v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위
   - [x] Org (OrgPageScreen, OrgPageViewModel, CreateOrgSheet, OrgAvatarView)
   - [x] CV Editor (CVEditorScreen, CVEditorViewModel, CVEntryComposerSheet, CVEntryOverrideSheet, AI 번역 제안, PDF 내보내기)
   - [x] Settings / Privacy (SettingsScreen, DataPrivacySheet, 앱 언어 전환, 계정 삭제)
-- [ ] **6단계**: 플랫폼 전용 기능
-  - [ ] 푸시 알림 (FCM)
-  - [ ] 이미지 업로드 / 스토리지
-  - [ ] 딥링크
+- [x] **6단계**: 플랫폼 전용 기능
+  - [ ] 푸시 알림 (FCM) — v1 제외
+  - [x] 이미지 업로드 / 스토리지 (CreateActivitySheet 다중 이미지, CvWebsiteEditSheet PDF, EditProfileSheet 아바타)
+  - [x] 딥링크 (MainActivity auth callback 처리)
 - [ ] **7단계**: 빌드 에러 수정 및 QA
 - [ ] **8단계**: 최종 리뷰, iOS 기능 동일성 검증
 
