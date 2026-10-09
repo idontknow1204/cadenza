@@ -94,7 +94,7 @@ dependencies {
 
     // Coil 3
     implementation(libs.coil.compose)
-    implementation(libs.coil.network.ktor)
+    implementation(libs.coil.network.okhttp)
 
     // Room (드래프트 자동저장 등 최소 사용)
     implementation(libs.room.runtime)

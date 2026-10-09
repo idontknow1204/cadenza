@@ -5,9 +5,9 @@ ksp                   = "2.0.20-1.0.25"
 compose-bom           = "2024.09.03"
 hilt                  = "2.51.1"
 hilt-navigation       = "1.2.0"
-supabase              = "2.5.4"
+supabase              = "2.4.0"
 ktor                  = "2.3.12"
-coil                  = "3.0.4"
+coil                  = "3.0.0"
 navigation            = "2.8.3"
 room                  = "2.6.1"
 datastore             = "1.1.1"
@@ -55,7 +55,7 @@ ktor-client-android = { group = "io.ktor", name = "ktor-client-android",        
 
 # Coil 3
 coil-compose         = { group = "io.coil-kt.coil3", name = "coil-compose",        version.ref = "coil" }
-coil-network-ktor    = { group = "io.coil-kt.coil3", name = "coil-network-ktor",   version.ref = "coil" }
+coil-network-okhttp  = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 
 # Room
 room-runtime  = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
