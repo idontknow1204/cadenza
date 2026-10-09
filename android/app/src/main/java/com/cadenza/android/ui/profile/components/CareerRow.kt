@@ -72,7 +72,7 @@ fun CareerRow(
         }
         if (!career.description.isNullOrEmpty()) {
             ExpandableText(
-                text = career.description,
+                text = career.description.orEmpty(),
                 collapsedLineLimit = 3,
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -92,7 +92,7 @@ fun CareerRow(
                         fontWeight = FontWeight.SemiBold,
                     )
                     ExpandableText(
-                        text = career.contribution,
+                        text = career.contribution.orEmpty(),
                         collapsedLineLimit = 3,
                         style = MaterialTheme.typography.bodySmall,
                     )

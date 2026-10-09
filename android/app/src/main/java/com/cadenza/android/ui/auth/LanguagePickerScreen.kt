@@ -29,15 +29,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.Image
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cadenza.android.R
 import com.cadenza.android.core.data.preferences.AppPreferences
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -98,21 +103,19 @@ private fun SplashPage(onTimeout: () -> Unit) {
     }
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Placeholder logo circle — replaced by actual logo once asset is in drawable
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .background(Color(0xFF781F35).copy(alpha = 0.12f), RoundedCornerShape(24.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("♪", fontSize = 48.sp, color = Color(0xFF781F35))
-            }
-            Spacer(Modifier.height(12.dp))
+            Image(
+                painter = painterResource(R.drawable.cadenza_logo),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.size(140.dp),
+            )
+            // iOS: .padding(.bottom, -24) — pulls the title up under the logo
             Text(
                 "Cadenza",
-                fontSize = 32.sp,
+                fontSize = 34.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black,
+                modifier = Modifier.offset(y = (-24).dp),
             )
         }
     }
@@ -127,12 +130,16 @@ private fun LanguageSelectionPage(onSelect: (String) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            "♪",
-            fontSize = 36.sp,
-            color = Color(0xFF781F35).copy(alpha = 0.5f),
-            modifier = Modifier.padding(bottom = 8.dp),
+        Image(
+            painter = painterResource(R.drawable.cadenza_logo),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .size(44.dp)
+                .alpha(0.5f)
+                .padding(bottom = 0.dp),
         )
+        Spacer(Modifier.height(6.dp))
         Text(
             "언어를 선택하세요\nSelect your language\nSprache wählen",
             style = MaterialTheme.typography.bodyMedium,

@@ -5,6 +5,8 @@ import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,14 +27,17 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
@@ -39,7 +45,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -128,8 +134,14 @@ fun ProfileScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(AppLocale.localized("프로필", "Profile", "Profil")) },
+            // iOS: .navigationBarTitleDisplayMode(.inline) → centered inline title
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        AppLocale.localized("프로필", "Profile", "Profil"),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                },
                 actions = {
                     IconButton(onClick = { showManageSections = true }, enabled = profile != null) {
                         Icon(Icons.Outlined.Tune, contentDescription = null)
@@ -161,9 +173,12 @@ fun ProfileScreen(
                 LazyColumn(
                     modifier = Modifier.background(MaterialTheme.colorScheme.background),
                     contentPadding = PaddingValues(
-                        bottom = contentPadding.calculateBottomPadding() + 16.dp,
-                        top = 8.dp,
+                        start = 0.dp, end = 0.dp,
+                        // iOS: .padding(.vertical, 12) on outer VStack
+                        top = 12.dp,
+                        bottom = contentPadding.calculateBottomPadding() + 12.dp,
                     ),
+                    // iOS: VStack(spacing: 12)
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     profile?.let { p ->
@@ -511,47 +526,81 @@ private fun ProfileHeaderCard(
     onShowConnections: () -> Unit,
 ) {
     SectionCard {
+        // iOS: HStack(alignment: .top, spacing: 14)
         Row(
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.Top,
             modifier = Modifier.fillMaxWidth(),
         ) {
+            // iOS: .frame(width: 68, height: 68).clipShape(Circle())
             UserAvatarView(url = profile.avatarUrl, name = profile.realName, size = 68.dp)
+            // iOS: VStack(alignment: .leading, spacing: 3)
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(profile.realName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                // iOS: .font(.title2.bold()) = 22sp bold
+                Text(profile.realName, style = MaterialTheme.typography.headlineSmall)
                 val subtitle = listOfNotNull(
                     profile.major?.let { OnboardingData.majorDisplay(it) },
                     profile.instrument?.let { OnboardingData.instrumentDisplay(it) },
                 ).joinToString(" · ")
                 if (subtitle.isNotEmpty()) {
-                    Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    // iOS: .font(.subheadline).foregroundStyle(.secondary) = 15sp
+                    Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 if (affiliations.isNotEmpty()) {
-                    Text(affiliations.first().institutionName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    // iOS: .font(.subheadline).foregroundStyle(.secondary) = 15sp
+                    Text(affiliations.first().institutionName, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            IconButton(onClick = onEditBasic, modifier = Modifier.size(36.dp)) {
-                Icon(Icons.Outlined.Settings, contentDescription = null, modifier = Modifier.size(18.dp))
+            // iOS: pencil icon .font(.subheadline=~15pt) .padding(8) → ~31pt circle
+            Surface(
+                onClick = onEditBasic,
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                modifier = Modifier.size(31.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(31.dp)) {
+                    Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(15.dp))
+                }
             }
         }
+        // iOS: HStack(spacing:6) { person.2.fill caption + text subheadline }.padding(.top, 4)
         Spacer(Modifier.height(4.dp))
         TextButton(onClick = onShowConnections, contentPadding = PaddingValues(0.dp)) {
+            // iOS: Image(systemName: "person.2.fill").font(.caption) = ~12sp people icon
+            Icon(
+                imageVector = Icons.Filled.People,
+                contentDescription = null,
+                modifier = Modifier.size(12.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.width(6.dp))
+            // iOS: .font(.subheadline) = 15sp
             Text(
                 AppLocale.localized("${connectionCount}명과 연결됨", "Connected with $connectionCount", "Verbunden mit $connectionCount"),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         if (profile.homeCities.isNotEmpty()) {
-            Spacer(Modifier.height(4.dp))
+            // iOS: .padding(.top, 3)
+            Spacer(Modifier.height(3.dp))
+            // iOS: FlowLayout(spacing: 6)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 profile.homeCities.forEach { id ->
                     val city = OnboardingData.cityOptions.firstOrNull { it.id == id }
                     if (city != null) {
-                        SuggestionChip(
-                            onClick = {},
-                            label = { Text(city.localizedName, style = MaterialTheme.typography.labelSmall) },
-                        )
+                        // iOS: .font(.caption).padding(.horizontal, 8).padding(.vertical, 3).background(.secondary.opacity(0.1), Capsule)
+                        Surface(
+                            shape = RoundedCornerShape(50),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                        ) {
+                            Text(
+                                city.localizedName,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                            )
+                        }
                     }
                 }
             }
@@ -561,7 +610,15 @@ private fun ProfileHeaderCard(
 
 @Composable
 private fun EmptyRow(text: String) {
-    Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outlineVariant, modifier = Modifier.padding(vertical = 2.dp))
+    // iOS: .font(.subheadline) = 15sp .foregroundStyle(.tertiary)
+    Text(
+        text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp),
+    )
 }
 
 @Composable
@@ -601,15 +658,21 @@ private fun LanguageChipView(language: String, level: String) {
         "intermediate" -> AppLocale.localized("중급",   "Intermediate",  "Mittel")
         else           -> AppLocale.localized("기초",   "Basic",         "Grundkenntnisse")
     }
-    SuggestionChip(
-        onClick = {},
-        label = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(language, style = MaterialTheme.typography.labelMedium)
-                Text(levelLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        },
-    )
+    // iOS: VStack(spacing:2) + .padding(.horizontal,12).padding(.vertical,8)
+    //      .background(Color.secondary.opacity(0.09), RoundedRectangle(cornerRadius:10))
+    Surface(
+        shape = RoundedCornerShape(10.dp),
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.09f),
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+        ) {
+            Text(language, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium))
+            Text(levelLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -706,17 +769,31 @@ private fun OrgCard(
 
 @Composable
 private fun ManageSectionsButton(onClick: () -> Unit) {
-    FilledTonalButton(
+    // iOS: .font(.subheadline.weight(.medium)).foregroundStyle(Color.accentColor)
+    //      .padding(.vertical, 14).background(Color.accentColor.opacity(0.07), RoundedRectangle(cornerRadius: 16))
+    //      .padding(.horizontal, 16)
+    Surface(
         onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.07f),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
-        colors = ButtonDefaults.filledTonalButtonColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-        ),
     ) {
-        Icon(Icons.Outlined.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
-        Spacer(Modifier.size(8.dp))
-        Text(AppLocale.localized("프로필 섹션 관리", "Profile Sections", "Profilabschnitte"))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 14.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Outlined.Tune, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.size(8.dp))
+            Text(
+                AppLocale.localized("프로필 섹션 관리", "Profile Sections", "Profilabschnitte"),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
     }
 }

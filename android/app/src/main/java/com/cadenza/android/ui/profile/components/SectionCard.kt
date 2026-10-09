@@ -16,7 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,6 +25,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.cadenza.android.ui.theme.CadenzaAccent
@@ -39,23 +41,39 @@ fun SectionCard(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    ElevatedCard(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            // iOS: .padding(.horizontal, 16) on card → horizontal margin 16dp
+            .padding(horizontal = 16.dp)
+            // iOS: .shadow(color: .black.opacity(0.04), radius: 6, y: 2)
+            .shadow(
+                elevation = 2.dp,
+                shape = RoundedCornerShape(16.dp),
+                clip = false,
+                ambientColor = Color.Black.copy(alpha = 0.04f),
+                spotColor = Color.Black.copy(alpha = 0.04f),
+            ),
+        // iOS: RoundedRectangle(cornerRadius: 16)
         shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface,
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        // iOS: VStack(alignment: .leading, spacing: 12) + .padding(16)
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
             val hasHeader = title != null || onAdd != null || onEdit != null || viewAllAction != null
             if (hasHeader) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = 12.dp),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     if (title != null) {
+                        // iOS: .font(.title3.weight(.semibold)) = 20sp semibold
                         Text(
                             text = title,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                            style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.weight(1f),
                         )
                     } else {
@@ -64,30 +82,39 @@ fun SectionCard(
                     if (viewAllAction != null) {
                         TextButton(
                             onClick = viewAllAction,
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp),
                         ) {
+                            // iOS: HStack(spacing:3) { Text.subheadline.medium + chevron.right.caption.semibold }
                             Text(
                                 viewAllLabel,
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                                 color = CadenzaAccent,
+                            )
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                contentDescription = null,
+                                tint = CadenzaAccent,
+                                modifier = Modifier.size(14.dp),
                             )
                         }
                     }
                     if (onAdd != null) {
                         Spacer(Modifier.width(4.dp))
+                        // iOS: .padding(7) circle button
                         CircleIconButton(onClick = onAdd) {
                             Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                         }
                     }
                     if (onEdit != null) {
                         Spacer(Modifier.width(4.dp))
+                        // iOS: .padding(7) circle pencil button
                         CircleIconButton(onClick = onEdit) {
                             Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(14.dp))
                         }
                     }
                 }
             }
-            Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+            Column {
                 content()
             }
         }
@@ -99,13 +126,14 @@ private fun CircleIconButton(
     onClick: () -> Unit,
     content: @Composable () -> Unit,
 ) {
+    // iOS: .padding(7) + icon (~14-16dp) → total ~28-30dp, using 30dp to match
     Surface(
         onClick = onClick,
         shape = CircleShape,
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-        modifier = Modifier.size(32.dp),
+        modifier = Modifier.size(30.dp),
     ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(30.dp)) {
             content()
         }
     }

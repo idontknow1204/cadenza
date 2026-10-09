@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.cadenza.android.core.data.model.ActivityWithAuthor
 import com.cadenza.android.core.data.model.Organization
 import com.cadenza.android.core.data.repository.Repository
+import com.cadenza.android.core.session.ConnectionStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -18,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OrgPageViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val repository: Repository,
+    val repository: Repository,
+    val connectionStore: ConnectionStore,
 ) : ViewModel() {
 
     val orgId: String = savedStateHandle.get<String>("orgId") ?: ""

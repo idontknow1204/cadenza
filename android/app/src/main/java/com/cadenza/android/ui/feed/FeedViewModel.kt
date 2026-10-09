@@ -146,9 +146,9 @@ class FeedViewModel @Inject constructor(
 
     private fun filterJobs(jobs: List<Job>, q: String): List<Job> = jobs.filter { job ->
         job.title.contains(q, ignoreCase = true)
-            || job.org?.name?.contains(q, ignoreCase = true) == true
-            || job.cityName?.contains(q, ignoreCase = true) == true
+            || job.organization?.contains(q, ignoreCase = true) == true
+            || job.location?.contains(q, ignoreCase = true) == true
             || job.type.label.contains(q, ignoreCase = true)
-            || job.instrument?.contains(q, ignoreCase = true) == true
+            || job.instruments.any { it.contains(q, ignoreCase = true) }
     }
 }

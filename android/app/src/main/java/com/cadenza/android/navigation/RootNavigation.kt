@@ -8,11 +8,13 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import com.cadenza.android.core.util.AppLocale
 import com.cadenza.android.ui.theme.CadenzaAccent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,7 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -62,7 +64,7 @@ fun RootNavigation(
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                 val backStack by navController.currentBackStackEntryAsState()
                 val current = backStack?.destination
 
@@ -82,7 +84,19 @@ fun RootNavigation(
                             }
                         },
                         icon = { Icon(tab.icon, contentDescription = null) },
-                        label = { Text(stringResource(tab.labelRes)) },
+                        label = {
+                            Text(
+                                when (tab) {
+                                    Tab.Feed          -> AppLocale.localized("피드", "Feed", "Feed")
+                                    Tab.Notifications -> AppLocale.localized("알림", "Alerts", "Benachr.")
+                                    Tab.Create        -> AppLocale.localized("기록", "Record", "Aufnahme")
+                                    Tab.Jobs          -> AppLocale.localized("기회", "Jobs", "Stellen")
+                                    Tab.Profile       -> AppLocale.localized("프로필", "Profile", "Profil")
+                                },
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = CadenzaAccent,
                             selectedTextColor = CadenzaAccent,

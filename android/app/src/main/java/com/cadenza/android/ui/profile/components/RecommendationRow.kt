@@ -73,7 +73,7 @@ fun RecommendationRow(
                 )
                 if (!rec.recommenderTitle.isNullOrEmpty()) {
                     Text(
-                        rec.recommenderTitle,
+                        rec.recommenderTitle.orEmpty(),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

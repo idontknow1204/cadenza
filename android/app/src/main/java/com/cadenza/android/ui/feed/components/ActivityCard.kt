@@ -23,7 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.outlined.EmojiEvents
-import androidx.compose.material.icons.outlined.EyeOff
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.MusicNote
@@ -58,7 +58,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -176,7 +175,7 @@ fun ActivityCard(
                     modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(
                     text = if (feedName != null) "${feedName}님이 댓글을 달았습니다"
-                           else "연결된 사람이 댓글을 달았습니다",
+                           else AppLocale.localized("연결된 사람이 댓글을 달았습니다", "Someone in your network commented", "Jemand hat kommentiert"),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -184,6 +183,7 @@ fun ActivityCard(
         }
 
         // Author header
+        // iOS: .padding(.horizontal, 16).padding(.top, isConnectionCommented ? 6 : 14).padding(.bottom, 6)
         AuthorHeader(
             item = item,
             authorConnectionStatus = authorConnectionStatus,
@@ -200,17 +200,20 @@ fun ActivityCard(
                 }
             },
             onMeatballTap = { showMeatball = true },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(top = if (feedBase == "connection_commented") 6.dp else 14.dp, bottom = 6.dp),
         )
 
         // Activity content
+        // iOS: .padding(.horizontal, 16).padding(.bottom, 10)
         ActivityContent(
             item = item,
             showTranslation = showTranslation,
             isTranslating = isTranslating,
             translatedText = translatedText,
             translationError = translationError,
-            modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 8.dp),
+            modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 10.dp),
         )
 
         // Translation button
@@ -243,8 +246,8 @@ fun ActivityCard(
                 Icon(Icons.Outlined.Translate, contentDescription = null,
                     modifier = Modifier.size(14.dp).padding(end = 2.dp))
                 Text(
-                    text = if (showTranslation) "원문 보기"
-                           else "$targetName 번역 보기",
+                    text = if (showTranslation) AppLocale.localized("원문 보기", "Original", "Original")
+                           else AppLocale.localized("${targetName} 번역 보기", "View in $targetName", "Auf $targetName"),
                     style = MaterialTheme.typography.labelSmall,
                 )
             }
@@ -337,7 +340,7 @@ fun ActivityCard(
         Row(modifier = Modifier.fillMaxWidth()) {
             ActionButton(
                 icon = if (isLiked) Icons.Outlined.ThumbUp else Icons.Outlined.ThumbUp,
-                label = "좋아요",
+                label = AppLocale.localized("좋아요", "Like", "Gefällt mir"),
                 tint = if (isLiked) CadenzaAccent else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
                 onClick = {
@@ -358,13 +361,13 @@ fun ActivityCard(
             )
             ActionButton(
                 icon = Icons.AutoMirrored.Outlined.Chat,
-                label = "댓글",
+                label = AppLocale.localized("댓글", "Comment", "Kommentar"),
                 modifier = Modifier.weight(1f),
                 onClick = { showComments = true },
             )
             ActionButton(
                 icon = Icons.Outlined.Share,
-                label = "공유",
+                label = AppLocale.localized("공유", "Share", "Teilen"),
                 modifier = Modifier.weight(1f),
                 onClick = {
                     val text = buildString {
@@ -478,7 +481,7 @@ private fun HiddenBanner(onUndo: () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(Icons.Outlined.EyeOff, contentDescription = null,
+        Icon(Icons.Outlined.VisibilityOff, contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(18.dp).padding(end = 8.dp))
         Text(
@@ -536,8 +539,10 @@ private fun AuthorHeader(
                         else Modifier
                     ),
                 verticalAlignment = Alignment.CenterVertically,
+                // iOS: HStack(alignment: .center, spacing: 10)
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
+                // iOS: UserAvatarView(size: 42)
                 UserAvatarView(
                     url = item.author?.avatarUrl,
                     name = item.author?.realName ?: "?",
@@ -600,7 +605,9 @@ private fun ActivityContent(
     translationError: String?,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    // iOS: VStack(alignment: .leading, spacing: 5)
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        // iOS: .font(.headline) = 17sp semibold
         Text(item.title, style = MaterialTheme.typography.titleMedium)
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -760,6 +767,7 @@ private fun ActionButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
+    // iOS: actionLabel .padding(.vertical, 11) + icon .font(.system(size: 15)) + text .font(.subheadline)
     Row(
         modifier = modifier
             .clickable(onClick = onClick)
@@ -767,8 +775,11 @@ private fun ActionButton(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp), tint = tint)
+        // iOS: .font(.system(size: 15))
+        Icon(icon, contentDescription = null, modifier = Modifier.size(15.dp), tint = tint)
+        // iOS: HStack(spacing: 5)
         Spacer(Modifier.width(5.dp))
+        // iOS: .font(.subheadline) = 15sp
         Text(label, style = MaterialTheme.typography.bodyMedium, color = tint)
     }
 }

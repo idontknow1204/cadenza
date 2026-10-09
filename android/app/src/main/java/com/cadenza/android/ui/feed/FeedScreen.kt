@@ -2,6 +2,8 @@ package com.cadenza.android.ui.feed
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -50,8 +52,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.res.painterResource
+import com.cadenza.android.R
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -61,6 +66,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cadenza.android.core.session.SessionViewModel
 import com.cadenza.android.ui.common.UserAvatarView
 import com.cadenza.android.ui.feed.components.ActivityCard
+import com.cadenza.android.core.util.AppLocale
 import com.cadenza.android.ui.theme.CadenzaAccent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -151,7 +157,8 @@ fun FeedScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Outlined.Search, contentDescription = null,
                                     modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.outlineVariant)
-                                Text("검색 결과가 없습니다", style = MaterialTheme.typography.bodyLarge,
+                                Text(AppLocale.localized("검색 결과가 없습니다", "No results", "Keine Ergebnisse"),
+                                    style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(top = 8.dp))
                             }
                         }
@@ -159,7 +166,7 @@ fun FeedScreen(
                         LazyColumn {
                             if (searchPeople.isNotEmpty()) {
                                 item {
-                                    SearchSectionHeader("사람")
+                                    SearchSectionHeader(AppLocale.localized("사람", "People", "Personen"))
                                 }
                                 items(searchPeople) { p ->
                                     Row(
@@ -183,7 +190,7 @@ fun FeedScreen(
                                 }
                             }
                             if (searchActivities.isNotEmpty()) {
-                                item { SearchSectionHeader("활동") }
+                                item { SearchSectionHeader(AppLocale.localized("활동", "Activities", "Aktivitäten")) }
                                 items(searchActivities) { act ->
                                     ActivityCard(
                                         item = act,
@@ -202,7 +209,7 @@ fun FeedScreen(
                                 }
                             }
                             if (searchJobs.isNotEmpty()) {
-                                item { SearchSectionHeader("공고") }
+                                item { SearchSectionHeader(AppLocale.localized("공고", "Jobs", "Stellen")) }
                                 items(searchJobs) { job ->
                                     Row(
                                         modifier = Modifier
@@ -236,13 +243,14 @@ fun FeedScreen(
                                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Text("최근 검색",
+                                    Text(AppLocale.localized("최근 검색", "Recent", "Zuletzt"),
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.weight(1f),
                                     )
                                     TextButton(onClick = { viewModel.clearRecent() }) {
-                                        Text("모두 삭제", style = MaterialTheme.typography.labelSmall)
+                                        Text(AppLocale.localized("모두 삭제", "Clear all", "Alle löschen"),
+                                            style = MaterialTheme.typography.labelSmall)
                                     }
                                 }
                             }
@@ -268,7 +276,7 @@ fun FeedScreen(
                             }
                         }
                         if (suggestedProfiles.isNotEmpty()) {
-                            item { SearchSectionHeader("추천 사람") }
+                            item { SearchSectionHeader(AppLocale.localized("추천 사람", "Suggested", "Vorschläge")) }
                             items(suggestedProfiles) { p ->
                                 Row(
                                     modifier = Modifier
@@ -314,10 +322,10 @@ fun FeedScreen(
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Icon(Icons.Outlined.Notifications, contentDescription = null,
                                         modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.outlineVariant)
-                                    Text("아직 피드가 비어있어요",
+                                    Text(AppLocale.localized("아직 피드가 비어있어요", "Feed is empty", "Feed ist leer"),
                                         style = MaterialTheme.typography.bodyLarge,
                                         modifier = Modifier.padding(top = 8.dp))
-                                    Text("다른 사람들과 연결해 보세요",
+                                    Text(AppLocale.localized("다른 사람들과 연결해 보세요", "Connect with others", "Verbinde dich"),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
@@ -365,26 +373,41 @@ private fun FeedHeader(
     onNotifications: () -> Unit,
     onCreateActivity: () -> Unit,
 ) {
+    // iOS CadenzaBrowseHeader: .padding(.horizontal, 16).padding(.top, 4).padding(.bottom, 14)
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
             .windowInsetsPadding(WindowInsets.statusBars)
             .padding(horizontal = 16.dp)
-            .padding(top = 4.dp, bottom = 12.dp),
+            .padding(top = 4.dp, bottom = 14.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = "Cadenza",
-                style = MaterialTheme.typography.titleLarge.copy(
-                    color = CadenzaAccent,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                ),
+            // iOS FeedHeader: logo + title in HStack(spacing:7)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(7.dp),
                 modifier = Modifier.weight(1f),
-            )
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.cadenza_logo),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .background(Color.White, RoundedCornerShape(6.dp)),
+                )
+                Text(
+                    text = "Cadenza",
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    ),
+                )
+            }
             BadgedBox(
                 badge = {
                     if (unreadCount > 0) Badge(modifier = Modifier.size(7.dp))
@@ -404,16 +427,17 @@ private fun FeedHeader(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Outlined.Edit,
-                        contentDescription = "활동 기록",
+                        contentDescription = AppLocale.localized("활동 기록", "Record activity", "Aktivität"),
                         tint = CadenzaAccent,
                         modifier = Modifier.size(20.dp),
                     )
                 }
             }
         }
-        Spacer(Modifier.height(8.dp))
+        // iOS: VStack(spacing: 10) between title row and search
+        Spacer(Modifier.height(10.dp))
 
-        // Search field
+        // Search field: iOS .frame(minHeight: 44) + .background(.tertiarySystemFill, RoundedRectangle(8))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -424,16 +448,17 @@ private fun FeedHeader(
                 ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // iOS: HStack(spacing: 9) inside search bar with .padding(.leading, 12)
             Icon(
                 Icons.Outlined.Search,
                 contentDescription = null,
-                modifier = Modifier.padding(start = 10.dp).size(18.dp),
+                modifier = Modifier.padding(start = 12.dp).size(18.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             TextField(
                 value = searchQuery,
                 onValueChange = onSearchQueryChange,
-                placeholder = { Text("이름, 활동, 공고 검색", style = MaterialTheme.typography.bodySmall) },
+                placeholder = { Text(AppLocale.localized("이름, 활동, 공고 검색", "Search name, activity, job", "Suchen…"), style = MaterialTheme.typography.bodySmall) },
                 modifier = Modifier
                     .weight(1f)
                     .focusRequester(focusRequester)

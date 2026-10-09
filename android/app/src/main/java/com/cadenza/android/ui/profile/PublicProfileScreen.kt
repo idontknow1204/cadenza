@@ -2,6 +2,7 @@ package com.cadenza.android.ui.profile
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -208,29 +210,41 @@ fun PublicProfileScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                    contentPadding = PaddingValues(top = 8.dp, bottom = 32.dp),
+                    contentPadding = PaddingValues(
+                        start = 0.dp, end = 0.dp,
+                        // iOS: LazyVStack + .padding(.vertical, 12)
+                        top = 12.dp,
+                        bottom = 12.dp,
+                    ),
+                    // iOS: LazyVStack(spacing: 12)
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     profile?.let { p ->
                         item("header") {
                             SectionCard {
+                                // iOS: HStack(alignment: .top, spacing: 14)
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                                     verticalAlignment = Alignment.Top,
                                     modifier = Modifier.fillMaxWidth(),
                                 ) {
+                                    // iOS: UserAvatarView(size: 68)
                                     UserAvatarView(url = p.avatarUrl, name = p.realName, size = 68.dp)
+                                    // iOS: VStack(alignment: .leading, spacing: 3)
                                     Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                                        Text(p.realName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                        // iOS: .font(.title2.bold()) = 22sp bold
+                                        Text(p.realName, style = MaterialTheme.typography.headlineSmall)
                                         val subtitle = listOfNotNull(
                                             p.major?.let { OnboardingData.majorDisplay(it) },
                                             p.instrument?.let { OnboardingData.instrumentDisplay(it) },
                                         ).joinToString(" · ")
                                         if (subtitle.isNotEmpty()) {
-                                            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            // iOS: .font(.subheadline).foregroundStyle(.secondary) = 15sp
+                                            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                         if (affiliations.isNotEmpty()) {
-                                            Text(affiliations.first().institutionName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                            // iOS: .font(.subheadline).foregroundStyle(.secondary) = 15sp
+                                            Text(affiliations.first().institutionName, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                     }
                                     if (!isOwnProfile) {
@@ -269,20 +283,35 @@ fun PublicProfileScreen(
                                         )
                                     }
                                 }
+                                // iOS: .padding(.top, 4) for connection row
                                 Spacer(Modifier.height(4.dp))
+                                // iOS: .font(.subheadline) = 15sp
                                 Text(
                                     AppLocale.localized("${connectionCount}명과 연결됨", "Connected with $connectionCount", "Verbunden mit $connectionCount"),
-                                    style = MaterialTheme.typography.bodySmall,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.clickable(enabled = connectionCount > 0) { showConnectionsList = true },
                                 )
                                 if (p.homeCities.isNotEmpty()) {
-                                    Spacer(Modifier.height(4.dp))
+                                    // iOS: .padding(.top, 3)
+                                    Spacer(Modifier.height(3.dp))
+                                    // iOS: FlowLayout(spacing: 6)
                                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                         p.homeCities.forEach { id ->
                                             val city = OnboardingData.cityOptions.firstOrNull { it.id == id }
                                             if (city != null) {
-                                                SuggestionChip(onClick = {}, label = { Text(city.localizedName, style = MaterialTheme.typography.labelSmall) })
+                                                // iOS: .font(.caption).padding(.horizontal, 8).padding(.vertical, 3).background(.secondary.opacity(0.1), Capsule)
+                                                Surface(
+                                                    shape = RoundedCornerShape(50),
+                                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                                                ) {
+                                                    Text(
+                                                        city.localizedName,
+                                                        style = MaterialTheme.typography.labelMedium,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -292,6 +321,7 @@ fun PublicProfileScreen(
                         if (p.showsSection(ProfileSection.BIO) && !p.bio.isNullOrEmpty()) {
                             item("bio") {
                                 SectionCard(title = ProfileSection.BIO.title) {
+                                    // iOS: .font(.subheadline).lineSpacing(3) = 15sp
                                     Text(p.bio!!, style = MaterialTheme.typography.bodyMedium)
                                 }
                             }

@@ -271,6 +271,7 @@ private fun JobFilterBar(
     onToggleMyInstrument: (String) -> Unit,
     onToggleVideoOnly: () -> Unit,
 ) {
+    // iOS filterBar: .padding(.horizontal, 16).padding(.vertical, 4) + HStack(spacing: 8)
     Row(
         modifier = Modifier
             .horizontalScroll(rememberScrollState())
@@ -359,10 +360,12 @@ private fun SectionHeader(section: JobSection) {
 
 @Composable
 fun JobCard(job: Job, onClick: () -> Unit) {
+    // iOS JobCard: .padding(16) + VStack(spacing: 12)
     Column(
         modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).clickable(onClick = onClick).padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        // iOS cardHeader: HStack(spacing: 10)
         Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             val typeIcon: ImageVector = when (job.type) {
                 JobType.AUDITION -> Icons.Outlined.MicNone
@@ -370,25 +373,29 @@ fun JobCard(job: Job, onClick: () -> Unit) {
                 JobType.LESSON   -> Icons.Outlined.School
                 JobType.GIG      -> Icons.Default.MusicNote
             }
+            // iOS: .frame(width: 40, height: 40).background(BrandSurface, RoundedRectangle(8)) + icon .font(.system(size: 18))
             Box(
-                modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(typeIcon, contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(typeIcon, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
             }
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            // iOS: VStack(spacing: 3)
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                // iOS: .font(.subheadline.weight(.semibold)) = 15sp semibold
                 Text(
                     job.organization?.takeIf { it.isNotEmpty() } ?: job.type.label,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Text(job.type.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // iOS: .font(.caption) = 12sp
+                Text(job.type.label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             JobDeadlineBadge(job = job)
         }
-        Text(job.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        // iOS: .font(.headline) = 17sp semibold
+        Text(job.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
         if (!job.location.isNullOrEmpty()) {
             Text(job.location, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
         }
@@ -422,6 +429,7 @@ fun JobDeadlineBadge(job: Job) {
         isUpcoming -> AppLocale.localized("모집 예정", "Upcoming", "Demnächst")
         else       -> job.deadlineLabel
     } ?: return
+    // iOS: .padding(.horizontal, 8).padding(.vertical, 5) + RoundedRectangle(6)
     Surface(
         shape = RoundedCornerShape(6.dp),
         color = if (isUrgent) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
@@ -432,7 +440,8 @@ fun JobDeadlineBadge(job: Job) {
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.SemiBold,
             color = if (isUrgent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            // iOS: .padding(.horizontal, 8).padding(.vertical, 5)
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
         )
     }
 }

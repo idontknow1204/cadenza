@@ -6,7 +6,10 @@ import com.cadenza.android.core.data.model.*
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.functions.functions
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.rpc
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
+import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.realtime.realtime
 import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.postgresChangeFlow
@@ -15,6 +18,7 @@ import io.github.jan.supabase.storage.storage
 import io.github.jan.supabase.gotrue.auth
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.client.call.body
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -69,16 +73,16 @@ class Repository @Inject constructor(
         client.postgrest["profiles"].select { filter { eq("id", id) } }.decodeSingle()
 
     suspend fun people(excludingMe: String): List<ProfileLite> =
-        client.postgrest["profiles"].select("id, real_name, instrument, avatar_url") {
+        client.postgrest["profiles"].select(Columns.raw("id, real_name, instrument, avatar_url")) {
             filter {
                 neq("id", excludingMe)
                 eq("is_system", false)
             }
-            order("real_name")
+            order("real_name", Order.ASCENDING)
         }.decodeList()
 
     suspend fun searchProfiles(query: String, excludingMe: String, major: String? = null): List<ProfileLite> =
-        client.postgrest["profiles"].select("id, real_name, instrument, avatar_url") {
+        client.postgrest["profiles"].select(Columns.raw("id, real_name, instrument, avatar_url")) {
             filter {
                 neq("id", excludingMe)
                 if (query.isNotBlank()) ilike("real_name", "%$query%")
@@ -197,9 +201,9 @@ class Repository @Inject constructor(
         client.postgrest.rpc("social_feed", FeedParams(userId)).decodeList()
 
     suspend fun activities(byAuthor: String): List<ActivityWithAuthor> =
-        client.postgrest["activities"].select(activityWithAuthorSelect) {
+        client.postgrest["activities"].select(Columns.raw(activityWithAuthorSelect)) {
             filter { eq("user_id", byAuthor) }
-            order("activity_date", ascending = false)
+            order("activity_date", Order.DESCENDING)
         }.decodeList()
 
     // ─── Affiliations ─────────────────────────────────────────────────────────
@@ -207,7 +211,7 @@ class Repository @Inject constructor(
     suspend fun affiliations(forUser: String): List<Affiliation> =
         client.postgrest["affiliations"].select {
             filter { eq("user_id", forUser) }
-            order("enrollment_year", ascending = false)
+            order("enrollment_year", Order.DESCENDING)
         }.decodeList()
 
     suspend fun insertAffiliation(a: NewAffiliation): Affiliation =
@@ -235,7 +239,7 @@ class Repository @Inject constructor(
     suspend fun careers(forUser: String): List<Career> =
         client.postgrest["careers"].select {
             filter { eq("user_id", forUser) }
-            order("start_year", ascending = false)
+            order("start_year", Order.DESCENDING)
         }.decodeList()
 
     suspend fun insertCareer(c: NewCareer): Career =
@@ -268,7 +272,7 @@ class Repository @Inject constructor(
     suspend fun awards(forUser: String): List<ProfileAward> =
         client.postgrest["profile_awards"].select {
             filter { eq("user_id", forUser) }
-            order("year", ascending = false)
+            order("year", Order.DESCENDING)
         }.decodeList()
 
     suspend fun insertAward(award: ProfileAward): ProfileAward =
@@ -291,7 +295,7 @@ class Repository @Inject constructor(
     suspend fun languages(forUser: String): List<ProfileLanguage> =
         client.postgrest["profile_languages"].select {
             filter { eq("user_id", forUser) }
-            order("created_at")
+            order("created_at", Order.ASCENDING)
         }.decodeList()
 
     @Serializable
@@ -343,12 +347,12 @@ class Repository @Inject constructor(
     suspend fun connectionStatus(me: String, them: String): ConnectionStatus = coroutineScope {
         @Serializable data class Row(val status: String)
         val mine = async {
-            client.postgrest["follows"].select("status") {
+            client.postgrest["follows"].select(Columns.raw("status")) {
                 filter { eq("follower_id", me); eq("followee_id", them) }
             }.decodeList<Row>()
         }
         val theirs = async {
-            client.postgrest["follows"].select("status") {
+            client.postgrest["follows"].select(Columns.raw("status")) {
                 filter { eq("follower_id", them); eq("followee_id", me) }
             }.decodeList<Row>()
         }
@@ -368,7 +372,7 @@ class Repository @Inject constructor(
     suspend fun pendingConnectionRequests(userId: String): List<ConnectedProfile> {
         @Serializable data class Row(val follower: ConnectedProfile)
         val rows: List<Row> = client.postgrest["follows"]
-            .select("follower:profiles!follower_id(id, real_name, instrument, major, avatar_url)") {
+            .select(Columns.raw("follower:profiles!follower_id(id, real_name, instrument, major, avatar_url)")) {
                 filter { eq("followee_id", userId); eq("status", "pending") }
             }.decodeList()
         return rows.map { it.follower }
@@ -408,9 +412,9 @@ class Repository @Inject constructor(
     // ─── Search ───────────────────────────────────────────────────────────────
 
     suspend fun searchActivities(query: String): List<ActivityWithAuthor> =
-        client.postgrest["activities"].select(activityWithAuthorSelect) {
+        client.postgrest["activities"].select(Columns.raw(activityWithAuthorSelect)) {
             filter { ilike("title", "%$query%") }
-            order("activity_date", ascending = false)
+            order("activity_date", Order.DESCENDING)
             limit(20)
         }.decodeList()
 
@@ -443,7 +447,7 @@ class Repository @Inject constructor(
         try {
             val created: Activity = client.postgrest["activities"]
                 .insert(readyActivity) {
-                    select(activityRowSelect)
+                    select(Columns.raw(activityRowSelect))
                 }.decodeSingle()
             inserted = true
             tagUsers(created.id, taggedUserIds)
@@ -510,9 +514,9 @@ class Repository @Inject constructor(
     suspend fun tags(forActivity: String): List<ProfileLite> {
         @Serializable data class W(@SerialName("tagged_user") val taggedUser: ProfileLite?)
         val rows: List<W> = client.postgrest["activity_tags"]
-            .select("tagged_user:profiles(id, real_name, instrument, avatar_url)") {
+            .select(Columns.raw("tagged_user:profiles(id, real_name, instrument, avatar_url)")) {
                 filter { eq("activity_id", forActivity) }
-                order("created_at")
+                order("created_at", Order.ASCENDING)
             }.decodeList()
         return rows.mapNotNull { it.taggedUser }
     }
@@ -520,9 +524,9 @@ class Repository @Inject constructor(
     suspend fun taggedActivities(userId: String): List<ActivityWithAuthor> {
         @Serializable data class W(val activity: ActivityWithAuthor?)
         val rows: List<W> = client.postgrest["activity_tags"]
-            .select(nestedActivityWithAuthorSelect) {
+            .select(Columns.raw(nestedActivityWithAuthorSelect)) {
                 filter { eq("tagged_user_id", userId) }
-                order("created_at", ascending = false)
+                order("created_at", Order.DESCENDING)
             }.decodeList()
         return rows.mapNotNull { it.activity }
     }
@@ -530,9 +534,9 @@ class Repository @Inject constructor(
     suspend fun pendingTags(userId: String): List<ActivityWithAuthor> {
         @Serializable data class W(val activity: ActivityWithAuthor?)
         val rows: List<W> = client.postgrest["activity_tags"]
-            .select(nestedActivityWithAuthorSelect) {
+            .select(Columns.raw(nestedActivityWithAuthorSelect)) {
                 filter { eq("tagged_user_id", userId); eq("status", "pending") }
-                order("created_at", ascending = false)
+                order("created_at", Order.DESCENDING)
             }.decodeList()
         return rows.mapNotNull { it.activity }
     }
@@ -570,9 +574,9 @@ class Repository @Inject constructor(
     suspend fun savedActivities(userId: String): List<ActivityWithAuthor> {
         @Serializable data class W(val activity: ActivityWithAuthor?)
         val rows: List<W> = client.postgrest["activity_saves"]
-            .select(nestedActivityWithAuthorSelect) {
+            .select(Columns.raw(nestedActivityWithAuthorSelect)) {
                 filter { eq("user_id", userId) }
-                order("created_at", ascending = false)
+                order("created_at", Order.DESCENDING)
             }.decodeList()
         return rows.mapNotNull { it.activity }
     }
@@ -581,12 +585,12 @@ class Repository @Inject constructor(
 
     suspend fun inbox(forUser: String): List<ConfirmRequest> =
         client.postgrest["activity_participants"]
-            .select("id, confirm, $nestedActivityWithAuthorSelect") {
+            .select(Columns.raw("id, confirm, $nestedActivityWithAuthorSelect")) {
                 filter {
                     eq("participant_id", forUser)
                     eq("confirm", ConfirmStatus.REQUESTED.name.lowercase())
                 }
-                order("created_at", ascending = false)
+                order("created_at", Order.DESCENDING)
             }.decodeList()
 
     suspend fun respond(participantRowId: String, approved: Boolean) {
@@ -677,19 +681,19 @@ class Repository @Inject constructor(
     // ─── Jobs ─────────────────────────────────────────────────────────────────
 
     suspend fun jobs(type: JobType? = null): List<Job> =
-        client.postgrest["jobs"].select(jobSelect) {
+        client.postgrest["jobs"].select(Columns.raw(jobSelect)) {
             filter {
                 eq("is_active", true)
                 if (type != null) eq("type", type.name.lowercase())
             }
-            order("created_at", ascending = false)
+            order("created_at", Order.DESCENDING)
             limit(80)
         }.decodeList()
 
     suspend fun myJobs(userId: String): List<Job> =
-        client.postgrest["jobs"].select(jobSelect) {
+        client.postgrest["jobs"].select(Columns.raw(jobSelect)) {
             filter { eq("user_id", userId) }
-            order("created_at", ascending = false)
+            order("created_at", Order.DESCENDING)
         }.decodeList()
 
     suspend fun postJob(job: NewJob) {
@@ -706,13 +710,13 @@ class Repository @Inject constructor(
 
     suspend fun cities(): List<City> =
         client.postgrest["city"].select {
-            order("name_en")
+            order("name_en", Order.ASCENDING)
         }.decodeList()
 
     suspend fun baseCityIds(userId: String): List<String> {
         @Serializable data class Row(@SerialName("city_id") val cityId: String)
         val rows: List<Row> = client.postgrest["user_base_city"]
-            .select("city_id") { filter { eq("user_id", userId) } }.decodeList()
+            .select(Columns.raw("city_id")) { filter { eq("user_id", userId) } }.decodeList()
         return rows.map { it.cityId }
     }
 
@@ -720,9 +724,9 @@ class Repository @Inject constructor(
 
     suspend fun notifications(userId: String): List<AppNotification> =
         client.postgrest["notifications"]
-            .select("*, sender:profiles!sender_id(real_name, instrument), activity:activities!activity_id(title)") {
+            .select(Columns.raw("*, sender:profiles!sender_id(real_name, instrument), activity:activities!activity_id(title)")) {
                 filter { eq("recipient_id", userId); neq("type", "follow") }
-                order("created_at", ascending = false)
+                order("created_at", Order.DESCENDING)
                 limit(60)
             }.decodeList()
 
@@ -740,10 +744,9 @@ class Repository @Inject constructor(
     }
 
     suspend fun unreadNotificationCount(userId: String): Int {
-        val result = client.postgrest["notifications"].select("*") {
+        val result = client.postgrest["notifications"].select(Columns.ALL, head = true) {
             filter { eq("recipient_id", userId); neq("type", "follow"); eq("is_read", false) }
             count(Count.EXACT)
-            head = true
         }
         return result.countOrNull()?.toInt() ?: 0
     }
@@ -755,12 +758,12 @@ class Repository @Inject constructor(
     suspend fun myOrgs(userId: String): List<Organization> {
         @Serializable data class Row(val org: Organization)
         val rows: List<Row> = client.postgrest["org_admins"]
-            .select("org:$orgSelect") { filter { eq("user_id", userId) } }.decodeList()
+            .select(Columns.raw("org:$orgSelect")) { filter { eq("user_id", userId) } }.decodeList()
         return rows.map { it.org }
     }
 
     suspend fun fetchOrg(id: String): Organization =
-        client.postgrest["organizations"].select(orgSelect) {
+        client.postgrest["organizations"].select(Columns.raw(orgSelect)) {
             filter { eq("id", id) }
         }.decodeSingle()
 
@@ -784,26 +787,24 @@ class Repository @Inject constructor(
     ): Organization {
         val org: Organization = client.postgrest["organizations"]
             .insert(NewOrgPayload(name, handle, category.name.lowercase(), description, website, createdBy)) {
-                select(orgSelect)
+                select(Columns.raw(orgSelect))
             }.decodeSingle()
         client.postgrest["org_admins"].insert(OrgAdminPayload(org.id, createdBy, "owner"))
         return org
     }
 
     suspend fun orgFollowerCount(orgId: String): Int {
-        val result = client.postgrest["org_follows"].select("*") {
+        val result = client.postgrest["org_follows"].select(Columns.ALL, head = true) {
             filter { eq("org_id", orgId) }
             count(Count.EXACT)
-            head = true
         }
         return result.countOrNull()?.toInt() ?: 0
     }
 
     suspend fun isFollowingOrg(orgId: String, userId: String): Boolean {
-        val result = client.postgrest["org_follows"].select("*") {
+        val result = client.postgrest["org_follows"].select(Columns.ALL, head = true) {
             filter { eq("org_id", orgId); eq("user_id", userId) }
             count(Count.EXACT)
-            head = true
         }
         return (result.countOrNull() ?: 0) > 0
     }
@@ -825,9 +826,9 @@ class Repository @Inject constructor(
     }
 
     suspend fun orgActivities(orgId: String): List<ActivityWithAuthor> =
-        client.postgrest["activities"].select(activityWithOrgSelect) {
+        client.postgrest["activities"].select(Columns.raw(activityWithOrgSelect)) {
             filter { eq("org_id", orgId) }
-            order("activity_date", ascending = false)
+            order("activity_date", Order.DESCENDING)
         }.decodeList()
 
     // ─── CV (Fermata) ─────────────────────────────────────────────────────────
@@ -858,15 +859,15 @@ class Repository @Inject constructor(
     }
 
     suspend fun cvActivities(userId: String): List<Activity> =
-        client.postgrest["activities"].select(activityRowSelect) {
+        client.postgrest["activities"].select(Columns.raw(activityRowSelect)) {
             filter { eq("user_id", userId) }
-            order("activity_date", ascending = false)
+            order("activity_date", Order.DESCENDING)
         }.decodeList()
 
     suspend fun cvEntries(userId: String): List<CVEntryRow> =
-        client.postgrest["cv_entries"].select(cvEntrySelect) {
+        client.postgrest["cv_entries"].select(Columns.raw(cvEntrySelect)) {
             filter { eq("user_id", userId) }
-            order("year", ascending = false)
+            order("year", Order.DESCENDING)
         }.decodeList()
 
     @Serializable
@@ -904,7 +905,7 @@ class Repository @Inject constructor(
     }
 
     suspend fun cvOverrides(userId: String, lang: String = "en"): List<CVOverride> =
-        client.postgrest["cv_i18n"].select("source_kind, source_id, patch, include") {
+        client.postgrest["cv_i18n"].select(Columns.raw("source_kind, source_id, patch, include")) {
             filter { eq("user_id", userId); eq("lang", lang) }
         }.decodeList()
 
@@ -927,7 +928,7 @@ class Repository @Inject constructor(
 
     suspend fun profileOverlay(userId: String, lang: String): Map<String, String> {
         @Serializable data class Row(val patch: Map<String, String>)
-        val rows: List<Row> = client.postgrest["cv_i18n"].select("patch") {
+        val rows: List<Row> = client.postgrest["cv_i18n"].select(Columns.raw("patch")) {
             filter {
                 eq("source_kind", "profile")
                 eq("source_id", userId)
@@ -967,7 +968,9 @@ class Repository @Inject constructor(
     )
 
     suspend fun translateCVEntry(kind: String, fields: Map<String, String>, targetLang: String = "en"): Map<String, String> {
-        val res: TranslateRes = client.functions.invoke("cv-translate", body = TranslateReq(kind, fields, targetLang))
+        val res = client.functions
+            .invoke("cv-translate", body = TranslateReq(kind, fields, targetLang))
+            .body<TranslateRes>()
         if (res.error != null) throw RuntimeException(res.error)
         return res.translations ?: emptyMap()
     }
@@ -975,7 +978,9 @@ class Repository @Inject constructor(
     @Serializable private data class CVExportRes(val url: String? = null, val error: String? = null)
 
     suspend fun exportCV(): String {
-        val res: CVExportRes = client.functions.invoke("cv-export", body = kotlinx.serialization.json.JsonObject(emptyMap()))
+        val res = client.functions
+            .invoke("cv-export", body = kotlinx.serialization.json.JsonObject(emptyMap()))
+            .body<CVExportRes>()
         if (res.error != null) throw RuntimeException(res.error)
         return res.url ?: throw RuntimeException("no url returned")
     }
@@ -985,7 +990,7 @@ class Repository @Inject constructor(
     suspend fun recommendations(forUser: String): List<Recommendation> =
         client.postgrest["recommendations"].select {
             filter { eq("recipient_id", forUser) }
-            order("created_at", ascending = false)
+            order("created_at", Order.DESCENDING)
         }.decodeList()
 
     @Serializable
@@ -1035,9 +1040,9 @@ class Repository @Inject constructor(
     )
 
     suspend fun importFromInstagram(url: String): InstagramImportResult {
-        val res: InstagramImportResponse = client.functions.invoke(
-            "instagram-import", body = InstagramImportReq(url)
-        )
+        val res = client.functions
+            .invoke("instagram-import", body = InstagramImportReq(url))
+            .body<InstagramImportResponse>()
         if (res.error != null) throw RuntimeException(res.error)
         return InstagramImportResult(caption = res.caption ?: "", thumbnailUrl = res.thumbnailUrl)
     }

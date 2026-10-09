@@ -4,9 +4,9 @@
     <string name="app_name">Cadenza</string>
 
     <string name="tab_feed">Feed</string>
-    <string name="tab_notifications">Benachrichtigungen</string>
-    <string name="tab_record">Aufzeichnen</string>
-    <string name="tab_jobs">Möglichkeiten</string>
+    <string name="tab_notifications">Benachr.</string>
+    <string name="tab_record">Aufnahme</string>
+    <string name="tab_jobs">Stellen</string>
     <string name="tab_profile">Profil</string>
 
     <string name="common_ok">OK</string>

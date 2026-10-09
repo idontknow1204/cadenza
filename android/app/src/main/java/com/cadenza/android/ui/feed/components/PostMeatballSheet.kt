@@ -11,7 +11,7 @@ import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.EyeOff
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.outlined.PersonRemove
 import androidx.compose.material.icons.outlined.Report
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -74,7 +74,7 @@ fun PostMeatballSheet(
                 )
                 HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
                 MeatballRow(
-                    icon = Icons.Outlined.EyeOff,
+                    icon = Icons.Outlined.VisibilityOff,
                     label = "관심없음",
                     onClick = { onHide(); onDismiss() },
                 )

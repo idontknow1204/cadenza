@@ -256,25 +256,30 @@ private fun NotificationRow(notif: AppNotification) {
         else      -> Icons.Outlined.Notifications to MaterialTheme.colorScheme.onSurfaceVariant
     }
 
+    // iOS: .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)) + HStack(spacing: 12)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.Top,
     ) {
+        // iOS: Circle icon .frame(width: 40, height: 40) + .font(.system(size: 15, weight: .semibold))
         Box(
             modifier = Modifier.size(40.dp).clip(CircleShape).background(iconColor.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp), tint = iconColor)
+            Icon(icon, contentDescription = null, modifier = Modifier.size(15.dp), tint = iconColor)
         }
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        // iOS: VStack(spacing: 3)
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            // iOS: .font(.subheadline) = 15sp
             Text(
                 notif.bodyText,
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (notif.isRead) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
             )
+            // iOS: .font(.caption2) = 11sp
             Text(
                 notif.timeAgo,
                 style = MaterialTheme.typography.labelSmall,
@@ -282,6 +287,7 @@ private fun NotificationRow(notif: AppNotification) {
             )
         }
         if (!notif.isRead) {
+            // iOS: Circle .fill(Color.accentColor).frame(width: 8, height: 8)
             Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary).padding(top = 6.dp))
         }
     }
@@ -296,17 +302,21 @@ private fun ConnectionRequestRow(
     onAccept: suspend () -> Unit,
     onDecline: suspend () -> Unit,
 ) {
+    // iOS: .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
     val scope = rememberCoroutineScope()
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        // iOS: VStack(spacing: 8) inside connection request row
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        // iOS: HStack(spacing: 10)
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            // iOS: Circle icon .frame(width: 40, height: 40) + .font(.system(size: 15, weight: .semibold))
             Box(
                 modifier = Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(Icons.Outlined.PersonAddAlt, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(Icons.Outlined.PersonAddAlt, contentDescription = null, modifier = Modifier.size(15.dp), tint = MaterialTheme.colorScheme.primary)
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -318,17 +328,20 @@ private fun ConnectionRequestRow(
                 }
             }
         }
+        // iOS: HStack(spacing: 10) with .padding(.vertical, 8) buttons + RoundedRectangle(10)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             OutlinedButton(
                 onClick = { scope.launch { onDecline() } },
                 enabled = !isActing,
                 modifier = Modifier.weight(1f),
-            ) { Text(AppLocale.localized("거절", "Decline", "Ablehnen")) }
+                shape = RoundedCornerShape(10.dp),
+            ) { Text(AppLocale.localized("거절", "Decline", "Ablehnen"), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)) }
             Button(
                 onClick = { scope.launch { onAccept() } },
                 enabled = !isActing,
                 modifier = Modifier.weight(1f),
-            ) { Text(AppLocale.localized("수락", "Accept", "Annehmen")) }
+                shape = RoundedCornerShape(10.dp),
+            ) { Text(AppLocale.localized("수락", "Accept", "Annehmen"), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)) }
         }
     }
 }
@@ -342,18 +355,23 @@ private fun TagRequestRow(
     onAccept: () -> Unit,
     onDecline: () -> Unit,
 ) {
+    // iOS: .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        // iOS: VStack(spacing: 8)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        // iOS: HStack(spacing: 10)
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            // iOS: Circle .fill(Color.orange.opacity(0.12)) + icon .font(.system(size: 15)) .frame(width: 40, height: 40)
             Box(
                 modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFFFB8C00).copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(Icons.Outlined.AlternateEmail, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color(0xFFFB8C00))
+                Icon(Icons.Outlined.AlternateEmail, contentDescription = null, modifier = Modifier.size(15.dp), tint = Color(0xFFFB8C00))
             }
             Column(modifier = Modifier.weight(1f)) {
+                // iOS: .font(.subheadline) = 15sp
                 Text(
                     AppLocale.localized(
                         "${item.author?.realName ?: "누군가"} 님이 활동 기록에 태그했어요",
@@ -362,20 +380,24 @@ private fun TagRequestRow(
                     ),
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                Text(item.title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                // iOS: .font(.caption) = 12sp
+                Text(item.title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
+        // iOS: HStack(spacing: 10) + buttons with .padding(.vertical, 8).background(…, RoundedRectangle(10))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             OutlinedButton(
                 onClick = onDecline,
                 enabled = !isActing,
                 modifier = Modifier.weight(1f),
-            ) { Text(AppLocale.localized("거절", "Decline", "Ablehnen")) }
+                shape = RoundedCornerShape(10.dp),
+            ) { Text(AppLocale.localized("거절", "Decline", "Ablehnen"), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)) }
             Button(
                 onClick = onAccept,
                 enabled = !isActing,
                 modifier = Modifier.weight(1f),
-            ) { Text(AppLocale.localized("기록 공유", "Share activity", "Aktivität teilen"), maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                shape = RoundedCornerShape(10.dp),
+            ) { Text(AppLocale.localized("기록 공유", "Share activity", "Aktivität teilen"), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), maxLines = 1, overflow = TextOverflow.Ellipsis) }
         }
     }
 }
@@ -424,51 +446,62 @@ private fun SuggestedPersonCard(
     onConnect: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 2.dp,
+    // iOS SuggestedPersonCard: RoundedRectangle(16) + .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            // iOS: profileContent - .padding(.top, 16) avatar + spacings
             Column(
                 modifier = Modifier.fillMaxWidth().clickable(onClick = onOpen).padding(top = 16.dp, bottom = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
+                // iOS: UserAvatarView(size: 60)
                 UserAvatarView(url = person.avatarUrl, name = person.realName, size = 60.dp)
-                Text(person.realName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 12.dp))
+                // iOS: .font(.subheadline.weight(.semibold)) + .padding(.top, 8).padding(.horizontal, 12)
+                Spacer(Modifier.height(8.dp))
+                Text(person.realName, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 12.dp))
                 val subtitle = person.instrument?.let { OnboardingData.instrumentDisplay(it) }
                 if (subtitle != null) {
-                    Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, modifier = Modifier.padding(horizontal = 12.dp))
+                    // iOS: .font(.caption) + .padding(.horizontal, 12).padding(.top, 2)
+                    Text(subtitle, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, modifier = Modifier.padding(horizontal = 12.dp).padding(top = 2.dp))
                 }
                 if (person.mutualCount > 0) {
-                    Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.surfaceVariant) {
+                    // iOS: .padding(.horizontal, 8).padding(.vertical, 4).background(.secondary.opacity(0.12), Capsule).padding(.top, 6)
+                    Spacer(Modifier.height(6.dp))
+                    Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)) {
                         Text(
                             AppLocale.localized("공통 ${person.mutualCount}", "${person.mutualCount} mutual", "${person.mutualCount} Gemeinsame"),
                             style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
             }
+            // iOS connect button: .padding(.horizontal, 12).padding(.bottom, 12) + Spacer(minLength: 12)
+            Spacer(Modifier.height(4.dp))
+            // iOS: RoundedRectangle(8) + (isSent ? .secondary : .accentColor).opacity(0.10)
             Surface(
                 onClick = onConnect,
                 enabled = !isUpdating,
                 shape = RoundedCornerShape(8.dp),
-                color = if (isSent) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                color = if (isSent) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+                        else MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
                 modifier = Modifier.padding(horizontal = 12.dp).fillMaxWidth(),
             ) {
                 Text(
                     if (isSent) AppLocale.localized("신청됨", "Requested", "Angefragt") else AppLocale.localized("연결 신청", "Connect", "Verbinden"),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    // iOS: .font(.caption2.weight(.semibold)) = 11sp semibold
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = if (isSent) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
+                    // iOS: .padding(.vertical, 6)
+                    modifier = Modifier.padding(vertical = 6.dp).fillMaxWidth(),
                     textAlign = TextAlign.Center,
                 )
             }
