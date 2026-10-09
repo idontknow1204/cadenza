@@ -13,7 +13,7 @@ import com.cadenza.android.navigation.AppNavigation
 import com.cadenza.android.ui.theme.CadenzaTheme
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.gotrue.auth
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

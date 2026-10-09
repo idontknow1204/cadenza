@@ -6,9 +6,9 @@ import com.cadenza.android.core.data.model.Profile
 import com.cadenza.android.core.data.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.auth.status.SessionStatus
-import io.github.jan.supabase.auth.user.UserInfo
+import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.gotrue.SessionStatus
+import io.github.jan.supabase.gotrue.user.UserInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -85,7 +85,7 @@ class SessionViewModel @Inject constructor(
     fun signUp(name: String, email: String, password: String, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                client.auth.signUpWith(io.github.jan.supabase.auth.providers.builtin.Email) {
+                client.auth.signUpWith(io.github.jan.supabase.gotrue.providers.builtin.Email) {
                     this.email = email
                     this.password = password
                     data = kotlinx.serialization.json.buildJsonObject {
@@ -101,7 +101,7 @@ class SessionViewModel @Inject constructor(
     fun signIn(email: String, password: String, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                client.auth.signInWith(io.github.jan.supabase.auth.providers.builtin.Email) {
+                client.auth.signInWith(io.github.jan.supabase.gotrue.providers.builtin.Email) {
                     this.email = email
                     this.password = password
                 }

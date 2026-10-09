@@ -20,7 +20,7 @@ import com.cadenza.android.core.session.SessionViewModel
 import com.cadenza.android.ui.auth.AuthScreen
 import com.cadenza.android.ui.auth.LanguagePickerScreen
 import com.cadenza.android.ui.onboarding.OnboardingScreen
-import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.gotrue.SessionStatus
 
 // AppNavigation mirrors iOS CadenzaApp body decision tree:
 //   !languageChosen → LanguagePickerScreen
