@@ -14,6 +14,7 @@ import com.cadenza.android.ui.theme.CadenzaTheme
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.parseFragmentAndImportSession
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,10 +43,19 @@ class MainActivity : ComponentActivity() {
 
     private fun handleAuthDeepLink(intent: Intent) {
         val uri = intent.data ?: return
-        if (uri.scheme == AppConfig.authCallbackScheme) {
+        if (uri.scheme != AppConfig.authCallbackScheme) return
+        // PKCE flow: ?code=xxx
+        val code = uri.getQueryParameter("code")
+        if (code != null) {
             lifecycleScope.launch {
-                runCatching { supabaseClient.auth.retrieveSessionFromUrl(uri.toString()) }
+                runCatching { supabaseClient.auth.exchangeCodeForSession(code) }
             }
+            return
+        }
+        // Implicit flow: #access_token=xxx
+        val fragment = uri.fragment
+        if (!fragment.isNullOrEmpty()) {
+            runCatching { supabaseClient.auth.parseFragmentAndImportSession(fragment) }
         }
     }
 }

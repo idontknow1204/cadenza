@@ -13,6 +13,7 @@ import io.github.jan.supabase.realtime.postgresChangeFlow
 import io.github.jan.supabase.realtime.PostgresAction
 import io.github.jan.supabase.storage.storage
 import io.github.jan.supabase.auth.auth
+import io.ktor.client.call.body
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.async
@@ -135,7 +136,7 @@ class Repository @Inject constructor(
 
     suspend fun uploadAvatar(userId: String, bytes: ByteArray): String {
         val path = "${userId.lowercase()}/avatar.jpg"
-        client.storage["avatars"].upload(path, bytes, upsert = true)
+        client.storage["avatars"].upload(path, bytes) { upsert = true }
         val url = client.storage["avatars"].publicUrl(path)
         client.postgrest["profiles"].update(
             buildJsonObject { put("avatar_url", url) }
@@ -967,7 +968,7 @@ class Repository @Inject constructor(
     )
 
     suspend fun translateCVEntry(kind: String, fields: Map<String, String>, targetLang: String = "en"): Map<String, String> {
-        val res: TranslateRes = client.functions.invoke("cv-translate", body = TranslateReq(kind, fields, targetLang))
+        val res: TranslateRes = client.functions.invoke("cv-translate", body = TranslateReq(kind, fields, targetLang)).body()
         if (res.error != null) throw RuntimeException(res.error)
         return res.translations ?: emptyMap()
     }
@@ -975,7 +976,7 @@ class Repository @Inject constructor(
     @Serializable private data class CVExportRes(val url: String? = null, val error: String? = null)
 
     suspend fun exportCV(): String {
-        val res: CVExportRes = client.functions.invoke("cv-export", body = kotlinx.serialization.json.JsonObject(emptyMap()))
+        val res: CVExportRes = client.functions.invoke("cv-export", body = kotlinx.serialization.json.JsonObject(emptyMap())).body()
         if (res.error != null) throw RuntimeException(res.error)
         return res.url ?: throw RuntimeException("no url returned")
     }
@@ -1037,7 +1038,7 @@ class Repository @Inject constructor(
     suspend fun importFromInstagram(url: String): InstagramImportResult {
         val res: InstagramImportResponse = client.functions.invoke(
             "instagram-import", body = InstagramImportReq(url)
-        )
+        ).body()
         if (res.error != null) throw RuntimeException(res.error)
         return InstagramImportResult(caption = res.caption ?: "", thumbnailUrl = res.thumbnailUrl)
     }
@@ -1048,7 +1049,7 @@ class Repository @Inject constructor(
         val authId = client.auth.currentSessionOrNull()?.user?.id
             ?: throw IllegalStateException("No active session")
         val path = "${authId.lowercase()}/cv.pdf"
-        client.storage["user-files"].upload(path, bytes, upsert = true)
+        client.storage["user-files"].upload(path, bytes) { upsert = true }
         return client.storage["user-files"].publicUrl(path)
     }
 
