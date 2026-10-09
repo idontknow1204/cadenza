@@ -102,7 +102,7 @@ fun OrgPageScreen(
                     }
                 }
                 org != null -> {
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                         item("header") {
                             OrgHeader(
                                 org = org!!,
@@ -128,6 +128,9 @@ fun OrgPageScreen(
                             if (idx > 0) HorizontalDivider(thickness = 8.dp, color = MaterialTheme.colorScheme.surfaceVariant)
                             ActivityCard(
                                 item = item,
+                                repository = viewModel.repository,
+                                connectionStore = viewModel.connectionStore,
+                                currentUserId = session.currentUserId,
                                 onNavigateToUser = onNavigateToUser,
                                 onNavigateToOrg = { /* already here */ },
                             )

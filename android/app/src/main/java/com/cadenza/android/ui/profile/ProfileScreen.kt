@@ -2,6 +2,7 @@ package com.cadenza.android.ui.profile
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -158,6 +159,7 @@ fun ProfileScreen(
                 }
             } else {
                 LazyColumn(
+                    modifier = Modifier.background(MaterialTheme.colorScheme.background),
                     contentPadding = PaddingValues(
                         bottom = contentPadding.calculateBottomPadding() + 16.dp,
                         top = 8.dp,
@@ -181,7 +183,7 @@ fun ProfileScreen(
                                     onEdit = { showBasicEdit = true },
                                 ) {
                                     if (!p.bio.isNullOrEmpty()) {
-                                        Text(p.bio, style = MaterialTheme.typography.bodyMedium)
+                                        Text(p.bio.orEmpty(), style = MaterialTheme.typography.bodyMedium)
                                     } else {
                                         Text(
                                             AppLocale.localized("소개글을 작성해보세요", "Add a bio", "Bio hinzufügen"),
@@ -718,4 +720,3 @@ private fun ManageSectionsButton(onClick: () -> Unit) {
         Text(AppLocale.localized("프로필 섹션 관리", "Profile Sections", "Profilabschnitte"))
     }
 }
-

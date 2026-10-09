@@ -10,8 +10,10 @@ import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import com.cadenza.android.ui.theme.CadenzaAccent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,7 +82,12 @@ fun RootNavigation(
                             }
                         },
                         icon = { Icon(tab.icon, contentDescription = null) },
-                        label = { Text(stringResource(tab.labelRes)) }
+                        label = { Text(stringResource(tab.labelRes)) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = CadenzaAccent,
+                            selectedTextColor = CadenzaAccent,
+                            indicatorColor = CadenzaAccent.copy(alpha = 0.12f),
+                        ),
                     )
                 }
             }

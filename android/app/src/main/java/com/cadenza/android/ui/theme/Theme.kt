@@ -8,28 +8,46 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val LightColorScheme = lightColorScheme(
-    primary          = CadenzaAccent,
-    onPrimary        = androidx.compose.ui.graphics.Color.White,
-    primaryContainer = BrandSurface,
-    onPrimaryContainer = CadenzaAccent,
-    secondary        = BrandGold,
-    onSecondary      = androidx.compose.ui.graphics.Color.White,
-    surface          = BrandSurface,
-    background       = androidx.compose.ui.graphics.Color.White,
+    primary             = CadenzaAccent,
+    onPrimary           = Color.White,
+    primaryContainer    = BrandSurface,
+    onPrimaryContainer  = CadenzaAccent,
+    secondary           = BrandGold,
+    onSecondary         = Color.White,
+    secondaryContainer  = BrandSurface,
+    // Surface = card/sheet background (iOS systemBackground = white)
+    surface             = Color.White,
+    onSurface           = Color(0xFF1C1C1E),
+    // Background = screen/list background (iOS secondarySystemBackground = #F2F2F7)
+    background          = Color(0xFFF2F2F7),
+    onBackground        = Color(0xFF1C1C1E),
+    // SurfaceVariant = subtle gray for separators and input containers
+    surfaceVariant      = Color(0xFFE5E5EA),
+    onSurfaceVariant    = Color(0xFF6C6C70),
+    outline             = Color(0xFFC7C7CC),
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary          = CadenzaAccentDark,
-    onPrimary        = androidx.compose.ui.graphics.Color.White,
-    primaryContainer = BrandSurfaceDark,
-    onPrimaryContainer = CadenzaAccentDark,
-    secondary        = BrandGoldDark,
-    onSecondary      = androidx.compose.ui.graphics.Color.Black,
-    surface          = BrandSurfaceDark,
-    background       = androidx.compose.ui.graphics.Color.Black,
+    primary             = CadenzaAccentDark,
+    onPrimary           = Color.White,
+    primaryContainer    = BrandSurfaceDark,
+    onPrimaryContainer  = CadenzaAccentDark,
+    secondary           = BrandGoldDark,
+    onSecondary         = Color.Black,
+    secondaryContainer  = BrandSurfaceDark,
+    // Surface = card/sheet background (iOS dark systemBackground = #1C1C1E)
+    surface             = Color(0xFF1C1C1E),
+    onSurface           = Color.White,
+    // Background = screen/list background (iOS dark secondarySystemBackground = black)
+    background          = Color.Black,
+    onBackground        = Color.White,
+    surfaceVariant      = Color(0xFF2C2C2E),
+    onSurfaceVariant    = Color(0xFF8E8E93),
+    outline             = Color(0xFF38383A),
 )
 
 @Composable

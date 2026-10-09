@@ -82,6 +82,7 @@ fun JobsScreen(
     val searchError     by viewModel.searchError.collectAsState()
     val filter          by viewModel.filter.collectAsState()
     val sort            by viewModel.sort.collectAsState()
+    val userProfile     by session.profile.collectAsState()
 
     var searchQuery     by remember { mutableStateOf("") }
     var searchActive    by remember { mutableStateOf(false) }
@@ -154,7 +155,7 @@ fun JobsScreen(
                 }
                 JobFilterBar(
                     filter = filter,
-                    myInstrument = session.profile?.instrument,
+                    myInstrument = userProfile?.instrument,
                     onOpenFilter = { showFilterSheet = true },
                     onToggleOpenOnly = { viewModel.updateFilter(filter.copy(openOnly = !filter.openOnly)) },
                     onToggleMyInstrument = { inst ->
@@ -175,7 +176,7 @@ fun JobsScreen(
                 .padding(innerPadding)
                 .padding(bottom = contentPadding.calculateBottomPadding()),
         ) {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                 when {
                     waitingSearch || (isLoading && jobs.isEmpty() && !isSearching) -> {
                         item {
@@ -247,7 +248,7 @@ fun JobsScreen(
         JobFilterSheet(
             filter = filter,
             sort = sort,
-            myInstrument = session.profile?.instrument,
+            myInstrument = userProfile?.instrument,
             availableCountries = availableCountries,
             onDismiss = { showFilterSheet = false },
             onApply = { f, s ->
@@ -343,7 +344,7 @@ private fun SectionHeader(section: JobSection) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -359,7 +360,7 @@ private fun SectionHeader(section: JobSection) {
 @Composable
 fun JobCard(job: Job, onClick: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(16.dp),
+        modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).clickable(onClick = onClick).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(10.dp)) {

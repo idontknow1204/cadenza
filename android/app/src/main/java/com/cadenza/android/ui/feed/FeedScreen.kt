@@ -197,7 +197,7 @@ fun FeedScreen(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(6.dp)
-                                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                                            .background(MaterialTheme.colorScheme.background),
                                     )
                                 }
                             }
@@ -214,7 +214,7 @@ fun FeedScreen(
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(job.title, style = MaterialTheme.typography.bodyMedium)
                                             Text(
-                                                "${job.type.label}${job.org?.name?.let { " · $it" } ?: ""}",
+                                                "${job.type.label}${job.organization?.let { " · $it" } ?: ""}",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )
@@ -323,7 +323,7 @@ fun FeedScreen(
                                 }
                             }
                         } else {
-                            LazyColumn(state = listState) {
+                            LazyColumn(state = listState, modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
                                 items(items, key = { it.id }) { item ->
                                     ActivityCard(
                                         item = item,
@@ -339,7 +339,7 @@ fun FeedScreen(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(6.dp)
-                                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                                            .background(MaterialTheme.colorScheme.background),
                                     )
                                 }
                             }
