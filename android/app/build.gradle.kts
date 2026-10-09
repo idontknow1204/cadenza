@@ -108,9 +108,6 @@ dependencies {
     implementation(libs.mlkit.translate)
     implementation(libs.mlkit.language.id)
 
-    // Accompanist FlowLayout (chip wrap layout)
-    implementation(libs.accompanist.flowlayout)
-
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 

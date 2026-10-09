@@ -3,6 +3,8 @@ package com.cadenza.android.ui.onboarding.steps
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,9 +46,8 @@ import com.cadenza.android.core.util.AppLocale
 import com.cadenza.android.ui.onboarding.OnboardingViewModel
 import com.cadenza.android.ui.onboarding.components.OnboardingBottomBar
 import com.cadenza.android.ui.onboarding.components.SelectChip
-import com.google.accompanist.flowlayout.FlowRow
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun Step3AffiliationScreen(viewModel: OnboardingViewModel, userId: String) {
     val loc = AppLocale
@@ -128,7 +129,7 @@ fun Step3AffiliationScreen(viewModel: OnboardingViewModel, userId: String) {
             // Course type
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(loc.localized("과정", "Program", "Studiengang"), fontWeight = FontWeight.SemiBold)
-                FlowRow(mainAxisSpacing = 8.dp, crossAxisSpacing = 8.dp) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OnboardingData.courseOptions.forEach { option ->
                         SelectChip(
                             label = option.label,
@@ -178,7 +179,7 @@ fun Step3AffiliationScreen(viewModel: OnboardingViewModel, userId: String) {
                     )
                 }
                 if (homeCities.isNotEmpty()) {
-                    FlowRow(mainAxisSpacing = 8.dp, crossAxisSpacing = 8.dp) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         homeCities.forEach { id ->
                             val city = OnboardingData.cityOptions.firstOrNull { it.id == id }
                             if (city != null) {

@@ -2,6 +2,8 @@ package com.cadenza.android.ui.onboarding.steps
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,8 +24,8 @@ import com.cadenza.android.core.util.AppLocale
 import com.cadenza.android.ui.onboarding.OnboardingViewModel
 import com.cadenza.android.ui.onboarding.components.OnboardingBottomBar
 import com.cadenza.android.ui.onboarding.components.SelectChip
-import com.google.accompanist.flowlayout.FlowRow
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Step2InstrumentScreen(viewModel: OnboardingViewModel, userId: String) {
     val loc = AppLocale
@@ -57,7 +59,7 @@ fun Step2InstrumentScreen(viewModel: OnboardingViewModel, userId: String) {
             // Major section
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(loc.localized("전공", "Major", "Hauptfach"), fontWeight = FontWeight.SemiBold)
-                FlowRow(mainAxisSpacing = 10.dp, crossAxisSpacing = 10.dp) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     OnboardingData.majors.forEach { m ->
                         SelectChip(
                             label = m.localizedName,
@@ -76,7 +78,7 @@ fun Step2InstrumentScreen(viewModel: OnboardingViewModel, userId: String) {
             if (major.isNotEmpty() && instruments.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(loc.localized("악기", "Instrument", "Instrument"), fontWeight = FontWeight.SemiBold)
-                    FlowRow(mainAxisSpacing = 10.dp, crossAxisSpacing = 10.dp) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         instruments.forEach { inst ->
                             SelectChip(
                                 label = inst.localizedName,
