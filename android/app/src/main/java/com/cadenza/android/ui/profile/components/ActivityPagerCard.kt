@@ -82,7 +82,8 @@ fun ActivityPagerCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        // 회색 면을 옅게(글자색의 6%) 해서 글씨가 흐려 보이지 않게 한다
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
     ) {
         Column(
             modifier = Modifier
@@ -125,18 +126,18 @@ fun ActivityPagerCard(
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
                     item.activityDate,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 if (!item.location.isNullOrEmpty()) {
                     Text(
                         "·",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.outlineVariant,
                     )
                     Text(
                         item.location,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                     )
@@ -145,7 +146,7 @@ fun ActivityPagerCard(
             if (!item.role.isNullOrEmpty()) {
                 Text(
                     item.role,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

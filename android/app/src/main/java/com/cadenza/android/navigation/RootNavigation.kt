@@ -19,6 +19,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.platform.LocalConfiguration
@@ -75,6 +78,11 @@ private val tabs = listOf(Tab.Feed, Tab.Notifications, Tab.Create, Tab.Jobs, Tab
 
 // 탭바 치수 — 화면 보며 조정하는 값
 private val TabBarHeight = 46.dp
+private val TabBarShadow = 4.dp
+private val TabBarGradientHeight = 24.dp  // 탭바 위로 번지는 그라데이션 그림자 높이
+private const val TabBarGradientAlpha = 0.10f  // 가장 진한 곳의 검정 농도
+private val TabBarTopMargin = 10.dp  // 탭바 윗쪽 여유
+private val TabBarBottomMargin = 0.dp  // 탭바 아랫쪽 여유 (내비게이션 바 위)
 private val TabGatherDp = 10.dp  // 탭 사이 중심 간격을 이만큼 좁힘
 private val TabIconLabelGap = 0.dp
 private val TabPillHeight = 26.dp
@@ -130,11 +138,26 @@ fun RootNavigation(
             val backStack by navController.currentBackStackEntryAsState()
             val current = backStack?.destination
 
-            Surface(color = MaterialTheme.colorScheme.surface) {
+            // 그림자 2중: 탭바 위로 직접 그린 그라데이션(진하게) + 기본 shadowElevation
+            Box {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .fillMaxWidth()
+                    .height(TabBarGradientHeight)
+                    .offset(y = -TabBarGradientHeight)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color.Transparent, Color.Black.copy(alpha = TabBarGradientAlpha)),
+                        ),
+                    ),
+            )
+            Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = TabBarShadow) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .navigationBarsPadding()
+                        .padding(top = TabBarTopMargin, bottom = TabBarBottomMargin)
                         .height(TabBarHeight),
                     horizontalArrangement = Arrangement.Center,
                 ) {
@@ -167,6 +190,7 @@ fun RootNavigation(
                         )
                     }
                 }
+            }
             }
         }
     ) { padding ->

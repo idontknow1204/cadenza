@@ -447,7 +447,7 @@ private fun FeedHeader(
             .background(MaterialTheme.colorScheme.surface)
             .windowInsetsPadding(WindowInsets.statusBars)
             .padding(horizontal = 16.dp)
-            .padding(top = 4.dp, bottom = 14.dp),
+            .padding(top = 24.dp, bottom = 14.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
