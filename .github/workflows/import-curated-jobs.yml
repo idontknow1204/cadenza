@@ -27,4 +27,3 @@ jobs:
         env:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python scripts/import_curated_jobs.py --apply
-ㅈ
