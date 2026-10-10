@@ -12,7 +12,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -26,9 +32,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,7 +50,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import com.cadenza.android.ui.common.CadenzaPullToRefresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -51,6 +59,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Modifier
@@ -61,9 +70,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cadenza.android.core.data.model.Job
 import com.cadenza.android.core.session.SessionViewModel
+import com.cadenza.android.ui.jobs.JobDetailSheet
 import com.cadenza.android.ui.common.UserAvatarView
 import com.cadenza.android.ui.feed.components.ActivityCard
 import com.cadenza.android.core.util.AppLocale
@@ -75,7 +87,6 @@ fun FeedScreen(
     contentPadding: PaddingValues = PaddingValues(),
     session: SessionViewModel,
     viewModel: FeedViewModel = hiltViewModel(),
-    unreadNotificationCount: Int = 0,
     onNotifications: () -> Unit = {},
     onCreateActivity: () -> Unit = {},
     onNavigateToUser: (String) -> Unit = {},
@@ -93,6 +104,28 @@ fun FeedScreen(
     val isSearching by viewModel.isSearching.collectAsState()
     val suggestedProfiles by viewModel.suggestedProfiles.collectAsState()
     val recentSearches by viewModel.recentSearches.collectAsState()
+    val unreadNotificationCount by viewModel.unreadNotificationCount.collectAsState()
+    val affiliations by viewModel.affiliations.collectAsState()
+    var selectedJob by remember { mutableStateOf<Job?>(null) }
+
+    errorMessage?.let { message ->
+        AlertDialog(
+            onDismissRequest = { viewModel.clearError() },
+            title = { Text(AppLocale.localized("오류", "Error", "Fehler")) },
+            text = { Text(message) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.clearError()
+                    if (currentUserId != null) viewModel.refresh(currentUserId)
+                }) { Text(AppLocale.localized("다시 시도", "Retry", "Erneut versuchen")) }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.clearError() }) {
+                    Text(AppLocale.localized("확인", "OK", "OK"))
+                }
+            },
+        )
+    }
 
     val listState = rememberLazyListState()
     var searchFocused by remember { mutableStateOf(false) }
@@ -157,7 +190,7 @@ fun FeedScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Outlined.Search, contentDescription = null,
                                     modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.outlineVariant)
-                                Text(AppLocale.localized("검색 결과가 없습니다", "No results", "Keine Ergebnisse"),
+                                Text(AppLocale.localized("검색 결과가 없어요", "No results", "Keine Ergebnisse"),
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(top = 8.dp))
                             }
@@ -199,6 +232,7 @@ fun FeedScreen(
                                         currentUserId = currentUserId,
                                         onNavigateToUser = onNavigateToUser,
                                         onNavigateToOrg = onNavigateToOrg,
+                                        authorAffiliation = affiliations[act.author?.id],
                                     )
                                     Box(
                                         modifier = Modifier
@@ -209,12 +243,12 @@ fun FeedScreen(
                                 }
                             }
                             if (searchJobs.isNotEmpty()) {
-                                item { SearchSectionHeader(AppLocale.localized("공고", "Jobs", "Stellen")) }
+                                item { SearchSectionHeader(AppLocale.localized("채용", "Jobs", "Stellen")) }
                                 items(searchJobs) { job ->
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .clickable { /* TODO: job detail */ }
+                                            .clickable { selectedJob = job }
                                             .padding(horizontal = 16.dp, vertical = 8.dp),
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
@@ -243,13 +277,13 @@ fun FeedScreen(
                                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Text(AppLocale.localized("최근 검색", "Recent", "Zuletzt"),
+                                    Text(AppLocale.localized("최근 검색", "Recent", "Zuletzt gesucht"),
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.weight(1f),
                                     )
                                     TextButton(onClick = { viewModel.clearRecent() }) {
-                                        Text(AppLocale.localized("모두 삭제", "Clear all", "Alle löschen"),
+                                        Text(AppLocale.localized("지우기", "Clear", "Löschen"),
                                             style = MaterialTheme.typography.labelSmall)
                                     }
                                 }
@@ -265,9 +299,10 @@ fun FeedScreen(
                                     Text(term, modifier = Modifier.weight(1f))
                                     IconButton(
                                         onClick = { viewModel.removeRecent(term) },
-                                        modifier = Modifier.size(32.dp),
+                                        modifier = Modifier.size(48.dp),
                                     ) {
-                                        Icon(Icons.Default.Close, contentDescription = "삭제",
+                                        Icon(Icons.Default.Close,
+                                            contentDescription = AppLocale.localized("삭제", "Remove", "Entfernen"),
                                             modifier = Modifier.size(14.dp),
                                             tint = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
@@ -276,7 +311,7 @@ fun FeedScreen(
                             }
                         }
                         if (suggestedProfiles.isNotEmpty()) {
-                            item { SearchSectionHeader(AppLocale.localized("추천 사람", "Suggested", "Vorschläge")) }
+                            item { SearchSectionHeader(AppLocale.localized("추천 프로필", "Suggested", "Vorschläge")) }
                             items(suggestedProfiles) { p ->
                                 Row(
                                     modifier = Modifier
@@ -290,7 +325,11 @@ fun FeedScreen(
                                     Column {
                                         Text(p.realName, style = MaterialTheme.typography.bodyMedium)
                                         val sub = when {
-                                            p.mutualCount > 0 -> "${p.mutualCount}명의 공통 연결"
+                                            p.mutualCount > 0 -> AppLocale.localized(
+                                                "${p.mutualCount}명의 공통 연결",
+                                                "${p.mutualCount} mutual connections",
+                                                "${p.mutualCount} gemeinsame Kontakte",
+                                            )
                                             p.instrument != null -> p.instrument
                                             else -> null
                                         }
@@ -308,7 +347,7 @@ fun FeedScreen(
 
                 else -> {
                     // Feed list
-                    PullToRefreshBox(
+                    CadenzaPullToRefresh(
                         isRefreshing = isLoading && items.isNotEmpty(),
                         onRefresh = { if (currentUserId != null) viewModel.refresh(currentUserId) },
                         modifier = Modifier.fillMaxSize(),
@@ -318,16 +357,31 @@ fun FeedScreen(
                                 CircularProgressIndicator()
                             }
                         } else if (items.isEmpty()) {
-                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Outlined.Notifications, contentDescription = null,
-                                        modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.outlineVariant)
-                                    Text(AppLocale.localized("아직 피드가 비어있어요", "Feed is empty", "Feed ist leer"),
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.padding(top = 8.dp))
-                                    Text(AppLocale.localized("다른 사람들과 연결해 보세요", "Connect with others", "Verbinde dich"),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            // 스크롤 가능한 컨테이너여야 당겨서 새로고침이 동작한다
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                item {
+                                    Column(
+                                        modifier = Modifier.fillParentMaxSize().padding(horizontal = 32.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center,
+                                    ) {
+                                        Icon(Icons.Outlined.MusicNote, contentDescription = null,
+                                            modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.outlineVariant)
+                                        Text(AppLocale.localized("아직 기록이 없어요", "No activity yet", "Noch keine Aktivität"),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            modifier = Modifier.padding(top = 8.dp))
+                                        Text(
+                                            AppLocale.localized(
+                                                "함께한 사람을 태그해 첫 기록을 남겨보세요.",
+                                                "Tag a collaborator to make your first record.",
+                                                "Markiere Mitwirkende für deinen ersten Eintrag.",
+                                            ),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.padding(top = 4.dp),
+                                        )
+                                    }
                                 }
                             }
                         } else {
@@ -341,6 +395,7 @@ fun FeedScreen(
                                         onNavigateToUser = onNavigateToUser,
                                         onNavigateToOrg = onNavigateToOrg,
                                         onDeleted = { viewModel.remove(item.id) },
+                                        authorAffiliation = affiliations[item.author?.id],
                                     )
                                     // Post separator
                                     Box(
@@ -356,6 +411,18 @@ fun FeedScreen(
                 }
             }
         }
+    }
+
+    selectedJob?.let { job ->
+        JobDetailSheet(
+            job = job,
+            isOwner = currentUserId != null && job.userId == currentUserId,
+            onDismiss = { selectedJob = null },
+            onJobClosed = {
+                coroutineScope.launch { runCatching { viewModel.repository.closeJob(job.id) } }
+                selectedJob = null
+            },
+        )
     }
 }
 
@@ -390,7 +457,8 @@ private fun FeedHeader(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(7.dp),
-                modifier = Modifier.weight(1f),
+                // 로고+타이틀만 5dp 아래로 (버튼들은 그대로)
+                modifier = Modifier.weight(1f).offset(y = 5.dp),
             ) {
                 Image(
                     painter = painterResource(R.drawable.cadenza_logo),
@@ -414,7 +482,8 @@ private fun FeedHeader(
                 },
             ) {
                 IconButton(onClick = onNotifications) {
-                    Icon(Icons.Outlined.Notifications, contentDescription = "알림")
+                    Icon(Icons.Outlined.Notifications,
+                        contentDescription = AppLocale.localized("알림", "Notifications", "Benachrichtigungen"))
                 }
             }
             Spacer(Modifier.width(4.dp))
@@ -426,10 +495,11 @@ private fun FeedHeader(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = Icons.Outlined.Edit,
+                        imageVector = Icons.Outlined.EditNote,
                         contentDescription = AppLocale.localized("활동 기록", "Record activity", "Aktivität"),
                         tint = CadenzaAccent,
-                        modifier = Modifier.size(20.dp),
+                        // EditNote 글리프의 잉크 중심 쏠림 보정 (수동 조정값)
+                        modifier = Modifier.size(23.dp).offset(x = 2.5.dp, y = 1.5.dp),
                     )
                 }
             }
@@ -455,28 +525,45 @@ private fun FeedHeader(
                 modifier = Modifier.padding(start = 12.dp).size(18.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            TextField(
-                value = searchQuery,
-                onValueChange = onSearchQueryChange,
-                placeholder = { Text(AppLocale.localized("이름, 활동, 공고 검색", "Search name, activity, job", "Suchen…"), style = MaterialTheme.typography.bodySmall) },
+            // M3 TextField는 최소 높이 56dp라 44dp 바 안에서 세로 중앙이 어긋나므로 BasicTextField 사용
+            Box(
                 modifier = Modifier
                     .weight(1f)
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { onFocusChange(it.isFocused) },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                ),
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodySmall,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { onSearchSubmit(searchQuery) }),
-            )
+                    .fillMaxHeight()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                    ) { focusRequester.requestFocus() }
+                    .padding(horizontal = 9.dp),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                if (searchQuery.isEmpty()) {
+                    Text(
+                        AppLocale.localized("사람, 활동 검색", "Search people or activities", "Personen oder Aktivitäten suchen"),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                BasicTextField(
+                    value = searchQuery,
+                    onValueChange = onSearchQueryChange,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { onFocusChange(it.isFocused) },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
+                    cursorBrush = SolidColor(CadenzaAccent),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = { onSearchSubmit(searchQuery) }),
+                )
+            }
             if (searchQuery.isNotEmpty() || searchFocused) {
-                IconButton(onClick = onClearSearch, modifier = Modifier.size(40.dp)) {
-                    Icon(Icons.Default.Close, contentDescription = "지우기",
+                IconButton(onClick = onClearSearch, modifier = Modifier.size(44.dp)) {
+                    Icon(Icons.Default.Close,
+                        contentDescription = AppLocale.localized("지우기", "Clear", "Löschen"),
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }

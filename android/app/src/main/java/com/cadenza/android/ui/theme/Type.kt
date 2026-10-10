@@ -17,6 +17,8 @@ val CadenzaTypography = Typography(
     titleLarge     = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 20.sp),
     // iOS .headline(17) → titleMedium  [ActivityCard title: .headline]
     titleMedium    = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 17.sp),
+    // iOS .subheadline.weight(.semibold)(15) → titleSmall  [ActivityCard author/org name]
+    titleSmall     = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 15.sp),
     // iOS .body(17) → bodyLarge  [CareerRow org: .body.weight(.semibold)]
     bodyLarge      = TextStyle(fontWeight = FontWeight.Normal,   fontSize = 17.sp),
     // iOS .subheadline(15) → bodyMedium  [bio, card body text]

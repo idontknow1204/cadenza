@@ -208,6 +208,32 @@ class Repository @Inject constructor(
 
     // ─── Affiliations ─────────────────────────────────────────────────────────
 
+    @Serializable private data class CareerOrgRow(
+        @SerialName("user_id") val userId: String,
+        val organization: String,
+    )
+    @Serializable private data class AffiliationOrgRow(
+        @SerialName("user_id") val userId: String,
+        @SerialName("institution_name") val institutionName: String,
+    )
+
+    /** 피드 작성자 소속 표기용: 현재 근무지 우선, 없으면 현재 학교. 없는 사용자는 맵에서 빠진다. */
+    suspend fun currentAffiliations(userIds: List<String>): Map<String, String> {
+        if (userIds.isEmpty()) return emptyMap()
+        val careers = client.postgrest["careers"]
+            .select(Columns.raw("user_id, organization")) {
+                filter { isIn("user_id", userIds); eq("is_current", true) }
+            }.decodeList<CareerOrgRow>()
+        val schools = client.postgrest["affiliations"]
+            .select(Columns.raw("user_id, institution_name")) {
+                filter { isIn("user_id", userIds); eq("is_current", true) }
+            }.decodeList<AffiliationOrgRow>()
+        val result = mutableMapOf<String, String>()
+        careers.forEach { r -> if (r.organization.isNotBlank()) result.putIfAbsent(r.userId, r.organization) }
+        schools.forEach { r -> if (r.institutionName.isNotBlank()) result.putIfAbsent(r.userId, r.institutionName) }
+        return result
+    }
+
     suspend fun affiliations(forUser: String): List<Affiliation> =
         client.postgrest["affiliations"].select {
             filter { eq("user_id", forUser) }

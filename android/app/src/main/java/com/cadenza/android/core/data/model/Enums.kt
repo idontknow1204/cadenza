@@ -104,7 +104,7 @@ enum class Visibility {
         PUBLIC             -> AppLocale.localized("전체 공개",   "Public",                 "Öffentlich")
         INDUSTRY_FOLLOWERS -> AppLocale.localized("업계+팔로워", "Industry + followers",   "Branche + Follower")
         FOLLOWERS          -> AppLocale.localized("팔로워만",    "Followers only",         "Nur Follower")
-        PRIVATE            -> AppLocale.localized("비공개",      "Private",                "Privat")
+        PRIVATE            -> AppLocale.localized("나만 보기",   "Only me",                "Nur ich")
     }
 }
 

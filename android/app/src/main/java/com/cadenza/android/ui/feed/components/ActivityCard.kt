@@ -31,6 +31,7 @@ import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -43,6 +44,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,7 +60,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -96,6 +100,7 @@ fun ActivityCard(
     onNavigateToUser: (String) -> Unit = {},
     onNavigateToOrg: (String) -> Unit = {},
     onDeleted: (() -> Unit)? = null,
+    authorAffiliation: String? = null,
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -186,6 +191,7 @@ fun ActivityCard(
         // iOS: .padding(.horizontal, 16).padding(.top, isConnectionCommented ? 6 : 14).padding(.bottom, 6)
         AuthorHeader(
             item = item,
+            authorAffiliation = authorAffiliation,
             authorConnectionStatus = authorConnectionStatus,
             isUpdatingConnection = isUpdatingConnection,
             currentUserId = currentUserId,
@@ -244,11 +250,11 @@ fun ActivityCard(
                 modifier = Modifier.padding(horizontal = 8.dp),
             ) {
                 Icon(Icons.Outlined.Translate, contentDescription = null,
-                    modifier = Modifier.size(14.dp).padding(end = 2.dp))
+                    modifier = Modifier.size(16.dp).padding(end = 2.dp))
                 Text(
                     text = if (showTranslation) AppLocale.localized("원문 보기", "Original", "Original")
                            else AppLocale.localized("${targetName} 번역 보기", "View in $targetName", "Auf $targetName"),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MetaTextStyle,
                 )
             }
         }
@@ -261,7 +267,7 @@ fun ActivityCard(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Icon(Icons.Outlined.PersonAdd, contentDescription = null,
-                    modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 tags.forEach { p ->
                     Surface(
                         shape = RoundedCornerShape(50),
@@ -269,7 +275,7 @@ fun ActivityCard(
                     ) {
                         Text(
                             text = p.realName,
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MetaTextStyle,
                             color = CadenzaAccent,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                         )
@@ -339,7 +345,7 @@ fun ActivityCard(
         // Action bar
         Row(modifier = Modifier.fillMaxWidth()) {
             ActionButton(
-                icon = if (isLiked) Icons.Outlined.ThumbUp else Icons.Outlined.ThumbUp,
+                icon = if (isLiked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
                 label = AppLocale.localized("좋아요", "Like", "Gefällt mir"),
                 tint = if (isLiked) CadenzaAccent else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
@@ -370,16 +376,10 @@ fun ActivityCard(
                 label = AppLocale.localized("공유", "Share", "Teilen"),
                 modifier = Modifier.weight(1f),
                 onClick = {
-                    val text = buildString {
-                        append(item.title)
-                        item.role?.let { append("\n$it") }
-                        append("\n${item.activityDate}")
-                        item.location?.let { if (it.isNotBlank()) append("\n$it") }
-                        append("\n— Cadenza")
-                    }
                     val intent = Intent(ACTION_SEND).apply {
                         type = "text/plain"
-                        putExtra(EXTRA_TEXT, text)
+                        putExtra(Intent.EXTRA_SUBJECT, item.title)
+                        putExtra(EXTRA_TEXT, shareText(item))
                     }
                     context.startActivity(Intent.createChooser(intent, null))
                 },
@@ -497,6 +497,7 @@ private fun HiddenBanner(onUndo: () -> Unit) {
 @Composable
 private fun AuthorHeader(
     item: ActivityWithAuthor,
+    authorAffiliation: String?,
     authorConnectionStatus: ConnectionStatus?,
     isUpdatingConnection: Boolean,
     currentUserId: String?,
@@ -523,7 +524,7 @@ private fun AuthorHeader(
                 Column {
                     Text(item.org.name, style = MaterialTheme.typography.titleSmall)
                     Text(
-                        text = postTimeText(item.createdAt),
+                        text = postTimeText(item.createdAt, item.activityDate),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -550,21 +551,32 @@ private fun AuthorHeader(
                 )
                 Column {
                     Text(item.author?.realName ?: "—", style = MaterialTheme.typography.titleSmall)
+                    // 1줄: 전공(악기) · 시간
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        item.author?.instrument?.let { inst ->
+                        item.author?.instrument?.takeIf { it.isNotBlank() }?.let { inst ->
                             Text(inst, style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false))
                             Text("·", style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.outlineVariant)
                         }
                         Text(
-                            text = postTimeText(item.createdAt),
+                            text = postTimeText(item.createdAt, item.activityDate),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                    }
+                    // 2줄: 현재 근무지 → 없으면 현재 학교
+                    authorAffiliation?.takeIf { it.isNotBlank() }?.let { aff ->
+                        Text(aff, style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis)
                     }
                 }
             }
@@ -620,7 +632,7 @@ private fun ActivityContent(
                 ) {
                     Text(
                         "인증됨",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MetaTextStyle,
                         color = Color.White,
                         modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
                     )
@@ -629,9 +641,9 @@ private fun ActivityContent(
             ActivityTypeChip(item.type)
             item.location?.let { loc ->
                 if (loc.isNotBlank()) {
-                    Text("·", style = MaterialTheme.typography.labelSmall,
+                    Text("·", style = MetaTextStyle,
                         color = MaterialTheme.colorScheme.outlineVariant)
-                    Text(loc, style = MaterialTheme.typography.labelSmall,
+                    Text(loc, style = MetaTextStyle,
                         color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                 }
             }
@@ -650,10 +662,11 @@ private fun ActivityContent(
                     } else if (!translatedText.isNullOrBlank()) {
                         ExpandableText(
                             text = translatedText,
-                            collapsedLineLimit = 3,
+                            collapsedLineLimit = 5,
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                             ),
+                            toggleTextStyle = PostToggleTextStyle,
                         )
                     } else if (translationError != null) {
                         Text(translationError, style = MaterialTheme.typography.bodySmall,
@@ -669,7 +682,7 @@ private fun ActivityContent(
                             color = CadenzaAccent,
                         )
                     }
-                    ExpandableText(text = bodyText, collapsedLineLimit = 3)
+                    ExpandableText(text = bodyText, collapsedLineLimit = 5, toggleTextStyle = PostToggleTextStyle)
                 }
             }
         }
@@ -820,8 +833,8 @@ private fun ActivityTypeChip(type: ActivityType) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(3.dp),
         ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(10.dp), tint = color)
-            Text(type.localizedLabel, style = MaterialTheme.typography.labelSmall, color = color)
+            Icon(icon, contentDescription = null, modifier = Modifier.size(12.dp), tint = color)
+            Text(type.localizedLabel, style = MetaTextStyle, color = color)
         }
     }
 }
@@ -852,22 +865,46 @@ private fun postBodyText(item: ActivityWithAuthor): String =
         item.program?.trim()?.ifBlank { null },
     ).joinToString("\n\n")
 
-private fun postTimeText(createdAt: String?): String {
-    if (createdAt == null) return ""
+// 제목 아래 메타(유형 칩·장소), 번역 버튼, 태그 칩 글자 크기: labelSmall(11sp)보다 2sp 크게
+private val MetaTextStyle = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Normal)
+
+// "더 보기" 버튼 글자: labelSmall(11sp)보다 3sp 크게
+private val PostToggleTextStyle = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium)
+
+/** 공유 문구. 게시글용 웹 주소가 아직 없어 텍스트로 공유한다. 비어 있는 항목은 줄에서 뺀다. */
+private fun shareText(item: ActivityWithAuthor): String {
+    val whenWhere = listOfNotNull(
+        item.activityDate.replace("-", ".").takeIf { it.isNotBlank() },
+        item.location?.trim()?.takeIf { it.isNotEmpty() },
+    ).joinToString(" · ")
+    return listOfNotNull(
+        item.title.trim(),
+        item.role?.trim()?.takeIf { it.isNotEmpty() },
+        whenWhere.takeIf { it.isNotEmpty() },
+        "— Cadenza",
+    ).joinToString("\n")
+}
+
+/**
+ * 게시 시각 표기: 1주일 미만은 상대 시간(방금/분/시간/일 전), 1주일 이상은 게시 날짜(yyyy.MM.dd).
+ * created_at을 읽을 수 없으면 활동 날짜로 대체한다.
+ */
+private fun postTimeText(createdAt: String?, activityDate: String): String {
+    val fallback = activityDate.replace("-", ".")
+    if (createdAt.isNullOrBlank()) return fallback
     return try {
-        val instant = Instant.parse(createdAt)
-        val diff = (System.currentTimeMillis() - instant.toEpochMilli()) / 1000L
+        // Postgres는 "+00:00" 오프셋으로 내려주므로 Instant.parse(Z 전용) 대신 OffsetDateTime 사용
+        val posted = java.time.OffsetDateTime.parse(createdAt)
+        val diff = (System.currentTimeMillis() - posted.toInstant().toEpochMilli()) / 1000L
         when {
-            diff < 60    -> "방금"
-            diff < 3600  -> "${diff / 60}분 전"
-            diff < 86400 -> "${diff / 3600}시간 전"
-            diff < 86400 * 7 -> "${diff / 86400}일 전"
-            diff < 86400 * 30L -> "${diff / (86400 * 7)}주 전"
-            diff < 86400 * 365L -> "${diff / (86400 * 30)}개월 전"
-            else -> "${diff / (86400 * 365)}년 전"
+            diff < 60        -> AppLocale.localized("방금", "Just now", "Gerade eben")
+            diff < 3600      -> (diff / 60).let { AppLocale.localized("${it}분 전", "${it}m ago", "vor $it Min.") }
+            diff < 86400     -> (diff / 3600).let { AppLocale.localized("${it}시간 전", "${it}h ago", "vor $it Std.") }
+            diff < 86400 * 7 -> (diff / 86400).let { AppLocale.localized("${it}일 전", "${it}d ago", "vor $it T.") }
+            else -> posted.atZoneSameInstant(java.time.ZoneId.systemDefault())
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy.MM.dd"))
         }
-    } catch (_: DateTimeParseException) { "" }
-    catch (_: Exception) { "" }
+    } catch (_: Exception) { fallback }
 }
 
 // ── ML Kit Translation ────────────────────────────────────────────────────────

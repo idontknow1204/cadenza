@@ -58,6 +58,14 @@ class FeedViewModel @Inject constructor(
     private val _recentSearches = MutableStateFlow<List<String>>(emptyList())
     val recentSearches: StateFlow<List<String>> = _recentSearches.asStateFlow()
 
+    private val _unreadNotificationCount = MutableStateFlow(0)
+    val unreadNotificationCount: StateFlow<Int> = _unreadNotificationCount.asStateFlow()
+
+    // 작성자 id → 현재 소속(근무지 우선, 없으면 학교)
+    private val _affiliations = MutableStateFlow<Map<String, String>>(emptyMap())
+    val affiliations: StateFlow<Map<String, String>> = _affiliations.asStateFlow()
+    private val requestedAffiliationIds = mutableSetOf<String>()
+
     private var allJobs: List<Job> = emptyList()
     private var refreshJob: CoroutineJob? = null
     private var searchJob: CoroutineJob? = null
@@ -67,8 +75,13 @@ class FeedViewModel @Inject constructor(
         refreshJob = viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
+            launch {
+                runCatching { repository.unreadNotificationCount(userId) }
+                    .onSuccess { _unreadNotificationCount.value = it }
+            }
             try {
                 _items.value = repository.feed(userId)
+                launch { loadAffiliations(_items.value) }
             } catch (e: Throwable) {
                 if (e !is CancellationException) _errorMessage.value = e.message
             } finally {
@@ -106,6 +119,7 @@ class FeedViewModel @Inject constructor(
             try {
                 _searchPeople.value = repository.searchProfiles(trimmed, userId)
                 _searchActivities.value = repository.searchActivities(trimmed)
+                launch { loadAffiliations(_searchActivities.value) }
                 _searchJobs.value = filterJobs(allJobs, trimmed)
             } catch (_: Throwable) {
             } finally {
@@ -143,6 +157,20 @@ class FeedViewModel @Inject constructor(
     fun clearRecent() { _recentSearches.value = emptyList() }
 
     fun clearError() { _errorMessage.value = null }
+
+    /** 아직 조회하지 않은 작성자만 모아 소속을 가져온다. 실패해도 피드 표시에는 영향 없음. */
+    private suspend fun loadAffiliations(activities: List<ActivityWithAuthor>) {
+        val ids = activities.mapNotNull { it.author?.id }.distinct()
+            .filter { requestedAffiliationIds.add(it) }
+        if (ids.isEmpty()) return
+        try {
+            val fetched = repository.currentAffiliations(ids)
+            _affiliations.value = _affiliations.value + fetched
+        } catch (e: Throwable) {
+            if (e is CancellationException) throw e
+            requestedAffiliationIds.removeAll(ids.toSet())
+        }
+    }
 
     private fun filterJobs(jobs: List<Job>, q: String): List<Job> = jobs.filter { job ->
         job.title.contains(q, ignoreCase = true)

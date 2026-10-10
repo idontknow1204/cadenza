@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.cadenza.android.core.data.preferences.AppPreferences
 import com.cadenza.android.core.data.repository.Repository
 import com.cadenza.android.core.session.SessionViewModel
@@ -109,8 +110,8 @@ fun ProfileSettingsSheet(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(AppLocale.localized("설정 및 개인정보", "Settings and privacy", "Einstellungen"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    TextButton(onClick = onDismiss) { Text(AppLocale.localized("닫기", "Done", "Fertig")) }
+                    Text(AppLocale.localized("설정 및 개인정보", "Settings and privacy", "Einstellungen"), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                    TextButton(onClick = onDismiss) { Text(AppLocale.localized("닫기", "Done", "Fertig"), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)) }
                 }
                 HorizontalDivider()
             }
@@ -253,7 +254,7 @@ fun ProfileSettingsSheet(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(18.dp))
-                        Text(AppLocale.localized("계정 삭제 중...", "Deleting account...", "Konto wird gelöscht..."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(AppLocale.localized("계정 삭제 중...", "Deleting account...", "Konto wird gelöscht..."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
                     SettingsRow(
@@ -286,14 +287,14 @@ fun ProfileSettingsSheet(
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
-                        ) { Text(name, fontWeight = if (currentLang == code) FontWeight.Bold else FontWeight.Normal) }
+                        ) { Text(name, style = MaterialTheme.typography.bodyLarge, fontWeight = if (currentLang == code) FontWeight.Bold else FontWeight.Normal) }
                     }
                 }
             },
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showLangPicker = false }) {
-                    Text(AppLocale.localized("취소", "Cancel", "Abbrechen"))
+                    Text(AppLocale.localized("취소", "Cancel", "Abbrechen"), style = MaterialTheme.typography.bodyLarge)
                 }
             },
         )
@@ -305,10 +306,10 @@ fun ProfileSettingsSheet(
             onDismissRequest = { showSignOutConfirm = false },
             title = { Text(AppLocale.localized("로그아웃할까요?", "Sign out?", "Abmelden?")) },
             confirmButton = {
-                TextButton(onClick = onSignOut) { Text(AppLocale.localized("로그아웃", "Sign out", "Abmelden"), color = MaterialTheme.colorScheme.error) }
+                TextButton(onClick = onSignOut) { Text(AppLocale.localized("로그아웃", "Sign out", "Abmelden"), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
-                TextButton(onClick = { showSignOutConfirm = false }) { Text(AppLocale.localized("취소", "Cancel", "Abbrechen")) }
+                TextButton(onClick = { showSignOutConfirm = false }) { Text(AppLocale.localized("취소", "Cancel", "Abbrechen"), style = MaterialTheme.typography.bodyLarge) }
             },
         )
     }
@@ -334,10 +335,10 @@ fun ProfileSettingsSheet(
                             }
                         }
                     },
-                ) { Text(AppLocale.localized("영구 삭제", "Delete permanently", "Endgültig löschen"), color = MaterialTheme.colorScheme.error) }
+                ) { Text(AppLocale.localized("영구 삭제", "Delete permanently", "Endgültig löschen"), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text(AppLocale.localized("취소", "Cancel", "Abbrechen")) }
+                TextButton(onClick = { showDeleteConfirm = false }) { Text(AppLocale.localized("취소", "Cancel", "Abbrechen"), style = MaterialTheme.typography.bodyLarge) }
             },
         )
     }
@@ -396,8 +397,8 @@ private fun DataPrivacySheet(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(AppLocale.localized("데이터 및 개인정보 설정", "Data and Privacy", "Daten & Datenschutz"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    TextButton(onClick = onDismiss) { Text(AppLocale.localized("닫기", "Done", "Fertig")) }
+                    Text(AppLocale.localized("데이터 및 개인정보 설정", "Data and Privacy", "Daten & Datenschutz"), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                    TextButton(onClick = onDismiss) { Text(AppLocale.localized("닫기", "Done", "Fertig"), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)) }
                 }
                 HorizontalDivider()
             }
@@ -485,12 +486,13 @@ private fun DataPrivacySheet(
 private fun SettingsSectionHeader(title: String) {
     Text(
         title,
-        style = MaterialTheme.typography.labelSmall,
+        style = MaterialTheme.typography.bodyMedium,
+        fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 10.dp),
     )
 }
 
@@ -507,20 +509,20 @@ fun SettingsRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier.size(32.dp).clip(RoundedCornerShape(7.dp)).background(iconColor.copy(alpha = 0.12f)),
+            modifier = Modifier.size(38.dp).clip(RoundedCornerShape(8.dp)).background(iconColor.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = iconColor)
+            Icon(icon, contentDescription = null, modifier = Modifier.size(21.dp), tint = iconColor)
         }
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-            Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, color = textColor)
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, color = textColor)
             if (subtitle.isNotEmpty()) {
-                Text(subtitle, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
             }
         }
     }
@@ -533,14 +535,14 @@ private fun DataOverviewRow(title: String, detail: String) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Box(
-            modifier = Modifier.size(24.dp).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+            modifier = Modifier.size(28.dp).clip(RoundedCornerShape(7.dp)).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(Icons.Outlined.AccountCircle, contentDescription = null, modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.primary)
+            Icon(Icons.Outlined.AccountCircle, contentDescription = null, modifier = Modifier.size(15.dp), tint = MaterialTheme.colorScheme.primary)
         }
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(title, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
-            Text(detail, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+            Text(detail, style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -558,8 +560,8 @@ private fun PrivacyToggleRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-            Text(subtitle, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Switch(checked = checked, onCheckedChange = onChecked)
     }

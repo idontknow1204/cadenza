@@ -1,5 +1,8 @@
 package com.cadenza.android.ui.profile.sheets
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -86,22 +89,21 @@ fun LanguageEditSheet(
                 .imePadding()
                 .padding(horizontal = 16.dp),
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                TextButton(onClick = onDismiss) {
-                    Text(AppLocale.localized("취소", "Cancel", "Abbrechen"))
+            Box(modifier = Modifier.fillMaxWidth().height(48.dp)) {
+                TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterStart)) {
+                    Text(AppLocale.localized("취소", "Cancel", "Abbrechen"), style = MaterialTheme.typography.bodyLarge)
                 }
                 Text(
                     AppLocale.localized("언어", "Languages", "Sprachen"),
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                    modifier = Modifier.align(Alignment.Center).padding(horizontal = 96.dp),
+                    textAlign = TextAlign.Center,
                 )
                 if (saving) {
-                    CircularProgressIndicator(modifier = Modifier.height(24.dp))
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp).size(24.dp))
                 } else {
-                    Button(
+                    TextButton(
+                        modifier = Modifier.align(Alignment.CenterEnd),
                         onClick = {
                             saving = true
                             errorText = null
@@ -132,7 +134,10 @@ fun LanguageEditSheet(
                             }
                         },
                     ) {
-                        Text(AppLocale.localized("저장", "Save", "Speichern"))
+                        Text(
+                            AppLocale.localized("저장", "Save", "Speichern"),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                        )
                     }
                 }
             }

@@ -58,6 +58,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cadenza.android.core.data.model.Job
 import com.cadenza.android.core.data.model.JobType
@@ -176,7 +177,9 @@ fun JobsScreen(
                 .padding(innerPadding)
                 .padding(bottom = contentPadding.calculateBottomPadding()),
         ) {
-            LazyColumn(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            // 배경을 카드와 같은 surface로 두어, 목록 끝/짧은 목록에서 탭바 위에 회색 띠가 남지 않게 한다
+            // (섹션 제목은 자체 배경색을 가지고 있어 그대로 회색 구분줄 역할)
+            LazyColumn(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
                 when {
                     waitingSearch || (isLoading && jobs.isEmpty() && !isSearching) -> {
                         item {
@@ -215,7 +218,6 @@ fun JobsScreen(
                         }
                     }
                 }
-                item { Spacer(Modifier.height(24.dp)) }
             }
         }
     }
@@ -321,8 +323,8 @@ private fun JobQuickChip(
 ) {
     AssistChip(
         onClick = onClick,
-        label = { Text(label, style = MaterialTheme.typography.labelMedium) },
-        leadingIcon = { Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp)) },
+        label = { Text(label, style = MaterialTheme.typography.bodyMedium) },
+        leadingIcon = { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
         colors = if (selected)
             AssistChipDefaults.assistChipColors(
                 containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
@@ -350,9 +352,9 @@ private fun SectionHeader(section: JobSection) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
-        Text(section.title, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
-        Text("${section.jobs.size}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+        Text(section.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+        Text("${section.jobs.size}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -385,24 +387,24 @@ fun JobCard(job: Job, onClick: () -> Unit) {
                 // iOS: .font(.subheadline.weight(.semibold)) = 15sp semibold
                 Text(
                     job.organization?.takeIf { it.isNotEmpty() } ?: job.type.label,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 17.sp, fontWeight = FontWeight.SemiBold),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                // iOS: .font(.caption) = 12sp
-                Text(job.type.label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // iOS는 12sp(caption)이지만 Android에서 작아 14sp로 키움
+                Text(job.type.label, style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             JobDeadlineBadge(job = job)
         }
         // iOS: .font(.headline) = 17sp semibold
-        Text(job.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(job.title, style = MaterialTheme.typography.titleMedium.copy(fontSize = 19.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
         if (!job.location.isNullOrEmpty()) {
-            Text(job.location, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+            Text(job.location, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
         }
         if (job.instruments.isNotEmpty()) {
             Text(
                 job.instruments.joinToString(" · ") { OnboardingData.instrumentDisplay(it) },
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -437,7 +439,7 @@ fun JobDeadlineBadge(job: Job) {
     ) {
         Text(
             label,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.SemiBold,
             color = if (isUrgent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             // iOS: .padding(.horizontal, 8).padding(.vertical, 5)
@@ -449,7 +451,7 @@ fun JobDeadlineBadge(job: Job) {
 @Composable
 fun JobFactBadge(text: String) {
     Surface(shape = RoundedCornerShape(4.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
-        Text(text, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -473,8 +475,8 @@ private fun EmptyJobsState(
     ) {
         if (hasError && errorMessage != null) {
             Text(AppLocale.localized("공고를 불러오지 못했어요", "Couldn't load opportunities", "Fehler beim Laden"), style = MaterialTheme.typography.titleMedium)
-            Text(errorMessage, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            TextButton(onClick = onRetry) { Text(AppLocale.localized("다시 시도", "Try again", "Erneut versuchen")) }
+            Text(errorMessage, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            TextButton(onClick = onRetry) { Text(AppLocale.localized("다시 시도", "Try again", "Erneut versuchen"), style = MaterialTheme.typography.bodyLarge) }
         } else {
             Text(
                 if (isSearching || hasFilter)
@@ -484,9 +486,9 @@ private fun EmptyJobsState(
                 style = MaterialTheme.typography.titleMedium,
             )
             when {
-                hasFilter   -> TextButton(onClick = onResetFilter) { Text(AppLocale.localized("필터 초기화", "Reset filters", "Filter zurücksetzen")) }
-                isSearching -> TextButton(onClick = onClearSearch) { Text(AppLocale.localized("검색 지우기", "Clear search", "Suche löschen")) }
-                else        -> TextButton(onClick = onCreate) { Text(AppLocale.localized("첫 공고 올리기", "Post an opportunity", "Ausschreibung erstellen")) }
+                hasFilter   -> TextButton(onClick = onResetFilter) { Text(AppLocale.localized("필터 초기화", "Reset filters", "Filter zurücksetzen"), style = MaterialTheme.typography.bodyLarge) }
+                isSearching -> TextButton(onClick = onClearSearch) { Text(AppLocale.localized("검색 지우기", "Clear search", "Suche löschen"), style = MaterialTheme.typography.bodyLarge) }
+                else        -> TextButton(onClick = onCreate) { Text(AppLocale.localized("첫 공고 올리기", "Post an opportunity", "Ausschreibung erstellen"), style = MaterialTheme.typography.bodyLarge) }
             }
         }
     }

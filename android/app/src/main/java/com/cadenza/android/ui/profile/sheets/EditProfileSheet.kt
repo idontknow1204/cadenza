@@ -1,5 +1,7 @@
 package com.cadenza.android.ui.profile.sheets
 
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -113,25 +115,24 @@ fun EditProfileSheet(
                 .imePadding()
                 .padding(horizontal = 16.dp),
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                TextButton(onClick = onDismiss) {
-                    Text(AppLocale.localized("취소", "Cancel", "Abbrechen"))
+            Box(modifier = Modifier.fillMaxWidth().height(48.dp)) {
+                TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterStart)) {
+                    Text(AppLocale.localized("취소", "Cancel", "Abbrechen"), style = MaterialTheme.typography.bodyLarge)
                 }
                 Text(
                     AppLocale.localized("프로필 편집", "Edit Profile", "Profil bearbeiten"),
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                    modifier = Modifier.align(Alignment.Center).padding(horizontal = 96.dp),
+                    textAlign = TextAlign.Center,
                 )
                 if (saving) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp).size(24.dp))
                 } else {
-                    Button(
+                    TextButton(
+                        modifier = Modifier.align(Alignment.CenterEnd),
                         onClick = {
                             val name = realName.trim()
-                            if (name.isEmpty()) return@Button
+                            if (name.isEmpty()) return@TextButton
                             saving = true
                             errorText = null
                             scope.launch {
@@ -183,7 +184,10 @@ fun EditProfileSheet(
                         },
                         enabled = realName.trim().isNotEmpty(),
                     ) {
-                        Text(AppLocale.localized("저장", "Save", "Speichern"))
+                        Text(
+                            AppLocale.localized("저장", "Save", "Speichern"),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                        )
                     }
                 }
             }

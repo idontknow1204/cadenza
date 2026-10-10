@@ -35,7 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import com.cadenza.android.ui.common.CadenzaPullToRefresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.cadenza.android.core.data.model.ActivityWithAuthor
@@ -97,7 +98,7 @@ fun NotificationsScreen(
             TopAppBar(title = { Text(AppLocale.localized("알림", "Notifications", "Benachrichtigungen")) })
         },
     ) { innerPadding ->
-        PullToRefreshBox(
+        CadenzaPullToRefresh(
             isRefreshing = isLoading && !isEmpty,
             onRefresh = { userId?.let { viewModel.load(it) } },
             modifier = Modifier
@@ -112,11 +113,18 @@ fun NotificationsScreen(
                     }
                 }
                 isEmpty && !refreshFailed -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Icon(Icons.Outlined.Notifications, contentDescription = null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(AppLocale.localized("새 알림이 없어요", "No new notifications", "Keine neuen Benachrichtigungen"), style = MaterialTheme.typography.bodyLarge)
-                            Text(AppLocale.localized("활동이 생기면 여기에 표시돼요", "Activity will appear here", "Aktivitäten erscheinen hier"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    // 스크롤 가능한 컨테이너여야 빈 상태에서도 당겨서 새로고침이 동작한다
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        item {
+                            Column(
+                                modifier = Modifier.fillParentMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                            ) {
+                                Icon(Icons.Outlined.Notifications, contentDescription = null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(AppLocale.localized("새 알림이 없어요", "No new notifications", "Keine neuen Benachrichtigungen"), style = MaterialTheme.typography.bodyLarge)
+                                Text(AppLocale.localized("활동이 생기면 여기에 표시돼요", "Activity will appear here", "Aktivitäten erscheinen hier"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
                     }
                 }
@@ -239,8 +247,8 @@ private fun SectionHeader(icon: ImageVector, title: String) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(title, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+        Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -295,6 +303,9 @@ private fun NotificationRow(notif: AppNotification) {
 
 // ─── Connection request row ───────────────────────────────────────────────────
 
+// 수락/거절 버튼 높이 (M3 기본 40dp보다 키움)
+private val RequestButtonHeight = 46.dp
+
 @Composable
 private fun ConnectionRequestRow(
     person: ConnectedProfile,
@@ -333,15 +344,15 @@ private fun ConnectionRequestRow(
             OutlinedButton(
                 onClick = { scope.launch { onDecline() } },
                 enabled = !isActing,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).height(RequestButtonHeight),
                 shape = RoundedCornerShape(10.dp),
-            ) { Text(AppLocale.localized("거절", "Decline", "Ablehnen"), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)) }
+            ) { Text(AppLocale.localized("거절", "Decline", "Ablehnen"), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)) }
             Button(
                 onClick = { scope.launch { onAccept() } },
                 enabled = !isActing,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).height(RequestButtonHeight),
                 shape = RoundedCornerShape(10.dp),
-            ) { Text(AppLocale.localized("수락", "Accept", "Annehmen"), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)) }
+            ) { Text(AppLocale.localized("수락", "Accept", "Annehmen"), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)) }
         }
     }
 }
@@ -389,15 +400,15 @@ private fun TagRequestRow(
             OutlinedButton(
                 onClick = onDecline,
                 enabled = !isActing,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).height(RequestButtonHeight),
                 shape = RoundedCornerShape(10.dp),
-            ) { Text(AppLocale.localized("거절", "Decline", "Ablehnen"), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)) }
+            ) { Text(AppLocale.localized("거절", "Decline", "Ablehnen"), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)) }
             Button(
                 onClick = onAccept,
                 enabled = !isActing,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).height(RequestButtonHeight),
                 shape = RoundedCornerShape(10.dp),
-            ) { Text(AppLocale.localized("기록 공유", "Share activity", "Aktivität teilen"), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            ) { Text(AppLocale.localized("기록 공유", "Share activity", "Aktivität teilen"), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold), maxLines = 1, overflow = TextOverflow.Ellipsis) }
         }
     }
 }
@@ -465,11 +476,11 @@ private fun SuggestedPersonCard(
                 UserAvatarView(url = person.avatarUrl, name = person.realName, size = 60.dp)
                 // iOS: .font(.subheadline.weight(.semibold)) + .padding(.top, 8).padding(.horizontal, 12)
                 Spacer(Modifier.height(8.dp))
-                Text(person.realName, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 12.dp))
+                Text(person.realName, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp, fontWeight = FontWeight.SemiBold), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 12.dp))
                 val subtitle = person.instrument?.let { OnboardingData.instrumentDisplay(it) }
                 if (subtitle != null) {
                     // iOS: .font(.caption) + .padding(.horizontal, 12).padding(.top, 2)
-                    Text(subtitle, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, modifier = Modifier.padding(horizontal = 12.dp).padding(top = 2.dp))
+                    Text(subtitle, style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, modifier = Modifier.padding(horizontal = 12.dp).padding(top = 2.dp))
                 }
                 if (person.mutualCount > 0) {
                     // iOS: .padding(.horizontal, 8).padding(.vertical, 4).background(.secondary.opacity(0.12), Capsule).padding(.top, 6)
@@ -477,8 +488,8 @@ private fun SuggestedPersonCard(
                     Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)) {
                         Text(
                             AppLocale.localized("공통 ${person.mutualCount}", "${person.mutualCount} mutual", "${person.mutualCount} Gemeinsame"),
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
@@ -497,11 +508,10 @@ private fun SuggestedPersonCard(
             ) {
                 Text(
                     if (isSent) AppLocale.localized("신청됨", "Requested", "Angefragt") else AppLocale.localized("연결 신청", "Connect", "Verbinden"),
-                    // iOS: .font(.caption2.weight(.semibold)) = 11sp semibold
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                    // iOS는 11pt semibold이지만 Android에서는 너무 작아 15sp로 키움 (수동 조정)
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = if (isSent) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
-                    // iOS: .padding(.vertical, 6)
-                    modifier = Modifier.padding(vertical = 6.dp).fillMaxWidth(),
+                    modifier = Modifier.padding(vertical = 9.dp).fillMaxWidth(),
                     textAlign = TextAlign.Center,
                 )
             }

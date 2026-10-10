@@ -1,5 +1,7 @@
 package com.cadenza.android.ui.cv
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -336,20 +338,21 @@ fun CVEditorScreen(
                 .imePadding(),
         ) {
             // ── Toolbar ────────────────────────────────────────────────────────
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
-            ) {
-                TextButton(onClick = onDismiss) { Text(AppLocale.localized("닫기", "Done", "Fertig")) }
+            Box(modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 4.dp)) {
+                TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterStart)) {
+                    Text(AppLocale.localized("닫기", "Done", "Fertig"), style = MaterialTheme.typography.bodyLarge)
+                }
                 Text(
                     AppLocale.localized("CV / 이력서", "CV", "Lebenslauf"),
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(Alignment.Center).padding(horizontal = 96.dp),
                 )
                 if (busy) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp).padding(end = 12.dp))
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp).size(24.dp))
                 } else {
                     TextButton(
+                        modifier = Modifier.align(Alignment.CenterEnd),
                         onClick = {
                             busy = true; errorText = null
                             scope.launch {
@@ -372,7 +375,10 @@ fun CVEditorScreen(
                             }
                         },
                     ) {
-                        Text(AppLocale.localized("저장", "Save", "Speichern"), fontWeight = FontWeight.SemiBold)
+                        Text(
+                            AppLocale.localized("저장", "Save", "Speichern"),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                        )
                     }
                 }
             }
@@ -381,7 +387,7 @@ fun CVEditorScreen(
             errorText?.let { err ->
                 Text(
                     err,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
@@ -399,7 +405,7 @@ fun CVEditorScreen(
                             "Your CV is published in English. Confirm your romanized name and English wording per entry below. Anything left blank falls back to the original text.",
                             "Der Lebenslauf erscheint auf Englisch. Bestätige unten die englische Schreibweise. Leere Felder nutzen den Originaltext.",
                         ),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp),
                     )
@@ -435,14 +441,14 @@ fun CVEditorScreen(
                         ) {
                             Text(
                                 AppLocale.localized("생년월일", "Date of birth", "Geburtsdatum"),
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             if (birthDateStr != null) {
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                     Text(
                                         birthDateStr,
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        style = MaterialTheme.typography.bodyLarge,
                                         modifier = Modifier.clickable { showDatePicker = true },
                                     )
                                     IconButton(onClick = { birthDateMillis = null }, modifier = Modifier.size(24.dp)) {
@@ -451,7 +457,7 @@ fun CVEditorScreen(
                                 }
                             } else {
                                 TextButton(onClick = { showDatePicker = true }) {
-                                    Text(AppLocale.localized("설정", "Set", "Festlegen"))
+                                    Text(AppLocale.localized("설정", "Set", "Festlegen"), style = MaterialTheme.typography.bodyLarge)
                                 }
                             }
                         }
@@ -473,7 +479,7 @@ fun CVEditorScreen(
                                 "Phone, address and date of birth appear only in the downloaded PDF, never on the public web profile.",
                                 "Telefon, Adresse und Geburtsdatum erscheinen nur im PDF, nicht im öffentlichen Profil.",
                             ),
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Spacer(Modifier.height(4.dp))
@@ -488,7 +494,7 @@ fun CVEditorScreen(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(item, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                        Text(item, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                         IconButton(onClick = {
                             if (idx > 0) repertoire = repertoire.toMutableList().also { l -> l.add(idx - 1, l.removeAt(idx)) }
                         }, modifier = Modifier.size(32.dp), enabled = idx > 0) {
@@ -512,7 +518,7 @@ fun CVEditorScreen(
                     ) {
                         OutlinedTextField(
                             value = newRepItem, onValueChange = { newRepItem = it },
-                            placeholder = { Text(AppLocale.localized("작품 추가…", "Add a work…", "Werk hinzufügen…"), style = MaterialTheme.typography.bodySmall) },
+                            placeholder = { Text(AppLocale.localized("작품 추가…", "Add a work…", "Werk hinzufügen…"), style = MaterialTheme.typography.bodyMedium) },
                             modifier = Modifier.weight(1f), singleLine = true,
                         )
                         IconButton(
@@ -537,7 +543,7 @@ fun CVEditorScreen(
                     ) {
                         Text(
                             AppLocale.localized("CV 전용 항목", "CV-only entries", "Nur-CV-Einträge"),
-                            style = MaterialTheme.typography.labelLarge,
+                            style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.weight(1f),
                         )
@@ -550,7 +556,7 @@ fun CVEditorScreen(
                                 onClick = { kindMenuExpanded = true },
                                 modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             ) {
-                                Text(AppLocale.localized("+ 추가", "+ Add", "+ Hinzufügen"))
+                                Text(AppLocale.localized("+ 추가", "+ Add", "+ Hinzufügen"), style = MaterialTheme.typography.bodyLarge)
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = kindMenuExpanded)
                             }
                             ExposedDropdownMenu(
@@ -559,7 +565,7 @@ fun CVEditorScreen(
                             ) {
                                 cvKinds.forEach { (code, label) ->
                                     DropdownMenuItem(
-                                        text = { Text(label) },
+                                        text = { Text(label, style = MaterialTheme.typography.bodyLarge) },
                                         onClick = {
                                             composerExisting = null
                                             composerKind = code
@@ -586,13 +592,13 @@ fun CVEditorScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     row.title ?: row.institution ?: "—",
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     fontWeight = FontWeight.Medium,
                                     maxLines = 1,
                                 )
                                 Text(
                                     kindLabel(row.kind) + (row.year?.let { " · $it" } ?: ""),
-                                    style = MaterialTheme.typography.labelSmall,
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
@@ -609,7 +615,7 @@ fun CVEditorScreen(
                             "Add CV-only entries separate from your records. Translate them under 'English per entry'.",
                             "Nur-CV-Einträge je Typ, getrennt von Aktivitäten.",
                         ),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                     )
@@ -626,12 +632,12 @@ fun CVEditorScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                            Text(AppLocale.localized("불러오는 중…", "Loading…", "Lädt…"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(AppLocale.localized("불러오는 중…", "Loading…", "Lädt…"), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     } else if (entries.isEmpty()) {
                         Text(
                             AppLocale.localized("아직 등록된 활동이 없습니다.", "No activities yet.", "Noch keine Aktivitäten."),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(16.dp),
                         )
@@ -652,14 +658,14 @@ fun CVEditorScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     entry.titleOriginal,
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     fontWeight = FontWeight.Medium,
                                     color = if (excluded) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                                     maxLines = 1,
                                 )
                                 Text(
                                     entry.sectionLabel + (entry.subtitleOriginal?.let { " · $it" } ?: ""),
-                                    style = MaterialTheme.typography.labelSmall,
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 1,
                                 )
@@ -678,7 +684,7 @@ fun CVEditorScreen(
                             "Tap an entry to confirm English wording and whether it appears on the CV.",
                             "Tippe einen Eintrag an, um Englisch und Sichtbarkeit festzulegen.",
                         ),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                     )
@@ -712,7 +718,7 @@ fun CVEditorScreen(
                         Icon(Icons.Outlined.Description, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Text(
                             AppLocale.localized("PDF 내보내기", "Export PDF", "PDF exportieren"),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.weight(1f),
                         )
@@ -724,7 +730,7 @@ fun CVEditorScreen(
                             "Save first so the export reflects your latest changes.",
                             "Zuerst speichern, damit der Export aktuell ist.",
                         ),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                     )
@@ -744,10 +750,10 @@ fun CVEditorScreen(
                 TextButton(onClick = {
                     birthDateMillis = datePickerState.selectedDateMillis
                     showDatePicker = false
-                }) { Text(AppLocale.localized("확인", "OK", "OK")) }
+                }) { Text(AppLocale.localized("확인", "OK", "OK"), style = MaterialTheme.typography.bodyLarge) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text(AppLocale.localized("취소", "Cancel", "Abbrechen")) }
+                TextButton(onClick = { showDatePicker = false }) { Text(AppLocale.localized("취소", "Cancel", "Abbrechen"), style = MaterialTheme.typography.bodyLarge) }
             },
         ) { androidx.compose.material3.DatePicker(state = datePickerState) }
     }
@@ -791,8 +797,8 @@ fun CVEditorScreen(
 private fun CvSectionHeader(text: String) {
     Text(
         text,
-        style = MaterialTheme.typography.labelLarge,
+        style = MaterialTheme.typography.titleSmall,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 6.dp),
     )
 }

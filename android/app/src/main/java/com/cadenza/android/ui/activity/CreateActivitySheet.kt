@@ -174,19 +174,28 @@ fun CreateActivitySheet(
                 .padding(horizontal = 16.dp),
         ) {
             // ── Toolbar ────────────────────────────────────────────────────────
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                TextButton(onClick = onDismiss) { Text(AppLocale.localized("취소", "Cancel", "Abbrechen")) }
+            // iOS: inline 제목은 가운데, 취소는 왼쪽, 게시는 오른쪽 (17pt)
+            Box(modifier = Modifier.fillMaxWidth().height(48.dp)) {
+                TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterStart)) {
+                    Text(
+                        AppLocale.localized("취소", "Cancel", "Abbrechen"),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
                 Text(
                     AppLocale.localized("기록하기", "New record", "Neuer Eintrag"),
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                    modifier = Modifier.align(Alignment.Center),
                 )
                 if (busy) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp).size(24.dp),
+                    )
                 } else {
-                    Button(
+                    TextButton(
+                        modifier = Modifier.align(Alignment.CenterEnd),
                         onClick = {
-                            if (!canPost) return@Button
+                            if (!canPost) return@TextButton
                             busy = true; errorText = null
                             scope.launch {
                                 try {
@@ -240,7 +249,12 @@ fun CreateActivitySheet(
                             }
                         },
                         enabled = canPost,
-                    ) { Text(AppLocale.localized("게시", "Post", "Posten")) }
+                    ) {
+                        Text(
+                            AppLocale.localized("게시", "Post", "Posten"),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                        )
+                    }
                 }
             }
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -262,9 +276,9 @@ fun CreateActivitySheet(
                             modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         )
                         ExposedDropdownMenu(expanded = orgExpanded, onDismissRequest = { orgExpanded = false }) {
-                            DropdownMenuItem(text = { Text(AppLocale.localized("개인으로", "As individual", "Als Einzelperson")) }, onClick = { selectedOrgId = null; orgExpanded = false })
+                            DropdownMenuItem(text = { Text(AppLocale.localized("개인으로", "As individual", "Als Einzelperson"), style = MaterialTheme.typography.bodyLarge) }, onClick = { selectedOrgId = null; orgExpanded = false })
                             myOrgs.forEach { org ->
-                                DropdownMenuItem(text = { Text(org.name) }, onClick = { selectedOrgId = org.id; orgExpanded = false })
+                                DropdownMenuItem(text = { Text(org.name, style = MaterialTheme.typography.bodyLarge) }, onClick = { selectedOrgId = org.id; orgExpanded = false })
                             }
                         }
                     }
@@ -282,7 +296,7 @@ fun CreateActivitySheet(
                     )
                     ExposedDropdownMenu(expanded = typeExpanded, onDismissRequest = { typeExpanded = false }) {
                         ActivityType.entries.forEach { t ->
-                            DropdownMenuItem(text = { Text(t.localizedLabel) }, onClick = {
+                            DropdownMenuItem(text = { Text(t.localizedLabel, style = MaterialTheme.typography.bodyLarge) }, onClick = {
                                 type = t; typeExpanded = false
                                 role = ""; program = ""; prize = ""; organizer = ""; personalNote = ""
                             })
@@ -472,7 +486,7 @@ fun CreateActivitySheet(
                     )
                     ExposedDropdownMenu(expanded = visibilityExpanded, onDismissRequest = { visibilityExpanded = false }) {
                         Visibility.entries.forEach { v ->
-                            DropdownMenuItem(text = { Text(v.localizedLabel) }, onClick = { visibility = v; visibilityExpanded = false })
+                            DropdownMenuItem(text = { Text(v.localizedLabel, style = MaterialTheme.typography.bodyLarge) }, onClick = { visibility = v; visibilityExpanded = false })
                         }
                     }
                 }
@@ -514,13 +528,14 @@ private fun ChipRow(
     selected: String,
     onSelect: (String) -> Unit,
 ) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         options.forEach { (id, label) ->
             FilterChip(
                 selected = selected == id,
                 onClick = { onSelect(if (selected == id) "" else id) },
-                label = { Text(label, style = MaterialTheme.typography.labelMedium) },
-                leadingIcon = if (selected == id) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(14.dp)) } } else null,
+                modifier = Modifier.height(40.dp),
+                label = { Text(label, style = MaterialTheme.typography.bodyMedium) },
+                leadingIcon = if (selected == id) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) } } else null,
             )
         }
     }
@@ -528,5 +543,5 @@ private fun ChipRow(
 
 @Composable
 private fun FormSectionLabel(text: String) {
-    Text(text, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
+    Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
 }

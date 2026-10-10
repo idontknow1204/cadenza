@@ -54,7 +54,7 @@ fun Step8VisibilityScreen(viewModel: OnboardingViewModel, session: SessionViewMo
         VisibilityOption(Visibility.INDUSTRY_FOLLOWERS, loc.localized("업계+팔로워", "Industry + followers", "Branche + Follower"), Icons.Default.People),
         VisibilityOption(Visibility.PUBLIC,             loc.localized("전체 공개",   "Public",                "Öffentlich"),         Icons.Default.Language),
         VisibilityOption(Visibility.FOLLOWERS,          loc.localized("팔로워만",    "Followers only",        "Nur Follower"),        Icons.Default.Person),
-        VisibilityOption(Visibility.PRIVATE,            loc.localized("비공개",      "Private",               "Privat"),             Icons.Default.Lock),
+        VisibilityOption(Visibility.PRIVATE,            loc.localized("나만 보기",   "Only me",               "Nur ich"),             Icons.Default.Lock),
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
