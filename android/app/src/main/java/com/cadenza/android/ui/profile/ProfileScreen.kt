@@ -37,6 +37,7 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -139,7 +140,9 @@ fun ProfileScreen(
                 title = {
                     Text(
                         AppLocale.localized("프로필", "Profile", "Profil"),
-                        style = MaterialTheme.typography.titleMedium,
+                        // 알림·채용 탭의 기본 TopAppBar 제목과 같은 크기(titleLarge 20sp), 5dp 아래로
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.offset(y = 5.dp),
                     )
                 },
                 actions = {
