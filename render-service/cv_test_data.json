@@ -1,0 +1,148 @@
+{
+  "meta": {
+    "lang": "en",
+    "profile_url": "cadenza.app/p/sooyeon-lim",
+    "eyebrow": "PIANIST · VIENNA"
+  },
+  "person": {
+    "name": "Soo-Yeon Lim",
+    "instrument": "Piano",
+    "photo": null,
+    "email": "sooyeon.lim@gmail.com",
+    "phone": "+43 676 000 0000",
+    "birth_date": "2000-09-14",
+    "address": "Währinger Straße 29/4, 1090 Vienna",
+    "based_in": ["Vienna, AT", "Seoul, KR"]
+  },
+  "sections": [
+    {
+      "kind": "performance",
+      "layout": "year_group",
+      "label": "Professional Experience",
+      "entries": [
+        {
+          "year": 2026,
+          "place": "Vienna",
+          "title": "Beethoven — Piano Concerto No. 5 in E♭ major, Op. 73 'Emperor'",
+          "org": "Wiener Symphoniker",
+          "detail": "Soloist at Musikverein Großer Saal, conducted by Herbert Blomstedt. Sold-out premiere; broadcast on Ö1.",
+          "verification": "institution"
+        },
+        {
+          "year": 2026,
+          "place": "Seoul",
+          "title": "Solo Recital — 'Landscapes'",
+          "org": "Seoul Arts Center",
+          "detail": "Programme: Schubert Wanderer Fantasy D. 760 · Ravel Gaspard de la Nuit · Bartók Sonata Sz. 80. Presented by KBS Classic FM.",
+          "verification": "institution"
+        },
+        {
+          "year": 2025,
+          "place": "Berlin",
+          "title": "Brahms — Piano Quintet in F minor, Op. 34",
+          "org": "Berliner Philharmoniker Chamber Series",
+          "detail": "Kammerkonzert at the Philharmonie Foyer, with members of the Berliner Philharmoniker.",
+          "verification": "peer"
+        },
+        {
+          "year": 2025,
+          "place": "Salzburg",
+          "title": "Schubert — Winterreise D. 911",
+          "org": "Mozarteum Foundation Salzburg",
+          "detail": "Song cycle with baritone Thomas Quasthoff, Wiener Saal. Standing ovation, featured in Der Standard.",
+          "verification": "institution"
+        },
+        {
+          "year": 2024,
+          "place": "Vienna",
+          "title": "Schumann — Piano Concerto in A minor, Op. 54",
+          "org": "Österreichisches Ensemble für Neue Musik",
+          "detail": "European premiere of the reconstructed cadenza by Christian Köll. Konzerthaus, Mozart-Saal.",
+          "verification": "peer"
+        },
+        {
+          "year": 2024,
+          "place": "Paris",
+          "title": "Ravel — Piano Concerto in G major",
+          "org": "Orchestre National de France",
+          "detail": "Guest soloist, Auditorium de Radio France, conducted by Cristian Măcelaru.",
+          "verification": "institution"
+        }
+      ]
+    },
+    {
+      "kind": "competition",
+      "layout": "result_list",
+      "label": "Competitions & Awards",
+      "entries": [
+        { "period": "2025", "place": "Leeds", "title": "Leeds International Piano Competition", "result": "2nd Prize", "verification": "institution" },
+        { "period": "2025", "place": "Dublin", "title": "Dublin International Piano Competition", "result": "Winner", "verification": "institution" },
+        { "period": "2024", "place": "Cologne", "title": "Cologne International Piano Competition", "result": "1st Prize + Audience Prize", "verification": "institution" },
+        { "period": "2023", "place": "Warsaw", "title": "International Chopin Piano Competition", "result": "Finalist (Stage III)", "verification": "institution" },
+        { "period": "2022", "place": "Munich", "title": "ARD International Music Competition", "result": "Special Prize — Best Schubert Interpretation", "verification": "institution" },
+        { "period": "2021", "place": "Seoul", "title": "Korean Music Competition (한국음악협회)", "result": "Grand Prize (대상)", "verification": "peer" }
+      ]
+    },
+    {
+      "kind": "education",
+      "layout": "stack_edu",
+      "label": "Education",
+      "entries": [
+        {
+          "period": "2023 – Present",
+          "place": "Vienna",
+          "institution": "Universität für Musik und darstellende Kunst Wien",
+          "degree": "Artist Diploma, Piano",
+          "teacher": "Prof. Oleg Maisenberg",
+          "verification": "institution"
+        },
+        {
+          "period": "2021 – 2023",
+          "place": "Vienna",
+          "institution": "Universität für Musik und darstellende Kunst Wien",
+          "degree": "Master of Music, Piano",
+          "teacher": "Prof. Oleg Maisenberg",
+          "verification": "institution"
+        },
+        {
+          "period": "2017 – 2021",
+          "place": "Seoul",
+          "institution": "Seoul National University, College of Music",
+          "degree": "Bachelor of Music, Piano (Valedictorian)",
+          "teacher": "Prof. Young-Sook Choi",
+          "verification": "institution"
+        }
+      ]
+    },
+    {
+      "kind": "masterclass",
+      "layout": "two_up",
+      "label": "Masterclasses",
+      "entries": [
+        { "period": "2026", "place": "Verbier", "institution": "Verbier Festival Academy", "teacher": "Daniil Trifonov" },
+        { "period": "2025", "place": "Kronberg", "institution": "Kronberg Academy", "teacher": "Radu Lupu" },
+        { "period": "2025", "place": "Aix-en-Provence", "institution": "Festival d'Aix-en-Provence", "teacher": "Mitsuko Uchida" },
+        { "period": "2024", "place": "Lucerne", "institution": "Lucerne Festival", "teacher": "Alfred Brendel" },
+        { "period": "2024", "place": "Weimar", "institution": "Liszt Academy Weimar", "teacher": "Lang Lang" },
+        { "period": "2023", "place": "Salzburg", "institution": "Internationale Sommerakademie Mozarteum", "teacher": "András Schiff" }
+      ]
+    },
+    {
+      "kind": "repertoire",
+      "layout": "inline",
+      "label": "Selected Repertoire",
+      "items": [
+        "Bach — Goldberg Variations BWV 988",
+        "Beethoven — Sonatas Op. 106 'Hammerklavier', Op. 111",
+        "Brahms — Intermezzi Op. 117, Op. 118",
+        "Chopin — Ballades Nos. 1–4, Scherzi Nos. 1–4",
+        "Debussy — Images I & II, Préludes Book I",
+        "Ravel — Gaspard de la Nuit, Valses nobles et sentimentales",
+        "Schubert — Wanderer Fantasy D. 760, Impromptus D. 899",
+        "Schumann — Kreisleriana Op. 16, Fantasie Op. 17",
+        "Prokofiev — Sonata No. 7 in B♭ major Op. 83 'Stalingrad'",
+        "Bartók — Sonata Sz. 80, Out of Doors Sz. 81"
+      ]
+    }
+  ]
+}
