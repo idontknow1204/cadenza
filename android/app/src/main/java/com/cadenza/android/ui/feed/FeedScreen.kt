@@ -57,6 +57,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
@@ -106,6 +107,7 @@ fun FeedScreen(
     val unreadNotificationCount by viewModel.unreadNotificationCount.collectAsState()
     val affiliations by viewModel.affiliations.collectAsState()
     var selectedJob by remember { mutableStateOf<Job?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
     errorMessage?.let { message ->
         AlertDialog(

@@ -158,6 +158,8 @@ fun CreateActivitySheet(
     val filteredPeople = if (tagSearch.isEmpty()) emptyList()
         else people.filter { it.realName.contains(tagSearch, ignoreCase = true) }.take(8)
 
+    val canPost = !busy
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
