@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.Auth
+import io.github.jan.supabase.gotrue.FlowType
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.functions.Functions
 import io.github.jan.supabase.postgrest.Postgrest
@@ -29,6 +30,7 @@ object AppModule {
         install(Auth) {
             scheme = AppConfig.authCallbackScheme
             host = AppConfig.authCallbackHost
+            flowType = FlowType.PKCE
         }
         install(Postgrest)
         install(Realtime)

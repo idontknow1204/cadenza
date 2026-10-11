@@ -5,16 +5,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.lifecycle.lifecycleScope
-import com.cadenza.android.core.AppConfig
 import com.cadenza.android.core.data.preferences.AppPreferences
 import com.cadenza.android.core.data.repository.Repository
 import com.cadenza.android.navigation.AppNavigation
 import com.cadenza.android.ui.theme.CadenzaTheme
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.gotrue.auth
-import kotlinx.coroutines.launch
+import io.github.jan.supabase.gotrue.handleDeeplinks
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,16 +34,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         handleAuthDeepLink(intent)
     }
 
     private fun handleAuthDeepLink(intent: Intent) {
-        val uri = intent.data ?: return
-        if (uri.scheme != AppConfig.authCallbackScheme) return
-        // Supabase 3.x defaults to PKCE: deep link contains ?code=xxx
-        val code = uri.getQueryParameter("code") ?: return
-        lifecycleScope.launch {
-            runCatching { supabaseClient.auth.exchangeCodeForSession(code) }
-        }
+        supabaseClient.handleDeeplinks(intent)
     }
 }

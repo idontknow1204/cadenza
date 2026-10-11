@@ -98,7 +98,6 @@ fun CreateActivitySheet(
 
     // Form state
     var type by remember { mutableStateOf(ActivityType.PERFORMANCE) }
-    var title by remember { mutableStateOf("") }
     var dateMillis by remember { mutableStateOf(System.currentTimeMillis()) }
     var location by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("") }
@@ -135,8 +134,6 @@ fun CreateActivitySheet(
     val dateString = Instant.ofEpochMilli(dateMillis)
         .atZone(ZoneId.systemDefault()).toLocalDate()
         .format(DateTimeFormatter.ISO_LOCAL_DATE)
-
-    val canPost = title.trim().isNotEmpty()
 
     val performanceRoles = listOf(
         "독주" to AppLocale.localized("독주", "Solo", "Solo"),
@@ -204,7 +201,7 @@ fun CreateActivitySheet(
                                         userId = userId,
                                         orgId = selectedOrgId,
                                         type = type,
-                                        title = title.trim(),
+                                        title = "",
                                         activityDate = dateString,
                                         location = location.trim().takeIf { it.isNotEmpty() },
                                         role = role.trim().takeIf { it.isNotEmpty() },
@@ -306,13 +303,6 @@ fun CreateActivitySheet(
 
                 // ── Common fields ──────────────────────────────────────────────
                 FormSectionLabel(AppLocale.localized("상세", "Details", "Details"))
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("${type.localizedTitleHint} *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                )
                 OutlinedTextField(
                     value = dateString,
                     onValueChange = {},

@@ -5,6 +5,7 @@ import com.cadenza.android.core.data.model.ConnectionAction
 import com.cadenza.android.core.data.model.ConnectionStatus
 import com.cadenza.android.core.data.repository.Repository
 import com.cadenza.android.core.util.AppLocale
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +14,42 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
+
+internal data class ConnectionSnapshot(
+    val statuses: Map<String, ConnectionStatus>,
+    val pending: List<ConnectedProfile>,
+)
+
+/**
+ * Reduces every row involving the signed-in user into one authoritative state.
+ * Accepted always wins over pending, regardless of row order or direction.
+ */
+internal fun buildConnectionSnapshot(
+    userId: String,
+    rows: List<com.cadenza.android.core.data.model.ConnectionRecord>,
+): ConnectionSnapshot {
+    val statuses = mutableMapOf<String, ConnectionStatus>()
+    val people = mutableMapOf<String, ConnectedProfile>()
+
+    rows.forEach { row ->
+        if (row.followerId != userId && row.followeeId != userId) return@forEach
+        val other = if (row.followerId == userId) row.followeeId else row.followerId
+        when {
+            row.status == "accepted" -> statuses[other] = ConnectionStatus.Connected
+            statuses[other] !is ConnectionStatus.Connected && row.followeeId == userId ->
+                statuses[other] = ConnectionStatus.RequestReceived
+            statuses[other] !is ConnectionStatus.Connected &&
+                statuses[other] !is ConnectionStatus.RequestReceived ->
+                statuses[other] = ConnectionStatus.RequestSent
+        }
+        if (row.followeeId == userId) row.follower?.let { people[other] = it }
+    }
+
+    val pending = people.values
+        .filter { statuses[it.id] is ConnectionStatus.RequestReceived }
+        .sortedBy { it.id }
+    return ConnectionSnapshot(statuses = statuses, pending = pending)
+}
 
 @Singleton
 class ConnectionStore @Inject constructor(
@@ -42,6 +79,7 @@ class ConnectionStore @Inject constructor(
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     private var refreshJob: Job? = null
+    private var generation = 0
 
     fun statusFor(other: String): ConnectionStatus =
         _statuses.value[other] ?: ConnectionStatus.None
@@ -51,6 +89,7 @@ class ConnectionStore @Inject constructor(
 
     fun reset(userId: String?) {
         if (_userId.value == userId) return
+        generation++
         refreshJob?.cancel()
         refreshJob = null
         _userId.value = userId
@@ -66,31 +105,26 @@ class ConnectionStore @Inject constructor(
     fun refresh(scope: CoroutineScope, force: Boolean = false) {
         val userId = _userId.value ?: return
         if (_updating.value.isNotEmpty()) return
-        if (force) { refreshJob?.cancel(); refreshJob = null }
+        if (force && refreshJob != null) {
+            generation++
+            refreshJob?.cancel()
+            refreshJob = null
+        }
         if (refreshJob?.isActive == true) return
+        val requestGeneration = generation
         refreshJob = scope.launch {
             try {
-                val rows = repository.connections(userId)
-                val pending = repository.pendingConnectionRequests(userId)
-
-                // Build status map from connections list
-                val newStatuses = mutableMapOf<String, ConnectionStatus>()
-                rows.forEach { profile -> newStatuses[profile.id] = ConnectionStatus.Connected }
-                pending.forEach { profile ->
-                    if (newStatuses[profile.id] !is ConnectionStatus.Connected) {
-                        newStatuses[profile.id] = ConnectionStatus.RequestReceived
-                    }
-                }
-
-                _statuses.value = newStatuses
-                _pending.value = pending
-                _hasLoaded.value = true
-                _refreshFailed.value = false
-                _revision.value++
+                val snapshot = buildConnectionSnapshot(userId, repository.connectionRecords(userId))
+                if (generation != requestGeneration || _userId.value != userId) return@launch
+                apply(snapshot)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Throwable) {
-                _refreshFailed.value = true
+                if (generation == requestGeneration && _userId.value == userId) {
+                    _refreshFailed.value = true
+                }
             } finally {
-                refreshJob = null
+                if (generation == requestGeneration) refreshJob = null
             }
         }
     }
@@ -99,28 +133,68 @@ class ConnectionStore @Inject constructor(
         val userId = _userId.value ?: return false
         if (with == userId || _updating.value.contains(with)) return false
 
+        generation++
+        refreshJob?.cancel()
+        refreshJob = null
         _updating.value = _updating.value + with
         _errorMessage.value = null
 
-        return try {
+        var succeeded = false
+        try {
             val status = repository.transitionConnection(with, action)
+            if (_userId.value != userId) return false
             val newStatuses = _statuses.value.toMutableMap()
-            newStatuses[with] = status
+            if (status is ConnectionStatus.None) newStatuses.remove(with)
+            else newStatuses[with] = status
             _statuses.value = newStatuses
             if (status !is ConnectionStatus.RequestReceived) {
                 _pending.value = _pending.value.filter { it.id != with }
             }
             _revision.value++
-            true
+            succeeded = true
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (_: Throwable) {
-            _errorMessage.value = AppLocale.localized(
-                "연결 상태를 변경하지 못했습니다. 요청이 취소되었거나 네트워크에 문제가 있을 수 있습니다.",
-                "Unable to update the connection. Please try again.",
-                "Die Verbindung konnte nicht geändert werden. Bitte versuche es erneut."
-            )
-            false
+            if (_userId.value == userId) {
+                _errorMessage.value = AppLocale.localized(
+                    "연결 상태를 변경하지 못했습니다. 요청이 취소되었거나 네트워크에 문제가 있을 수 있습니다.",
+                    "Unable to update the connection. Please try again.",
+                    "Die Verbindung konnte nicht geändert werden. Bitte versuche es erneut."
+                )
+            }
         } finally {
             _updating.value = _updating.value - with
+        }
+        if (_userId.value == userId && _updating.value.isEmpty()) refreshAfterMutation(userId)
+        return succeeded
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
+    }
+
+    private fun apply(snapshot: ConnectionSnapshot) {
+        if (_statuses.value != snapshot.statuses || _pending.value != snapshot.pending || !_hasLoaded.value) {
+            _statuses.value = snapshot.statuses
+            _pending.value = snapshot.pending
+            _revision.value++
+        }
+        _hasLoaded.value = true
+        _refreshFailed.value = false
+    }
+
+    private suspend fun refreshAfterMutation(userId: String) {
+        val requestGeneration = ++generation
+        try {
+            val snapshot = buildConnectionSnapshot(userId, repository.connectionRecords(userId))
+            if (generation == requestGeneration && _userId.value == userId) apply(snapshot)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Throwable) {
+            if (generation == requestGeneration && _userId.value == userId) {
+                // Keep the optimistic result; realtime/polling will reconcile it.
+                _refreshFailed.value = true
+            }
         }
     }
 }

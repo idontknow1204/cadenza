@@ -9,6 +9,8 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.SessionStatus
 import io.github.jan.supabase.gotrue.user.UserInfo
+import io.github.jan.supabase.gotrue.providers.Google
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +24,7 @@ import javax.inject.Inject
 class SessionViewModel @Inject constructor(
     private val client: SupabaseClient,
     val repository: Repository,
+    val connectionStore: ConnectionStore,
 ) : ViewModel() {
 
     private val _sessionStatus = MutableStateFlow<SessionStatus>(SessionStatus.LoadingFromStorage)
@@ -37,6 +40,9 @@ class SessionViewModel @Inject constructor(
     // screens subscribe to this instead of racing raw auth events.
     private val _authenticatedDataRevision = MutableStateFlow(0)
     val authenticatedDataRevision: StateFlow<Int> = _authenticatedDataRevision.asStateFlow()
+
+    private var observedConnectionUserId: String? = null
+    private var connectionObservationJob: Job? = null
 
     val currentUserId: String?
         get() = client.auth.currentSessionOrNull()?.user?.id
@@ -55,10 +61,12 @@ class SessionViewModel @Inject constructor(
         when (status) {
             is SessionStatus.Authenticated -> {
                 val uid = status.session.user?.id ?: return
+                observeConnections(uid)
                 loadProfile(uid)
                 _authenticatedDataRevision.value++
             }
             is SessionStatus.NotAuthenticated -> {
+                stopObservingConnections()
                 _profile.value = null
                 _profileError.value = null
                 _authenticatedDataRevision.value++
@@ -81,6 +89,23 @@ class SessionViewModel @Inject constructor(
     fun refreshProfile() {
         val uid = currentUserId ?: return
         loadProfile(uid)
+    }
+
+    private fun observeConnections(userId: String) {
+        if (observedConnectionUserId == userId && connectionObservationJob?.isActive == true) return
+        connectionObservationJob?.cancel()
+        observedConnectionUserId = userId
+        connectionStore.reset(userId)
+        connectionObservationJob = repository.connectionChanges(userId)
+            .onEach { connectionStore.refresh(viewModelScope, force = true) }
+            .launchIn(viewModelScope)
+    }
+
+    private fun stopObservingConnections() {
+        connectionObservationJob?.cancel()
+        connectionObservationJob = null
+        observedConnectionUserId = null
+        connectionStore.reset(null)
     }
 
     fun signUp(name: String, email: String, password: String, onError: (String) -> Unit) {
@@ -112,9 +137,24 @@ class SessionViewModel @Inject constructor(
         }
     }
 
+    fun signInWithGoogle(
+        onLaunched: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                client.auth.signInWith(Google)
+                onLaunched()
+            } catch (error: Throwable) {
+                onError(error.message ?: "Google sign-in failed")
+            }
+        }
+    }
+
     fun signOut() {
         viewModelScope.launch {
             try { client.auth.signOut() } catch (_: Throwable) {}
+            stopObservingConnections()
             _profile.value = null
             _profileError.value = null
             _authenticatedDataRevision.value++

@@ -21,7 +21,7 @@
 | DI | Hilt |
 | 로컬 DB | Room |
 | 네트워크 | supabase-kt (Ktor 엔진) |
-| 인증 | supabase-kt Auth — 이메일/비번 + Google(Credential Manager). Apple은 후순위 |
+| 인증 | supabase-kt Auth — 이메일/비번 + Google OAuth(PKCE). Apple은 후순위 |
 | 직렬화 | kotlinx.serialization |
 | 비동기 | Coroutines + Flow/StateFlow |
 | 이미지 | Coil 3 |

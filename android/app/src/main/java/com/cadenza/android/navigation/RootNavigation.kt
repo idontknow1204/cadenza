@@ -28,6 +28,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
@@ -38,6 +40,8 @@ import androidx.compose.ui.unit.dp
 import com.cadenza.android.core.util.AppLocale
 import com.cadenza.android.ui.theme.CadenzaAccent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -131,8 +135,18 @@ fun RootNavigation(
 ) {
     val navController = rememberNavController()
     var showCreateActivity by remember { mutableStateOf(false) }
+    val connectionError by session.connectionStore.errorMessage.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(connectionError) {
+        connectionError?.let {
+            snackbarHostState.showSnackbar(it)
+            session.connectionStore.clearError()
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             // M3 NavigationBarItem은 아이콘-라벨 간격을 조절할 수 없어 직접 그린다.
             val backStack by navController.currentBackStackEntryAsState()

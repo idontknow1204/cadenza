@@ -67,11 +67,11 @@ struct NotificationsView: View {
 
     private var notifList: some View {
         List {
-            Color.clear.frame(height: 0).listRowSeparator(.hidden).id("notif-top")
             if session.connections.refreshFailed {
                 Button { Task { await session.connections.refresh() } } label: {
                     Label(localized("연결 요청을 다시 불러오기", "Retry connection requests", "Kontaktanfragen erneut laden"), systemImage: "arrow.clockwise")
                 }
+                .id("notif-top")
             }
             // ── 연결 요청 ─────────────────────────────────────────
             if !pendingConnections.isEmpty {
@@ -93,6 +93,7 @@ struct NotificationsView: View {
                         .foregroundStyle(.secondary)
                         .textCase(nil)
                 }
+                .id(session.connections.refreshFailed ? "notif-connections" : "notif-top")
             }
 
             // ── 태그 수락 대기 ──────────────────────────────────────
@@ -115,6 +116,11 @@ struct NotificationsView: View {
                         .foregroundStyle(.secondary)
                         .textCase(nil)
                 }
+                .id(
+                    !session.connections.refreshFailed && pendingConnections.isEmpty
+                        ? "notif-top"
+                        : "notif-tags"
+                )
             }
 
             // ── 알림 목록 ────────────────────────────────────────────
@@ -132,6 +138,11 @@ struct NotificationsView: View {
                             .textCase(nil)
                     }
                 }
+                .id(
+                    !session.connections.refreshFailed && pendingConnections.isEmpty && pendingTags.isEmpty
+                        ? "notif-top"
+                        : "notif-recent"
+                )
             }
 
             // ── 알 수도 있는 사람 ─────────────────────────────────────
@@ -146,6 +157,14 @@ struct NotificationsView: View {
                         .foregroundStyle(.secondary)
                         .textCase(nil)
                 }
+                .id(
+                    !session.connections.refreshFailed
+                        && pendingConnections.isEmpty
+                        && pendingTags.isEmpty
+                        && notifications.isEmpty
+                        ? "notif-top"
+                        : "notif-suggestions"
+                )
             }
         }
         .listStyle(.insetGrouped)

@@ -9,6 +9,7 @@ data class ProfileLite(
     @SerialName("real_name")  val realName: String,
     val instrument: String?   = null,
     @SerialName("avatar_url") val avatarUrl: String? = null,
+    val affiliation: String?  = null,
 )
 
 @Serializable

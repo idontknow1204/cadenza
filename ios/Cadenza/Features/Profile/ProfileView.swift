@@ -488,6 +488,7 @@ struct ProfileView: View {
         loading = true; defer { loading = false }
         await session.refreshProfile()
         guard session.currentUserID == me, session.profile != nil else { return }
+        await session.connections.refresh(force: true)
 
         // Sections are independent. A newly deployed optional column or one
         // unavailable endpoint must not fail the whole profile screen.

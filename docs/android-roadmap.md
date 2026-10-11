@@ -74,7 +74,7 @@
 - **난이도**: 혼합
 
 ### 6단계: 플랫폼 전용 기능
-- **범위**: Google 로그인(Credential Manager), Apple Sign In(웹 OAuth), 딥링크(`cadenza://auth-callback` + App Links), 이미지 업로드/Storage 권한, 게시글 번역(§6 결정안 구현), 공유(ACTION_SEND), 외부링크(Custom Tabs), CV PDF 다운로드/공유
+- **범위**: Google 로그인(Supabase OAuth + PKCE), Apple Sign In(웹 OAuth), 딥링크(`cadenza://auth-callback` + App Links), 이미지 업로드/Storage 권한, 게시글 번역(§6 결정안 구현), 공유(ACTION_SEND), 외부링크(Custom Tabs), CV PDF 다운로드/공유
 - **완료 기준**: 소셜 로그인·번역·공유가 실기기에서 동작
 - **난이도**: 상 / **모델**: Opus 4.8
 
@@ -134,7 +134,7 @@ iOS의 모든 화면·기능을 동일하게 포팅한다. QA 부담이 크므�
 | # | 결정 사항 | 확정 |
 |---|-----------|------|
 | D1 | **게시글 번역** | ✅ **ML Kit 온디바이스, v1 포함** (언어 모델 다운로드 방식) |
-| D2 | **Apple Sign In** | ✅ **후순위** — v1은 이메일/비번 + Google(Credential Manager) |
+| D2 | **Apple Sign In** | ✅ **후순위** — v1은 이메일/비번 + Google OAuth(PKCE) |
 | D3 | **최소 SDK** | ✅ **API 26** |
 | D4 | **v1 범위** | ✅ **전체 한 번에** (iOS 전 기능) |
 | D5 | **오프라인 캐시(Room)** | ✅ **최소** — 드래프트 자동저장 등에만, 전면 캐시는 후순위 |

@@ -10,7 +10,6 @@ struct CreateActivityView: View {
     var onPost: ((ActivityWithAuthor) -> Void)? = nil
 
     @State private var type: ActivityType = .performance
-    @State private var title = ""
     @State private var date = Date()
     @State private var location = ""
     @State private var role = ""
@@ -146,9 +145,6 @@ struct CreateActivityView: View {
 
                 // ── Common fields (type-aware hints) ───────────
                 Section {
-                    TextField(text: $title) {
-                        Text(verbatim: type.localizedTitleHint)
-                    }
                     DatePicker(selection: $date, displayedComponents: .date) {
                         Text(verbatim: type.localizedDateLabel)
                     }
@@ -284,13 +280,11 @@ struct CreateActivityView: View {
                         ProgressView()
                     } else {
                         Button(localized("게시", "Post", "Posten"), action: post)
-                            .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
                             .fontWeight(.semibold)
                     }
                 }
             }
             .task { loadDraft(); await loadPeople() }
-            .onChange(of: title)        { _, _ in scheduleDraftSave() }
             .onChange(of: location)     { _, _ in scheduleDraftSave() }
             .onChange(of: role)         { _, _ in scheduleDraftSave() }
             .onChange(of: program)      { _, _ in scheduleDraftSave() }
@@ -590,7 +584,7 @@ struct CreateActivityView: View {
 
     private func makeDraft() -> ActivityDraft {
         ActivityDraft(
-            type: type, title: title, date: date, location: location,
+            type: type, date: date, location: location,
             role: role, program: program, prize: prize, organizer: organizer,
             visibility: visibility, personalNote: personalNote,
             linkInput: linkInput, selectedOrgId: selectedOrgId
@@ -600,7 +594,6 @@ struct CreateActivityView: View {
     private func loadDraft() {
         guard let draft = ActivityDraft.load(), !draft.isEmpty else { return }
         type = draft.type
-        title = draft.title
         date = draft.date
         location = draft.location
         role = draft.role
@@ -634,7 +627,6 @@ struct CreateActivityView: View {
 
     private func clearDraft() {
         type = .performance
-        title = ""
         date = Date()
         location = ""
         role = ""
@@ -673,7 +665,7 @@ struct CreateActivityView: View {
                     userId: me,
                     orgId: selectedOrgId,
                     type: type,
-                    title: title.trimmingCharacters(in: .whitespaces),
+                    title: "",
                     activityDate: Self.dateFmt.string(from: date),
                     location: location.isEmpty ? nil : location,
                     role: role.isEmpty ? nil : role,

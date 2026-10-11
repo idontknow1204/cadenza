@@ -122,6 +122,23 @@ final class ConnectionStoreTests: XCTestCase {
         XCTAssertTrue(store.refreshFailed)
     }
 
+    func testAcceptImmediatelyUpdatesConnectedCount() async {
+        var rows = [row("pending")]
+        let store = ConnectionStore(fetch: { _ in rows }, change: { _, _ in
+            rows = [self.row("accepted")]
+            return .connected
+        })
+        store.reset(for: me)
+        await store.refresh()
+        XCTAssertEqual(store.connectedCount, 0)
+
+        let accepted = await store.perform(.accept, with: other)
+
+        XCTAssertTrue(accepted)
+        XCTAssertEqual(store.connectedCount, 1)
+        XCTAssertEqual(store.status(for: other), .connected)
+    }
+
     func testAccountChangeDiscardsInFlightResult() async {
         var delayed: CheckedContinuation<[ConnectionRecord], Never>?
         let store = ConnectionStore(fetch: { _ in await withCheckedContinuation { delayed = $0 } }, change: { _, _ in .none })

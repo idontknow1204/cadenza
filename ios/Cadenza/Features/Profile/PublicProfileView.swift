@@ -53,7 +53,7 @@ struct PublicProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .task(id: session.connections.revision) {
-            if let count = try? await session.repo.connectionCount(userId: userId) { contactCount = count }
+            await refreshCount()
         }
         .navigationDestination(isPresented: $showConnections) {
             ConnectionsListView(userId: userId)
@@ -257,7 +257,7 @@ struct PublicProfileView: View {
         careers      = (try? await cars) ?? []
         awards       = (try? await awardRecords) ?? []
         languages    = (try? await lang) ?? []
-        contactCount = (try? await cnt)  ?? 0
+        if let count = try? await cnt { contactCount = count }
         await cs
     }
 
@@ -269,12 +269,10 @@ struct PublicProfileView: View {
 
     private func cancelRequest() async {
         await session.connections.perform(.cancel, with: userId)
-        await refreshCount()
     }
 
     private func acceptRequest() async {
         await session.connections.perform(.accept, with: userId)
-        await refreshCount()
     }
 
     private func declineRequest() async {
@@ -283,7 +281,6 @@ struct PublicProfileView: View {
 
     private func disconnectUser() async {
         await session.connections.perform(.disconnect, with: userId)
-        await refreshCount()
     }
 
     private func refreshCount() async {

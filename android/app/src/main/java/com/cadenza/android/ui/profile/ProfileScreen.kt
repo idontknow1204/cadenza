@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cadenza.android.core.data.model.Affiliation
 import com.cadenza.android.core.data.model.Career
+import com.cadenza.android.core.data.model.ConnectionStatus
 import com.cadenza.android.core.data.model.Organization
 import com.cadenza.android.core.data.model.Profile
 import com.cadenza.android.core.data.model.ProfileAward
@@ -105,7 +106,9 @@ fun ProfileScreen(
     val languages by viewModel.languages.collectAsState()
     val orgs by viewModel.orgs.collectAsState()
     val recommendations by viewModel.recommendations.collectAsState()
-    val connectionCount by viewModel.connectionCount.collectAsState()
+    val connectionStatuses by viewModel.connectionStore.statuses.collectAsState()
+    val connectionRevision by viewModel.connectionStore.revision.collectAsState()
+    val connectionCount = connectionStatuses.values.count { it is ConnectionStatus.Connected }
     val isLoading by viewModel.isLoading.collectAsState()
 
     var showConnectionsList by remember { mutableStateOf(false) }
@@ -160,7 +163,13 @@ fun ProfileScreen(
     ) { innerPadding ->
         PullToRefreshBox(
             isRefreshing = isLoading,
-            onRefresh = { if (userId != null) { session.refreshProfile(); viewModel.load(userId, profile) } },
+            onRefresh = {
+                if (userId != null) {
+                    session.refreshProfile()
+                    viewModel.refreshConnections()
+                    viewModel.load(userId, profile)
+                }
+            },
             modifier = Modifier.padding(innerPadding),
         ) {
             if (profile == null && !isLoading) {
@@ -361,6 +370,7 @@ fun ProfileScreen(
         ConnectionsListSheet(
             userId = userId,
             repository = viewModel.repository,
+            refreshKey = connectionRevision,
             onNavigateToUser = onNavigateToUser,
             onDismiss = { showConnectionsList = false },
         )

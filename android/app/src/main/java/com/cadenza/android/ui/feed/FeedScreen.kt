@@ -57,7 +57,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
@@ -130,12 +129,8 @@ fun FeedScreen(
     val listState = rememberLazyListState()
     var searchFocused by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
-    val coroutineScope = rememberCoroutineScope()
-
     LaunchedEffect(currentUserId) {
         if (currentUserId != null) {
-            viewModel.connectionStore.reset(currentUserId)
-            viewModel.connectionStore.refresh(scope = coroutineScope)
             viewModel.refresh(currentUserId)
         }
     }
@@ -230,6 +225,7 @@ fun FeedScreen(
                                         repository = viewModel.repository,
                                         connectionStore = viewModel.connectionStore,
                                         currentUserId = currentUserId,
+                                        showMetadataLine = false,
                                         onNavigateToUser = onNavigateToUser,
                                         onNavigateToOrg = onNavigateToOrg,
                                         authorAffiliation = affiliations[act.author?.id],
@@ -392,6 +388,7 @@ fun FeedScreen(
                                         repository = viewModel.repository,
                                         connectionStore = viewModel.connectionStore,
                                         currentUserId = currentUserId,
+                                        showMetadataLine = false,
                                         onNavigateToUser = onNavigateToUser,
                                         onNavigateToOrg = onNavigateToOrg,
                                         onDeleted = { viewModel.remove(item.id) },

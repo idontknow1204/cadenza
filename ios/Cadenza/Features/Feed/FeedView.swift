@@ -120,7 +120,7 @@ struct FeedView: View {
                 }
                 ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                     if index > 0 { PostSeparator() }
-                    ActivityCard(item: item, onDeleted: {
+                    ActivityCard(item: item, showMetadataLine: false, onDeleted: {
                         withAnimation { feed.remove(id: item.id) }
                     })
                 }
@@ -168,7 +168,7 @@ struct FeedView: View {
                 if !searchActivities.isEmpty {
                     Section("feed.search.activities") {
                         ForEach(Array(searchActivities.enumerated()), id: \.element.id) { index, item in
-                            ActivityCard(item: item)
+                            ActivityCard(item: item, showMetadataLine: false)
                                 .listRowInsets(EdgeInsets())
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color(.secondarySystemBackground))
@@ -507,6 +507,7 @@ struct PostSeparator: View {
 
 struct ActivityCard: View {
     let item: ActivityWithAuthor
+    var showMetadataLine = true
     var onDeleted: (() -> Void)? = nil
 
     @Environment(SessionStore.self) private var session
@@ -551,8 +552,8 @@ struct ActivityCard: View {
     }
 
     private var shareText: String {
-        var lines = [item.title]
-        if let role = item.role, !role.isEmpty { lines.append(role) }
+        var lines: [String] = []
+        if !postBodyText.isEmpty { lines.append(postBodyText) }
         lines.append(item.activityDate)
         if let loc = item.location, !loc.isEmpty { lines.append(loc) }
         lines.append("— Cadenza")
@@ -816,7 +817,17 @@ struct ActivityCard: View {
                             }
                             Text(postTimeText).font(.caption).foregroundStyle(.secondary)
                         }
+                        if let affiliation = item.author?.affiliation?
+                            .trimmingCharacters(in: .whitespacesAndNewlines),
+                           !affiliation.isEmpty {
+                            Text(affiliation)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 if let authorId = item.author?.id {
                     NavigationLink(value: UserProfileRoute(id: authorId)) { authorHeader }
@@ -871,7 +882,7 @@ struct ActivityCard: View {
     }
 
     private var translatableText: String {
-        postBodyText.isEmpty ? item.title : postBodyText
+        postBodyText
     }
 
     private var postBodyText: String {
@@ -887,25 +898,22 @@ struct ActivityCard: View {
             .joined(separator: "\n\n")
     }
 
-    private var hasPersonalStory: Bool {
-        guard let story = item.personalNote else { return false }
-        return !story.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
     private var activityContent: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(item.title)
-            .font(.headline)
-            .fixedSize(horizontal: false, vertical: true)
+            if !showMetadataLine && item.verification != .pending {
+                BadgeChip(status: item.verification)
+            }
 
-            HStack(spacing: 5) {
-                if item.verification != .pending {
-                    BadgeChip(status: item.verification)
-                }
-                ActivityTypeLabel(type: item.type)
-                if let loc = item.location, !loc.isEmpty {
-                    Text("·").font(.caption2).foregroundStyle(.tertiary)
-                    Text(loc).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+            if showMetadataLine {
+                HStack(spacing: 5) {
+                    if item.verification != .pending {
+                        BadgeChip(status: item.verification)
+                    }
+                    ActivityTypeLabel(type: item.type)
+                    if let loc = item.location, !loc.isEmpty {
+                        Text("·").font(.caption2).foregroundStyle(.tertiary)
+                        Text(loc).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    }
                 }
             }
 
@@ -922,19 +930,8 @@ struct ActivityCard: View {
 
     @ViewBuilder
     private var originalPostBody: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            if hasPersonalStory {
-                Text(verbatim: localized(
-                    "나의 스토리 / 감상",
-                    "My story / Reflection",
-                    "Meine Geschichte / Reflexion"
-                ))
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(Color.accentColor)
-            }
-            ExpandableText(text: postBodyText, collapsedLineLimit: 3)
-        }
-        .padding(.top, 3)
+        ExpandableText(text: postBodyText, collapsedLineLimit: 3)
+            .padding(.top, 3)
     }
 
     @ViewBuilder
@@ -1337,4 +1334,3 @@ struct PostMeatballSheet: View {
         .buttonStyle(.plain)
     }
 }
-

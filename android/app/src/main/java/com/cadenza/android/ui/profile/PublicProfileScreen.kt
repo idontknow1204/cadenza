@@ -132,14 +132,14 @@ class PublicProfileViewModel @Inject constructor(
                     val c   = async { runCatching { repository.careers(forUser = userId) }.getOrElse { emptyList() } }
                     val aw  = async { runCatching { repository.awards(forUser = userId) }.getOrElse { emptyList() } }
                     val l   = async { runCatching { repository.languages(forUser = userId) }.getOrElse { emptyList() } }
-                    val cnt = async { runCatching { repository.connectionCount(userId = userId) }.getOrElse { 0 } }
+                    val cnt = async { runCatching { repository.connectionCount(userId = userId) }.getOrNull() }
                     _profile.value = p.await()
                     _activities.value = a.await()
                     _affiliations.value = af.await()
                     _careers.value = c.await()
                     _awards.value = aw.await()
                     _languages.value = l.await()
-                    _connectionCount.value = cnt.await()
+                    cnt.await()?.let { _connectionCount.value = it }
                 }
             } finally {
                 _isLoading.value = false
@@ -149,7 +149,9 @@ class PublicProfileViewModel @Inject constructor(
 
     fun reloadConnectionCount() {
         viewModelScope.launch {
-            _connectionCount.value = runCatching { repository.connectionCount(userId = userId) }.getOrElse { 0 }
+            runCatching { repository.connectionCount(userId = userId) }
+                .getOrNull()
+                ?.let { _connectionCount.value = it }
         }
     }
 }
@@ -177,12 +179,17 @@ fun PublicProfileScreen(
     val statuses by viewModel.connectionStore.statuses.collectAsState()
     val updating by viewModel.connectionStore.updating.collectAsState()
     val hasLoaded by viewModel.connectionStore.hasLoaded.collectAsState()
+    val connectionRevision by viewModel.connectionStore.revision.collectAsState()
     val connStatus = statuses[userId] ?: ConnectionStatus.None
 
     val currentUserId = session.currentUserId
     val isOwnProfile = currentUserId == userId
     val scope = rememberCoroutineScope()
     var showConnectionsList by remember { mutableStateOf(false) }
+
+    LaunchedEffect(userId, connectionRevision) {
+        viewModel.reloadConnectionCount()
+    }
 
     Scaffold(
         topBar = {
@@ -260,13 +267,11 @@ fun PublicProfileScreen(
                                             onCancel = {
                                                 scope.launch {
                                                     viewModel.connectionStore.perform(ConnectionAction.CANCEL, userId)
-                                                    viewModel.reloadConnectionCount()
                                                 }
                                             },
                                             onAccept = {
                                                 scope.launch {
                                                     viewModel.connectionStore.perform(ConnectionAction.ACCEPT, userId)
-                                                    viewModel.reloadConnectionCount()
                                                 }
                                             },
                                             onDecline = {
@@ -277,7 +282,6 @@ fun PublicProfileScreen(
                                             onDisconnect = {
                                                 scope.launch {
                                                     viewModel.connectionStore.perform(ConnectionAction.DISCONNECT, userId)
-                                                    viewModel.reloadConnectionCount()
                                                 }
                                             },
                                         )
@@ -405,6 +409,7 @@ fun PublicProfileScreen(
         ConnectionsListSheet(
             userId = userId,
             repository = viewModel.repository,
+            refreshKey = connectionRevision,
             onNavigateToUser = { targetId -> showConnectionsList = false; onNavigateToUser(targetId) },
             onDismiss = { showConnectionsList = false },
         )

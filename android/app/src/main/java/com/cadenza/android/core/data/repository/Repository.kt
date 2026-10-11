@@ -10,6 +10,7 @@ import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.postgrest.query.Order
+import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.realtime.realtime
 import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.postgresChangeFlow
@@ -19,11 +20,17 @@ import io.github.jan.supabase.gotrue.auth
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.client.call.body
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.JsonObject
@@ -395,6 +402,22 @@ class Repository @Inject constructor(
     suspend fun connections(userId: String): List<ConnectedProfile> =
         client.postgrest.rpc("get_connections", UserIdParam(userId)).decodeList()
 
+    suspend fun connectionRecords(userId: String): List<ConnectionRecord> =
+        client.postgrest["follows"]
+            .select(
+                Columns.raw(
+                    "follower_id, followee_id, status, " +
+                        "follower:profiles!follower_id(id, real_name, instrument, major, avatar_url)"
+                )
+            ) {
+                filter {
+                    or {
+                        eq("follower_id", userId)
+                        eq("followee_id", userId)
+                    }
+                }
+            }.decodeList()
+
     suspend fun pendingConnectionRequests(userId: String): List<ConnectedProfile> {
         @Serializable data class Row(val follower: ConnectedProfile)
         val rows: List<Row> = client.postgrest["follows"]
@@ -422,12 +445,42 @@ class Repository @Inject constructor(
     suspend fun disconnect(them: String): ConnectionStatus =
         transitionConnection(them, ConnectionAction.DISCONNECT)
 
-    // Realtime + polling combined — emits Unit whenever connections change.
-    fun connectionChanges(userId: String): Flow<Unit> = flow {
-        // 8s polling fallback (Realtime handled by ConnectionStore via this flow)
-        while (true) {
-            emit(Unit)
-            delay(8_000)
+    // Realtime invalidation plus an authoritative polling fallback. Both incoming
+    // and outgoing rows matter because an accepted connection may be stored in
+    // either direction.
+    fun connectionChanges(userId: String): Flow<Unit> = channelFlow {
+        val channel = client.realtime.channel("connections:$userId:${UUID.randomUUID()}")
+        val incoming = channel.postgresChangeFlow<PostgresAction>("public") {
+            table = "follows"
+            filter("followee_id", FilterOperator.EQ, userId)
+        }
+        val outgoing = channel.postgresChangeFlow<PostgresAction>("public") {
+            table = "follows"
+            filter("follower_id", FilterOperator.EQ, userId)
+        }
+        val incomingJob = launch { incoming.collect { trySend(Unit) } }
+        val outgoingJob = launch { outgoing.collect { trySend(Unit) } }
+        val pollingJob = launch {
+            trySend(Unit)
+            while (isActive) {
+                delay(8_000)
+                trySend(Unit)
+            }
+        }
+
+        try {
+            channel.subscribe(blockUntilSubscribed = true)
+            awaitCancellation()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Throwable) {
+            // The polling job remains active when the websocket is unavailable.
+            awaitCancellation()
+        } finally {
+            incomingJob.cancel()
+            outgoingJob.cancel()
+            pollingJob.cancel()
+            withContext(NonCancellable) { client.realtime.removeChannel(channel) }
         }
     }
 

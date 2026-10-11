@@ -8,7 +8,6 @@ struct EditActivityView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var type: ActivityType
-    @State private var title: String
     @State private var date: Date
     @State private var location: String
     @State private var role: String
@@ -49,7 +48,6 @@ struct EditActivityView: View {
         self.item = item
         let fmt = EditActivityView.dateFmt
         _type            = State(initialValue: item.type)
-        _title           = State(initialValue: item.title)
         _date            = State(initialValue: fmt.date(from: item.activityDate) ?? Date())
         _location        = State(initialValue: item.location ?? "")
         _role            = State(initialValue: item.role ?? "")
@@ -84,7 +82,6 @@ struct EditActivityView: View {
 
                 // ── Common fields ─────────────────────────────────
                 Section("create.details") {
-                    TextField(LocalizedStringKey(type.titleHint), text: $title)
                     DatePicker(LocalizedStringKey(type.dateLabel), selection: $date,
                                displayedComponents: .date)
                     TextField(LocalizedStringKey(type.locationHint), text: $location)
@@ -127,7 +124,6 @@ struct EditActivityView: View {
                         ProgressView()
                     } else {
                         Button("저장") { Task { await save() } }
-                            .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
                             .fontWeight(.semibold)
                     }
                 }
@@ -419,7 +415,7 @@ struct EditActivityView: View {
         do {
             let payload = UpdateActivity(
                 type:         type,
-                title:        title.trimmingCharacters(in: .whitespaces),
+                title:        "",
                 activityDate: Self.dateFmt.string(from: date),
                 location:     location.isEmpty     ? nil : location,
                 role:         role.isEmpty         ? nil : role,

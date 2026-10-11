@@ -70,7 +70,8 @@ fun AuthScreen(
     var password by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf<String?>(null) }
-    var busy by remember { mutableStateOf(false) }
+    var emailBusy by remember { mutableStateOf(false) }
+    var googleBusy by remember { mutableStateOf(false) }
 
     val headingSignUp = loc.localized("계정을\n만들어보세요", "Create your\nAccount", "Konto\nerstellen")
     val headingSignIn = loc.localized("다시\n만났네요", "Sign in to your\nAccount", "Wieder\nda?")
@@ -244,12 +245,12 @@ fun AuthScreen(
         // Primary CTA button
         Surface(
             onClick = {
-                if (!busy && isValid) {
-                    busy = true; errorText = null
+                if (!emailBusy && !googleBusy && isValid) {
+                    emailBusy = true; errorText = null
                     if (isSignUp) {
-                        session.signUp(name, email, password) { errorText = it; busy = false }
+                        session.signUp(name, email, password) { errorText = it; emailBusy = false }
                     } else {
-                        session.signIn(email, password) { errorText = it; busy = false }
+                        session.signIn(email, password) { errorText = it; emailBusy = false }
                     }
                 }
             },
@@ -261,7 +262,7 @@ fun AuthScreen(
                 .height(52.dp),
         ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                if (busy) {
+                if (emailBusy) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         color = Color.White,
@@ -300,7 +301,19 @@ fun AuthScreen(
 
         // Google button
         Surface(
-            onClick = { /* TODO: Google Credential Manager */ },
+            onClick = {
+                if (!emailBusy && !googleBusy) {
+                    googleBusy = true
+                    errorText = null
+                    session.signInWithGoogle(
+                        onLaunched = { googleBusy = false },
+                        onError = {
+                            errorText = it
+                            googleBusy = false
+                        },
+                    )
+                }
+            },
             shape = RoundedCornerShape(14.dp),
             color = MaterialTheme.colorScheme.surface,
             modifier = Modifier
@@ -312,21 +325,29 @@ fun AuthScreen(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize(),
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    Text(
-                        "G",
+                if (googleBusy) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
                         color = CadenzaAccent,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(end = 8.dp),
+                        strokeWidth = 2.dp,
                     )
-                    Text(
-                        googleLabel,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    )
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            "G",
+                            color = CadenzaAccent,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        Text(
+                            googleLabel,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        )
+                    }
                 }
             }
         }

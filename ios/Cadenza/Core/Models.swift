@@ -486,11 +486,28 @@ struct ProfileLite: Codable, Identifiable, Hashable {
     let realName: String
     let instrument: String?
     let avatarUrl: String?
+    let affiliation: String?
+
+    init(
+        id: UUID,
+        realName: String,
+        instrument: String?,
+        avatarUrl: String?,
+        affiliation: String? = nil
+    ) {
+        self.id = id
+        self.realName = realName
+        self.instrument = instrument
+        self.avatarUrl = avatarUrl
+        self.affiliation = affiliation
+    }
+
     enum CodingKeys: String, CodingKey {
         case id
         case realName = "real_name"
         case instrument
         case avatarUrl = "avatar_url"
+        case affiliation
     }
 }
 

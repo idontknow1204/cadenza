@@ -51,9 +51,6 @@ class ProfileViewModel @Inject constructor(
     private val _recommendations = MutableStateFlow<List<Recommendation>>(emptyList())
     val recommendations: StateFlow<List<Recommendation>> = _recommendations.asStateFlow()
 
-    private val _connectionCount = MutableStateFlow(0)
-    val connectionCount: StateFlow<Int> = _connectionCount.asStateFlow()
-
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -68,14 +65,12 @@ class ProfileViewModel @Inject constructor(
                     val aw  = async { runCatching { repository.awards(forUser = userId) }.getOrElse { emptyList() } }
                     val l   = async { runCatching { repository.languages(forUser = userId) }.getOrElse { emptyList() } }
                     val o   = async { runCatching { repository.myOrgs(userId = userId) }.getOrElse { emptyList() } }
-                    val cnt = async { runCatching { repository.connectionCount(userId = userId) }.getOrElse { 0 } }
                     _activities.value    = a.await()
                     _affiliations.value  = af.await()
                     _careers.value       = c.await()
                     _awards.value        = aw.await()
                     _languages.value     = l.await()
                     _orgs.value          = o.await()
-                    _connectionCount.value = cnt.await()
                 }
                 if (profile?.showsSection(ProfileSection.RECOMMENDATIONS) == true) {
                     _recommendations.value = runCatching { repository.recommendations(forUser = userId) }.getOrElse { emptyList() }
@@ -92,10 +87,8 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun reloadConnectionCount(userId: String) {
-        viewModelScope.launch {
-            _connectionCount.value = runCatching { repository.connectionCount(userId = userId) }.getOrElse { 0 }
-        }
+    fun refreshConnections() {
+        connectionStore.refresh(viewModelScope, force = true)
     }
 
     fun mergeAffiliation(aff: Affiliation) {

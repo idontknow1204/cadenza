@@ -62,6 +62,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -97,6 +98,7 @@ fun ActivityCard(
     repository: Repository,
     connectionStore: ConnectionStore,
     currentUserId: String?,
+    showMetadataLine: Boolean = true,
     onNavigateToUser: (String) -> Unit = {},
     onNavigateToOrg: (String) -> Unit = {},
     onDeleted: (() -> Unit)? = null,
@@ -215,6 +217,7 @@ fun ActivityCard(
         // iOS: .padding(.horizontal, 16).padding(.bottom, 10)
         ActivityContent(
             item = item,
+            showMetadataLine = showMetadataLine,
             showTranslation = showTranslation,
             isTranslating = isTranslating,
             translatedText = translatedText,
@@ -549,7 +552,7 @@ private fun AuthorHeader(
                     name = item.author?.realName ?: "?",
                     size = 42.dp,
                 )
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(item.author?.realName ?: "—", style = MaterialTheme.typography.titleSmall)
                     // 1줄: 전공(악기) · 시간
                     Row(
@@ -611,6 +614,7 @@ private fun AuthorHeader(
 @Composable
 private fun ActivityContent(
     item: ActivityWithAuthor,
+    showMetadataLine: Boolean,
     showTranslation: Boolean,
     isTranslating: Boolean,
     translatedText: String?,
@@ -686,6 +690,21 @@ private fun ActivityContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun VerificationBadge() {
+    Surface(
+        shape = RoundedCornerShape(4.dp),
+        color = Color(0xFF2E7D32),
+    ) {
+        Text(
+            "인증됨",
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.White,
+            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
+        )
     }
 }
 

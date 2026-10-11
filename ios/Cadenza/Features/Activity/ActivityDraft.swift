@@ -2,7 +2,6 @@ import Foundation
 
 struct ActivityDraft: Codable {
     var type: ActivityType = .performance
-    var title: String = ""
     var date: Date = .init()
     var location: String = ""
     var role: String = ""
@@ -31,8 +30,7 @@ struct ActivityDraft: Codable {
     }
 
     var isEmpty: Bool {
-        title.trimmingCharacters(in: .whitespaces).isEmpty
-            && location.isEmpty && role.isEmpty && program.isEmpty
+        location.isEmpty && role.isEmpty && program.isEmpty
             && prize.isEmpty && organizer.isEmpty && personalNote.isEmpty
             && linkInput.isEmpty
     }

@@ -46,6 +46,7 @@ import com.cadenza.android.ui.common.UserAvatarView
 fun ConnectionsListSheet(
     userId: String,
     repository: Repository,
+    refreshKey: Int = 0,
     onNavigateToUser: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -53,7 +54,7 @@ fun ConnectionsListSheet(
     var connections by remember { mutableStateOf<List<ConnectedProfile>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(userId) {
+    LaunchedEffect(userId, refreshKey) {
         isLoading = true
         connections = runCatching { repository.connections(userId) }.getOrElse { emptyList() }
         isLoading = false

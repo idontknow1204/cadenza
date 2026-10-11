@@ -143,7 +143,7 @@
 
 | iOS 기능 | 현재 구현 | Android 대응 방안 | 난이도 |
 |----------|-----------|-------------------|--------|
-| **로그인** | 이메일/비번 + Google OAuth + Apple Sign In (Supabase) | supabase-kt Auth 동일. Google=Credential Manager, Apple=웹 OAuth(Custom Tabs) | 중 |
+| **로그인** | 이메일/비번 + Google OAuth + Apple Sign In (Supabase) | supabase-kt Auth 동일. Google=OAuth(PKCE), Apple=웹 OAuth(Custom Tabs) | 중 |
 | **딥링크** | `cadenza://auth-callback` | Android App Links / intent-filter + scheme | 하 |
 | **이미지 선택** | PhotosPicker (다중) | Photo Picker API | 하 |
 | **카메라 권한** | Info.plist(포스터/티켓 촬영) | runtime permission `CAMERA` | 하 |
