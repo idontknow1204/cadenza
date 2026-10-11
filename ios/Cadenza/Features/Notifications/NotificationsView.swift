@@ -146,7 +146,7 @@ struct NotificationsView: View {
             }
 
             // ── 알 수도 있는 사람 ─────────────────────────────────────
-            if !suggestedProfiles.isEmpty {
+            if !visibleSuggestions.isEmpty {
                 Section {
                     suggestedSection
                         .listRowInsets(EdgeInsets())
