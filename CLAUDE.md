@@ -4,13 +4,55 @@
 
 ```
 /
-├── ios/          # 원본 iOS(SwiftUI) 앱 — 수정 금지
+├── ios/          # iOS(SwiftUI) 앱 — 유일한 iOS 소스
+│   ├── Cadenza/          # Swift 소스
+│   ├── Cadenza.xcodeproj/ # XcodeGen 생성 (project.yml → xcodegen generate)
+│   ├── project.yml       # XcodeGen 설정 (번들ID 등 여기서 관리)
+│   └── Tests/
 ├── android/      # Android(Kotlin+Compose) 이식 작업
 ├── supabase/     # 공유: DB 마이그레이션, Edge Functions
 ├── render-service/ # 공유: CV PDF 렌더 서버
 ├── scripts/      # 공유: 데이터 파이프라인
 └── docs/         # 설계 문서 및 이식 산출물
 ```
+
+> **주의**: 루트의 `Cadenza/`, `Cadenza.xcodeproj/`는 삭제됨. iOS 작업은 반드시 `ios/` 안에서만.
+
+## iOS 빌드 방법
+
+### Xcode에서 열기
+```
+ios/Cadenza.xcodeproj
+```
+
+### project.yml 수정 후 xcodeproj 재생성
+```bash
+cd ios && xcodegen generate
+```
+
+### 시뮬레이터 빌드 + 설치
+```bash
+# 빌드
+xcodebuild build \
+  -project ios/Cadenza.xcodeproj \
+  -scheme Cadenza \
+  -destination 'platform=iOS Simulator,id=74008603-A920-4E64-A6F7-3103A600205C' \
+  -derivedDataPath .build/ios-build \
+  CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+
+# 설치
+xcrun simctl install 74008603-A920-4E64-A6F7-3103A600205C \
+  .build/ios-build/Build/Products/Debug-iphonesimulator/Cadenza.app
+
+# 실행
+xcrun simctl launch 74008603-A920-4E64-A6F7-3103A600205C com.cadenza.app.kkiri-coporation
+```
+
+| 항목 | 값 |
+|------|-----|
+| 번들ID | `com.cadenza.app.kkiri-coporation` (TestFlight 연속성) |
+| 시뮬레이터 | iPhone 17 Pro (`74008603-A920-4E64-A6F7-3103A600205C`, iOS 26.3.1) |
+| XcodeGen 설정 | `ios/project.yml` |
 
 ## 확정된 기술 스택 (Android)
 
@@ -35,7 +77,7 @@ v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위
 
 ## 이식 규칙
 
-1. iOS 코드(`ios/`) 수정 금지
+1. iOS 코드(`ios/`) 참조용. iOS 기능 버그픽스·디자인 수정은 허용
 2. 화면은 하나씩 이식
 3. 기능은 iOS와 동일하게, UI는 Material 3 가이드 기준으로 조정
 4. iOS 전용 API 중 대체 불명확한 것은 구현 전 질문
