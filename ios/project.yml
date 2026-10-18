@@ -39,11 +39,20 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - cadenza
+            CFBundleURLName: com.cadenza.app.kkiri-coporation
         CFBundleLocalizations: [ko, en, de]
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
         NSContactsUsageDescription: "지인을 찾아 팔로우를 추천하기 위해 연락처를 사용합니다."
         NSCameraUsageDescription: "공연 포스터·티켓 증빙을 촬영하기 위해 카메라를 사용합니다."
+    entitlements:
+      path: Cadenza/Cadenza.entitlements
+      properties:
+        com.apple.developer.applesignin:
+          - Default
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.cadenza.app.kkiri-coporation

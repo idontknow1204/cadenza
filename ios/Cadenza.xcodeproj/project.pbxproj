@@ -45,6 +45,7 @@
 		72DBA5015219B65962691206 /* CadenzaLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DC026618DE5F7B6D925A81D /* CadenzaLoadingView.swift */; };
 		747D5095F203439E1CC2A8A8 /* CreateJobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A773AE52AE0CFE6B1B517D41 /* CreateJobView.swift */; };
 		7CB702BF40F2E8802E814C90 /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645B0CBEFCC1C8D172F4646D /* SessionStore.swift */; };
+		80EC9E2B2ACB54C7E5D7F781 /* UserDefaultsLocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45884A21357966F4AEF4862F /* UserDefaultsLocalStorage.swift */; };
 		82DEB6A142F59545F23DA68B /* CVEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50073F7BAC63E053FAD4548B /* CVEditorView.swift */; };
 		83578AB8C2F5C5D406E45D55 /* DataPrivacySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C935F6E4C72CF6D4E9398683 /* DataPrivacySettingsView.swift */; };
 		8756749C65EBCDE6DC6CDAC4 /* ProfileActivitiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1ACD8DE709619EEBA8B10C2 /* ProfileActivitiesView.swift */; };
@@ -56,6 +57,7 @@
 		93E1DEB2A7CA607C6414610D /* LanguagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42BADBEF11FBBBF5BCD23451 /* LanguagePickerView.swift */; };
 		9B0FBAAF7EF46C87561035B2 /* BadgeChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF055792CF2E3366398C49DA /* BadgeChip.swift */; };
 		A8CED533163688A7556AB82E /* ExpandableText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AD603C266241A2682EB62D /* ExpandableText.swift */; };
+		AAC14E0D7500C104B6EB4055 /* CVPhotoCropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A65D9C8D3B3470120BCB8E9 /* CVPhotoCropView.swift */; };
 		B3CF3223FE6A1CA1CBA6A1E5 /* LanguageEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597F8FFED0F06B561246FDF3 /* LanguageEditSheet.swift */; };
 		B7878F8600FC71DA919222C7 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31643524F9277B4C3AA69E60 /* AppConfig.swift */; };
 		BEED19A7C49D4D91058038A9 /* ActivityDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37264269726DFE39DBCC43E6 /* ActivityDraft.swift */; };
@@ -67,6 +69,7 @@
 		D0F1B04C03CAF1C121EA24A2 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 58378D9BA97B3A91D739E5E0 /* Supabase */; };
 		D5D12A712462C2632773F564 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1378F74F275B6901C6DA301E /* PrivacyPolicyView.swift */; };
 		D8D1C01709E0CE867A455FD4 /* Step2InstrumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A787C80A5DBDB9ED0A49FE25 /* Step2InstrumentView.swift */; };
+		D9B4AAA0E75734E62924A051 /* ResetPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 102EC911BB9DB3FD4683121A /* ResetPasswordView.swift */; };
 		E7D69C1C26551EAC2BCC736E /* Step5ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1ACE67A4F5889D3FA6785D /* Step5ProfileView.swift */; };
 		E9D50E7AFA97AA61B51A5BDD /* CareerEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F735D7D757009E85FBB3681C /* CareerEditSheet.swift */; };
 		EA1E192DC9A598A76AE44E9D /* OrgPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A616FA847CDBD1BDE0C26 /* OrgPageView.swift */; };
@@ -74,14 +77,17 @@
 		F3914CAB8D1800A670472E3E /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB6861B74B69DBAC4DD6A95D /* NotificationsView.swift */; };
 		F3ACC32EB37A5208D1951898 /* FeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6F20A8B70532B018A4E155E /* FeedStore.swift */; };
 		F52CA183593904FD3D3BF20D /* ConnectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760DB9724C299DFF5F948A3 /* ConnectionStore.swift */; };
+		F888DF4BC54426CF1298AF58 /* ForgotPasswordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA52A1924F97BC927EEC642 /* ForgotPasswordSheet.swift */; };
 		F8E14A5E953F7D65091DD02B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3CBE9549E177AD5F2CFBE751 /* Assets.xcassets */; };
 		F931F439D05D130DFFA086B1 /* JobDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF4CF1ED5A41C1840509195 /* JobDetailView.swift */; };
+		FC8C63A8DCC791464DA60808 /* AppleSignIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5251BDC724AE385C0829234A /* AppleSignIn.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		04DE794E5E81C9D83FD74854 /* JobFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobFilter.swift; sourceTree = "<group>"; };
 		0674C58FF72B8164EC0723B4 /* CVEntryOverrideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVEntryOverrideView.swift; sourceTree = "<group>"; };
 		0DF4CF1ED5A41C1840509195 /* JobDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobDetailView.swift; sourceTree = "<group>"; };
+		102EC911BB9DB3FD4683121A /* ResetPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordView.swift; sourceTree = "<group>"; };
 		1378F74F275B6901C6DA301E /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
 		15CBCBF36208B8DAD2A3C400 /* ConfirmInboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmInboxView.swift; sourceTree = "<group>"; };
 		18AD12D0AF44A6C3B34EEF5D /* RecommendationEditSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationEditSheet.swift; sourceTree = "<group>"; };
@@ -93,13 +99,16 @@
 		32BFF2ADA24C854D6C63A6BF /* InstagramImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramImportView.swift; sourceTree = "<group>"; };
 		37264269726DFE39DBCC43E6 /* ActivityDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityDraft.swift; sourceTree = "<group>"; };
 		38B7461E2DC095605672F55E /* LinkPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkPreview.swift; sourceTree = "<group>"; };
+		3A65D9C8D3B3470120BCB8E9 /* CVPhotoCropView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVPhotoCropView.swift; sourceTree = "<group>"; };
 		3B2A616FA847CDBD1BDE0C26 /* OrgPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrgPageView.swift; sourceTree = "<group>"; };
 		3CB8A264C79DE54C6808C70A /* CVEntryComposerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVEntryComposerView.swift; sourceTree = "<group>"; };
 		3CBE9549E177AD5F2CFBE751 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3DC026618DE5F7B6D925A81D /* CadenzaLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadenzaLoadingView.swift; sourceTree = "<group>"; };
 		42BADBEF11FBBBF5BCD23451 /* LanguagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguagePickerView.swift; sourceTree = "<group>"; };
 		43F9662A00CFACFC4AAC4EDC /* Step4TeacherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step4TeacherView.swift; sourceTree = "<group>"; };
+		45884A21357966F4AEF4862F /* UserDefaultsLocalStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsLocalStorage.swift; sourceTree = "<group>"; };
 		50073F7BAC63E053FAD4548B /* CVEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVEditorView.swift; sourceTree = "<group>"; };
+		5251BDC724AE385C0829234A /* AppleSignIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignIn.swift; sourceTree = "<group>"; };
 		554952A44EA305F5BA793B73 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		5760DB9724C299DFF5F948A3 /* ConnectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStore.swift; sourceTree = "<group>"; };
 		58AD603C266241A2682EB62D /* ExpandableText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableText.swift; sourceTree = "<group>"; };
@@ -119,9 +128,11 @@
 		7FDA692B53BE75D353387329 /* ProfileSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSettingsView.swift; sourceTree = "<group>"; };
 		80A3E35EF19E5C172E723471 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		80A93A766EECE9AFCF6D7A63 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		8168A03A0CF35D31CB65A83D /* Cadenza.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Cadenza.entitlements; sourceTree = "<group>"; };
 		8A87C23E26A6DF4356A95BD3 /* Step3AffiliationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step3AffiliationView.swift; sourceTree = "<group>"; };
 		96FF1C39767102D5128F648F /* CadenzaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadenzaApp.swift; sourceTree = "<group>"; };
 		9903E82F572E481CE9106984 /* OnboardingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingData.swift; sourceTree = "<group>"; };
+		9DA52A1924F97BC927EEC642 /* ForgotPasswordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordSheet.swift; sourceTree = "<group>"; };
 		9FB7C13E9D4DA1197B8DA393 /* Step7ContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step7ContactsView.swift; sourceTree = "<group>"; };
 		A13A8217CFAD1CEB512F47D5 /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
 		A3596999D09A10C76947372D /* Step1ConsentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step1ConsentView.swift; sourceTree = "<group>"; };
@@ -213,7 +224,9 @@
 			isa = PBXGroup;
 			children = (
 				6472220F3F885CB5DD90F435 /* AuthView.swift */,
+				9DA52A1924F97BC927EEC642 /* ForgotPasswordSheet.swift */,
 				42BADBEF11FBBBF5BCD23451 /* LanguagePickerView.swift */,
+				102EC911BB9DB3FD4683121A /* ResetPasswordView.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -229,6 +242,7 @@
 		6CC5079B706643F82BA37E7B /* Cadenza */ = {
 			isa = PBXGroup;
 			children = (
+				8168A03A0CF35D31CB65A83D /* Cadenza.entitlements */,
 				80A93A766EECE9AFCF6D7A63 /* Info.plist */,
 				6F81720DF08135D5D15F4D53 /* App */,
 				CD267FB4B2C5BA72212D216E /* Core */,
@@ -310,6 +324,7 @@
 				DDA4147AE3B8EF5FC537C5CE /* CVEntry.swift */,
 				3CB8A264C79DE54C6808C70A /* CVEntryComposerView.swift */,
 				0674C58FF72B8164EC0723B4 /* CVEntryOverrideView.swift */,
+				3A65D9C8D3B3470120BCB8E9 /* CVPhotoCropView.swift */,
 				E1A1BD5D603F87116423CDDE /* MultilingualProfileEditorView.swift */,
 			);
 			path = CV;
@@ -365,6 +380,7 @@
 			isa = PBXGroup;
 			children = (
 				31643524F9277B4C3AA69E60 /* AppConfig.swift */,
+				5251BDC724AE385C0829234A /* AppleSignIn.swift */,
 				5CFC6FF08A6C3FDD25F908C6 /* AppLocalization.swift */,
 				E2A225042EC9B56C3B2F07E2 /* CadenzaLayout.swift */,
 				5760DB9724C299DFF5F948A3 /* ConnectionStore.swift */,
@@ -372,6 +388,7 @@
 				9903E82F572E481CE9106984 /* OnboardingData.swift */,
 				1F1E23471928251AAC31791C /* Repository.swift */,
 				645B0CBEFCC1C8D172F4646D /* SessionStore.swift */,
+				45884A21357966F4AEF4862F /* UserDefaultsLocalStorage.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -479,6 +496,7 @@
 				53486D18AD8590A69540E41C /* AffiliationEditSheet.swift in Sources */,
 				B7878F8600FC71DA919222C7 /* AppConfig.swift in Sources */,
 				87D503BBBC41A825321EA5DF /* AppLocalization.swift in Sources */,
+				FC8C63A8DCC791464DA60808 /* AppleSignIn.swift in Sources */,
 				5B7DA9DBF8E7316CF58B3E8B /* AuthView.swift in Sources */,
 				606E1246431003B10A6E563C /* AwardEditSheet.swift in Sources */,
 				9B0FBAAF7EF46C87561035B2 /* BadgeChip.swift in Sources */,
@@ -487,6 +505,7 @@
 				47E8A178F7EC5070B3E72D9B /* CVEntry.swift in Sources */,
 				0C497A0E1F4363BBCC447DC0 /* CVEntryComposerView.swift in Sources */,
 				5B170F23D8559D5E3BC105DE /* CVEntryOverrideView.swift in Sources */,
+				AAC14E0D7500C104B6EB4055 /* CVPhotoCropView.swift in Sources */,
 				30DEF9FAFA2DE717BD2C8A99 /* CadenzaApp.swift in Sources */,
 				CF85F2AB29361E126647C7FE /* CadenzaLayout.swift in Sources */,
 				72DBA5015219B65962691206 /* CadenzaLoadingView.swift in Sources */,
@@ -507,6 +526,7 @@
 				A8CED533163688A7556AB82E /* ExpandableText.swift in Sources */,
 				F3ACC32EB37A5208D1951898 /* FeedStore.swift in Sources */,
 				180E174969C092F7A5B0DAAC /* FeedView.swift in Sources */,
+				F888DF4BC54426CF1298AF58 /* ForgotPasswordSheet.swift in Sources */,
 				2BF71905B81CD2A64318B62F /* ImageViewerSheet.swift in Sources */,
 				CF636ACE9DD487D14B4DA8AC /* InstagramImportView.swift in Sources */,
 				F931F439D05D130DFFA086B1 /* JobDetailView.swift in Sources */,
@@ -529,6 +549,7 @@
 				0D79AA013B2A57D864855BC3 /* PublicProfileView.swift in Sources */,
 				2D3715EB25C22DEA00B35A43 /* RecommendationEditSheet.swift in Sources */,
 				485E08EA0D68316596F98394 /* Repository.swift in Sources */,
+				D9B4AAA0E75734E62924A051 /* ResetPasswordView.swift in Sources */,
 				05CC55935024C34317C5D6D1 /* RootTabView.swift in Sources */,
 				7CB702BF40F2E8802E814C90 /* SessionStore.swift in Sources */,
 				21FE88426D6C1CF1374147C7 /* Step1ConsentView.swift in Sources */,
@@ -540,6 +561,7 @@
 				D0EFA09B1480A584D854FD18 /* Step7ContactsView.swift in Sources */,
 				62D9F402ED291B66F91BB06E /* Step8VisibilityView.swift in Sources */,
 				08237A87A9AB8FC1F8291C9D /* TermsOfServiceView.swift in Sources */,
+				80EC9E2B2ACB54C7E5D7F781 /* UserDefaultsLocalStorage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -551,6 +573,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Cadenza/Cadenza.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Cadenza/Info.plist;
@@ -569,6 +592,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Cadenza/Cadenza.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Cadenza/Info.plist;

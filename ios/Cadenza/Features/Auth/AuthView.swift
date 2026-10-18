@@ -13,6 +13,7 @@ struct AuthView: View {
     @State private var showPassword = false
     @State private var errorText: String?
     @State private var busy = false
+    @State private var showForgotPassword = false
     @FocusState private var focused: Field?
 
     private enum Field: Hashable { case name, email, password }
@@ -109,7 +110,7 @@ struct AuthView: View {
                 if !isSignUp {
                     HStack {
                         Spacer()
-                        Button(forgotPassword) { }
+                        Button(forgotPassword) { showForgotPassword = true }
                             .font(.footnote)
                             .foregroundStyle(Color.accentColor)
                     }
@@ -191,6 +192,10 @@ struct AuthView: View {
         .scrollDismissesKeyboard(.interactively)
         .background(Color(.systemBackground))
         .id(appLanguage) // 언어 변경 시 뷰 강제 재생성
+        .sheet(isPresented: $showForgotPassword) {
+            ForgotPasswordSheet()
+                .environment(session)
+        }
     }
 
     // MARK: - Google icon
@@ -371,6 +376,9 @@ struct AuthView: View {
             } catch let error as ASWebAuthenticationSessionError
                 where error.code == .canceledLogin {
                 // Closing the provider sheet is an intentional cancellation.
+            } catch let error as ASAuthorizationError
+                where error.code == .canceled {
+                // User dismissed the native Apple Sign In sheet.
             } catch {
                 errorText = error.localizedDescription
             }

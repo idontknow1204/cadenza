@@ -1,3 +1,4 @@
+import AuthenticationServices
 import Foundation
 import Supabase
 
@@ -10,6 +11,8 @@ final class SessionStore {
 
     var session: Session?
     var isBootstrapping = true
+    var isPasswordRecovery = false
+    @ObservationIgnored private var appleSignInCoordinator: AppleSignInCoordinator?
     var profile: Profile?
     var profileError: String?
     /// Changes only after an authenticated session has been validated and its
@@ -18,11 +21,20 @@ final class SessionStore {
     var authenticatedDataRevision = 0
 
     init() {
+        #if DEBUG
+        let authStorage: any AuthLocalStorage = UserDefaultsLocalStorage()
+        #else
+        let authStorage: any AuthLocalStorage = KeychainLocalStorage()
+        #endif
         client = SupabaseClient(
             supabaseURL: AppConfig.supabaseURL,
             supabaseKey: AppConfig.supabaseAnonKey,
             options: .init(
-                auth: .init(redirectToURL: AppConfig.authCallbackURL)
+                auth: .init(
+                    storage: authStorage,
+                    redirectToURL: AppConfig.authCallbackURL,
+                    emitLocalSessionAsInitialSession: true
+                )
             )
         )
         repo = Repository(client: client)
@@ -46,8 +58,18 @@ final class SessionStore {
         }
         #endif
         for await change in client.auth.authStateChanges {
+            if change.event == .passwordRecovery {
+                isPasswordRecovery = true
+            } else if change.event == .userUpdated || change.event == .signedOut {
+                isPasswordRecovery = false
+            }
             await applyAuthChange(change.session)
         }
+    }
+
+    // Called from .onOpenURL — processes cadenza://auth-callback deep links.
+    nonisolated func handleURL(_ url: URL) {
+        client.auth.handle(url)
     }
 
     func refreshProfile() async {
@@ -78,6 +100,7 @@ final class SessionStore {
     }
 
     private func applyAuthChange(_ candidate: Session?) async {
+        print("[Auth] applyAuthChange event — session: \(candidate?.user.email ?? "nil")")
         guard let candidate else {
             session = nil
             connections.reset(for: nil)
@@ -106,6 +129,7 @@ final class SessionStore {
                 profileError = error.localizedDescription
             }
         } catch {
+            print("[Auth] applyAuthChange catch: \(error)")
             session = nil
             connections.reset(for: nil)
             profile = nil
@@ -125,7 +149,13 @@ final class SessionStore {
     }
 
     func signIn(email: String, password: String) async throws {
-        try await client.auth.signIn(email: email, password: password)
+        do {
+            try await client.auth.signIn(email: email, password: password)
+            print("[Auth] signIn success")
+        } catch {
+            print("[Auth] signIn error: \(error)")
+            throw error
+        }
     }
 
     func signInWithGoogle() async throws {
@@ -136,10 +166,41 @@ final class SessionStore {
     }
 
     func signInWithApple() async throws {
-        try await client.auth.signInWithOAuth(
-            provider: .apple,
-            redirectTo: AppConfig.authCallbackURL
+        let nonce = makeRandomNonce()
+        let hashedNonce = sha256Hex(nonce)
+
+        let request = ASAuthorizationAppleIDProvider().createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = hashedNonce
+
+        let coordinator = AppleSignInCoordinator()
+        appleSignInCoordinator = coordinator
+        defer { appleSignInCoordinator = nil }
+
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        controller.delegate = coordinator
+        controller.presentationContextProvider = coordinator
+        controller.performRequests()
+
+        let credential = try await coordinator.requestCredential()
+
+        guard let tokenData = credential.identityToken,
+              let idToken = String(data: tokenData, encoding: .utf8) else {
+            throw ASAuthorizationError(.invalidResponse)
+        }
+
+        try await client.auth.signInWithIdToken(
+            credentials: .init(provider: .apple, idToken: idToken, nonce: nonce)
         )
+    }
+
+    func resetPassword(email: String) async throws {
+        try await client.auth.resetPasswordForEmail(email, redirectTo: AppConfig.authCallbackURL)
+    }
+
+    func updatePassword(_ newPassword: String) async throws {
+        try await client.auth.update(user: UserAttributes(password: newPassword))
+        isPasswordRecovery = false
     }
 
     func signOut() async {

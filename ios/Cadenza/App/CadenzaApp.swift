@@ -24,6 +24,8 @@ struct CadenzaApp: App {
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else if session.session == nil {
                         AuthView()
+                    } else if session.isPasswordRecovery {
+                        ResetPasswordView()
                     } else if session.needsOnboarding {
                         OnboardingView()
                     } else {
@@ -43,6 +45,7 @@ struct CadenzaApp: App {
                         }
                 }
             }
+            .onOpenURL { session.handleURL($0) }
             .id(appLanguage)
             .environment(session)
             .environment(\.locale, appLanguage.isEmpty ? .current : Locale(identifier: appLanguage))
