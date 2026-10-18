@@ -22,6 +22,8 @@ struct CVEditorView: View {
     // CV 전용 사진
     @State private var cvPhotoUrl: String?
     @State private var photoPickerItem: PhotosPickerItem?
+    @State private var imageToCrop: UIImage?
+    @State private var showCropView = false
     @State private var uploadingPhoto = false
 
     @State private var entries: [CVEntry] = []
@@ -44,6 +46,18 @@ struct CVEditorView: View {
                 cvEntriesSection
                 entriesSection
                 exportSection
+            }
+            .fullScreenCover(isPresented: $showCropView) {
+                if let img = imageToCrop {
+                    CVPhotoCropView(image: img) { cropped in
+                        showCropView = false
+                        imageToCrop = nil
+                        Task { await uploadCroppedPhoto(cropped) }
+                    } onCancel: {
+                        showCropView = false
+                        imageToCrop = nil
+                    }
+                }
             }
             .sheet(item: $composer) { t in
                 CVEntryComposerView(existing: t.existing, initialKind: t.kind) {
@@ -143,17 +157,21 @@ struct CVEditorView: View {
         }
         .onChange(of: photoPickerItem) { _, item in
             guard let item else { return }
-            Task { await handlePhotoPick(item) }
+            Task {
+                defer { photoPickerItem = nil }
+                guard let data = try? await item.loadTransferable(type: Data.self),
+                      let uiImage = UIImage(data: data) else { return }
+                imageToCrop = uiImage
+                showCropView = true
+            }
         }
     }
 
-    private func handlePhotoPick(_ item: PhotosPickerItem) async {
+    private func uploadCroppedPhoto(_ image: UIImage) async {
         guard let me = session.currentUserID else { return }
         uploadingPhoto = true
-        defer { uploadingPhoto = false; photoPickerItem = nil }
+        defer { uploadingPhoto = false }
         do {
-            guard let data = try await item.loadTransferable(type: Data.self),
-                  let image = UIImage(data: data) else { return }
             cvPhotoUrl = try await session.repo.uploadCVPhoto(userId: me, image: image)
         } catch {
             errorText = error.localizedDescription
