@@ -397,6 +397,7 @@ struct Profile: Codable, Identifiable, Hashable {
     var address: String?
     var repertoire: [String]?   // optional so Profile still decodes where the column isn't deployed yet
     var profileLangs: [String]? // 다국어 프로필이 제공하는 오버레이 언어 (ko 베이스 제외)
+    var cvPhotoUrl: String?     // CV 전용 사진. nil이면 avatar_url 폴백
 
     func showsSection(_ section: ProfileSection) -> Bool {
         visibleSections.contains(section.rawValue)
@@ -423,6 +424,7 @@ struct Profile: Codable, Identifiable, Hashable {
         case address
         case repertoire
         case profileLangs = "profile_langs"
+        case cvPhotoUrl = "cv_photo_url"
     }
 }
 

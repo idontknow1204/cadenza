@@ -1262,24 +1262,50 @@ struct Repository {
     // MARK: - Fermata CV
 
     func updateCVFields(id: UUID, nameEn: String?, eyebrow: String?,
-                        birthDate: String?, phone: String?, address: String?) async throws {
+                        birthDate: String?, phone: String?, address: String?,
+                        cvPhotoUrl: String?? = nil) async throws {
         struct Payload: Encodable {
             let nameEn: String?
             let eyebrow: String?
             let birthDate: String?
             let phone: String?
             let address: String?
+            let cvPhotoUrl: String??
+            func encode(to encoder: Encoder) throws {
+                var c = encoder.container(keyedBy: CodingKeys.self)
+                try c.encodeIfPresent(nameEn, forKey: .nameEn)
+                try c.encodeIfPresent(eyebrow, forKey: .eyebrow)
+                try c.encodeIfPresent(birthDate, forKey: .birthDate)
+                try c.encodeIfPresent(phone, forKey: .phone)
+                try c.encodeIfPresent(address, forKey: .address)
+                if let outer = cvPhotoUrl {
+                    try c.encode(outer, forKey: .cvPhotoUrl)
+                }
+            }
             enum CodingKeys: String, CodingKey {
                 case nameEn = "name_en"; case eyebrow
                 case birthDate = "birth_date"; case phone; case address
+                case cvPhotoUrl = "cv_photo_url"
             }
         }
         try await client
             .from("profiles")
             .update(Payload(nameEn: nameEn, eyebrow: eyebrow, birthDate: birthDate,
-                            phone: phone, address: address))
+                            phone: phone, address: address, cvPhotoUrl: cvPhotoUrl))
             .eq("id", value: id)
             .execute()
+    }
+
+    func uploadCVPhoto(userId: UUID, image: UIImage) async throws -> String {
+        guard let data = image.jpegData(compressionQuality: 0.85) else {
+            throw URLError(.cannotDecodeContentData)
+        }
+        let path = "\(userId.uuidString.lowercased())/cv-photo.jpg"
+        try await client.storage
+            .from("avatars")
+            .upload(path, data: data,
+                    options: FileOptions(contentType: "image/jpeg", upsert: true))
+        return try client.storage.from("avatars").getPublicURL(path: path).absoluteString
     }
 
     func saveRepertoire(id: UUID, items: [String]) async throws {

@@ -1,8 +1,9 @@
 import SwiftUI
+import PhotosUI
 
 // Fermata CV 편집기 — DB의 한글 커리어 데이터를 영어 에디토리얼 CV(PDF/웹)로 내보내기 위한
 // 편집 표면. 렌더/매핑은 서버(cv_data + render-service)가 하고, 여기선 CV 전용 값만 편집한다:
-//   • name_en / eyebrow / birth_date / phone / address  (profiles)
+//   • name_en / eyebrow / birth_date / phone / address / cv_photo_url  (profiles)
 //   • repertoire (profiles.repertoire, 큐레이션)
 //   • 항목별 영어 오버레이 + 포함 여부 (cv_i18n)  → CVEntryOverrideView
 struct CVEditorView: View {
@@ -18,6 +19,11 @@ struct CVEditorView: View {
     @State private var repertoire: [String] = []
     @State private var newRepItem = ""
 
+    // CV 전용 사진
+    @State private var cvPhotoUrl: String?
+    @State private var photoPickerItem: PhotosPickerItem?
+    @State private var uploadingPhoto = false
+
     @State private var entries: [CVEntry] = []
     @State private var overrides: [String: CVOverride] = [:]   // key = "kind:id"
     @State private var cvEntries: [CVEntryRow] = []
@@ -32,6 +38,7 @@ struct CVEditorView: View {
         NavigationStack {
             Form {
                 introSection
+                cvPhotoSection
                 identitySection
                 repertoireSection
                 cvEntriesSection
@@ -64,6 +71,94 @@ struct CVEditorView: View {
     }
 
     // MARK: - Sections
+
+    // MARK: - CV Photo Section
+
+    private var cvPhotoSection: some View {
+        Section {
+            // 썸네일 (3:4 비율 — PDF 사진과 동일)
+            let displayUrl = cvPhotoUrl ?? session.profile?.avatarUrl
+            HStack(spacing: 12) {
+                Group {
+                    if let urlStr = displayUrl, let url = URL(string: urlStr) {
+                        AsyncImage(url: url) { img in
+                            img.resizable().scaledToFill()
+                        } placeholder: {
+                            Color.secondary.opacity(0.15)
+                        }
+                    } else {
+                        Image(systemName: "person.crop.rectangle")
+                            .resizable().scaledToFit()
+                            .padding(12)
+                            .foregroundStyle(.secondary.opacity(0.5))
+                    }
+                }
+                .frame(width: 54, height: 72)
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.secondary.opacity(0.2), lineWidth: 0.5))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    if cvPhotoUrl != nil {
+                        Text(localized("CV 전용 사진", "CV photo", "CV-Foto"))
+                            .font(.subheadline.weight(.medium))
+                        Button(localized("제거하고 프로필 사진 사용", "Remove — use profile photo", "Entfernen — Profilbild verwenden")) {
+                            cvPhotoUrl = nil
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                    } else {
+                        Text(localized("프로필 사진 사용 중", "Using profile photo", "Profilbild wird verwendet"))
+                            .font(.subheadline.weight(.medium))
+                        Text(localized("사진이 없으면 프로필 사진이 표시됩니다.", "Falls back to your profile photo.", "Nutzt dein Profilbild als Fallback."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+            }
+            .padding(.vertical, 4)
+
+            if uploadingPhoto {
+                HStack {
+                    ProgressView().scaleEffect(0.8)
+                    Text(localized("업로드 중…", "Uploading…", "Wird hochgeladen…")).foregroundStyle(.secondary)
+                }
+            } else {
+                PhotosPicker(selection: $photoPickerItem, matching: .images) {
+                    Label(
+                        cvPhotoUrl != nil
+                            ? localized("다른 사진으로 교체", "Replace photo", "Foto ersetzen")
+                            : localized("CV 전용 사진 업로드", "Upload CV photo", "CV-Foto hochladen"),
+                        systemImage: "photo.badge.plus"
+                    )
+                }
+            }
+        } header: {
+            Text(localized("CV 프로필 사진", "CV photo", "CV-Foto"))
+        } footer: {
+            Text(localized(
+                "CV 사진은 PDF에만 쓰이며 공개 프로필에는 표시되지 않습니다.",
+                "The CV photo appears only in the PDF, not on your public profile.",
+                "Das CV-Foto erscheint nur im PDF, nicht im öffentlichen Profil."))
+        }
+        .onChange(of: photoPickerItem) { _, item in
+            guard let item else { return }
+            Task { await handlePhotoPick(item) }
+        }
+    }
+
+    private func handlePhotoPick(_ item: PhotosPickerItem) async {
+        guard let me = session.currentUserID else { return }
+        uploadingPhoto = true
+        defer { uploadingPhoto = false; photoPickerItem = nil }
+        do {
+            guard let data = try await item.loadTransferable(type: Data.self),
+                  let image = UIImage(data: data) else { return }
+            cvPhotoUrl = try await session.repo.uploadCVPhoto(userId: me, image: image)
+        } catch {
+            errorText = error.localizedDescription
+        }
+    }
 
     private var introSection: some View {
         Section {
@@ -312,6 +407,7 @@ struct CVEditorView: View {
             phone = p.phone ?? ""
             address = p.address ?? ""
             repertoire = p.repertoire ?? []
+            cvPhotoUrl = p.cvPhotoUrl
         }
         do {
             async let acts = session.repo.cvActivities(userId: me)
@@ -340,7 +436,8 @@ struct CVEditorView: View {
                 eyebrow: eyebrow.trimmedOrNil,
                 birthDate: birthDate.map { Self.isoDateFormatter.string(from: $0) },
                 phone: phone.trimmedOrNil,
-                address: address.trimmedOrNil)
+                address: address.trimmedOrNil,
+                cvPhotoUrl: .some(cvPhotoUrl))
             try await session.repo.saveRepertoire(id: me, items: repertoire)
             await session.refreshProfile()
             busy = false
