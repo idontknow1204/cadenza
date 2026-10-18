@@ -5,7 +5,7 @@ import sys
 import unittest
 
 
-SCRIPT = pathlib.Path(__file__).parents[1] / "scripts" / "import_curated_jobs.py"
+SCRIPT = pathlib.Path(__file__).parents[1] / "import_curated_jobs.py"
 SPEC = importlib.util.spec_from_file_location("jobs_importer", SCRIPT)
 jobs_importer = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
