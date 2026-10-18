@@ -1,12 +1,33 @@
 import SwiftUI
 
+// MARK: - AppDelegate (APNs 토큰 콜백 브릿지)
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        PushNotificationManager.shared.didRegister(tokenData: deviceToken)
+    }
+
+    func application(
+        _ application: UIApplication,
+        didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
+        #if DEBUG
+        print("[Push] APNs 등록 실패: \(error)")
+        #endif
+    }
+}
+
+// MARK: - App
+
 @main
 struct CadenzaApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var session = SessionStore()
     @AppStorage("appLanguage") private var appLanguage: String = ""
     @AppStorage("languageChosen") private var languageChosen: Bool = false
-    // Show landing splash on every cold launch after language has been chosen.
-    // First launch (languageChosen == false) uses LanguagePickerView's own splash.
     @State private var isShowingLanding = UserDefaults.standard.bool(forKey: "languageChosen")
 
     init() {
@@ -54,6 +75,8 @@ struct CadenzaApp: App {
         }
     }
 }
+
+// MARK: - Splash
 
 private struct AppLandingView: View {
     var body: some View {

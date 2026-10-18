@@ -24,6 +24,7 @@
 		2D3715EB25C22DEA00B35A43 /* RecommendationEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18AD12D0AF44A6C3B34EEF5D /* RecommendationEditSheet.swift */; };
 		2FC739F885B913F1A5A3B351 /* AddProfileSectionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B71A4D7A723E7216B5B3D56 /* AddProfileSectionSheet.swift */; };
 		30DEF9FAFA2DE717BD2C8A99 /* CadenzaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96FF1C39767102D5128F648F /* CadenzaApp.swift */; };
+		360823114082C1DAF1B4D2A5 /* PushNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E67F3299B4806BC5C6E80B6E /* PushNotificationManager.swift */; };
 		47E8A178F7EC5070B3E72D9B /* CVEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA4147AE3B8EF5FC537C5CE /* CVEntry.swift */; };
 		485E08EA0D68316596F98394 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1E23471928251AAC31791C /* Repository.swift */; };
 		49CB706149BC4B97D6C7596D /* CountryFlagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B884DC211F4EFFD82420ADF /* CountryFlagView.swift */; };
@@ -45,6 +46,7 @@
 		72DBA5015219B65962691206 /* CadenzaLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DC026618DE5F7B6D925A81D /* CadenzaLoadingView.swift */; };
 		747D5095F203439E1CC2A8A8 /* CreateJobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A773AE52AE0CFE6B1B517D41 /* CreateJobView.swift */; };
 		7CB702BF40F2E8802E814C90 /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645B0CBEFCC1C8D172F4646D /* SessionStore.swift */; };
+		7E22C9E5B5A70D765858F3D3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 92C9560A66264D4A08F67D2C /* PrivacyInfo.xcprivacy */; };
 		80EC9E2B2ACB54C7E5D7F781 /* UserDefaultsLocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45884A21357966F4AEF4862F /* UserDefaultsLocalStorage.swift */; };
 		82DEB6A142F59545F23DA68B /* CVEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50073F7BAC63E053FAD4548B /* CVEditorView.swift */; };
 		83578AB8C2F5C5D406E45D55 /* DataPrivacySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C935F6E4C72CF6D4E9398683 /* DataPrivacySettingsView.swift */; };
@@ -130,6 +132,7 @@
 		80A93A766EECE9AFCF6D7A63 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8168A03A0CF35D31CB65A83D /* Cadenza.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Cadenza.entitlements; sourceTree = "<group>"; };
 		8A87C23E26A6DF4356A95BD3 /* Step3AffiliationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step3AffiliationView.swift; sourceTree = "<group>"; };
+		92C9560A66264D4A08F67D2C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		96FF1C39767102D5128F648F /* CadenzaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadenzaApp.swift; sourceTree = "<group>"; };
 		9903E82F572E481CE9106984 /* OnboardingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingData.swift; sourceTree = "<group>"; };
 		9DA52A1924F97BC927EEC642 /* ForgotPasswordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordSheet.swift; sourceTree = "<group>"; };
@@ -153,6 +156,7 @@
 		E1A1BD5D603F87116423CDDE /* MultilingualProfileEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilingualProfileEditorView.swift; sourceTree = "<group>"; };
 		E1ACD8DE709619EEBA8B10C2 /* ProfileActivitiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileActivitiesView.swift; sourceTree = "<group>"; };
 		E2A225042EC9B56C3B2F07E2 /* CadenzaLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadenzaLayout.swift; sourceTree = "<group>"; };
+		E67F3299B4806BC5C6E80B6E /* PushNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationManager.swift; sourceTree = "<group>"; };
 		E6B42D53F57FB0B77456BFEF /* ConnectionRequestButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionRequestButton.swift; sourceTree = "<group>"; };
 		E6F20A8B70532B018A4E155E /* FeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStore.swift; sourceTree = "<group>"; };
 		ED872BDEC5BF02A1CB07942E /* CreateOrgView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateOrgView.swift; sourceTree = "<group>"; };
@@ -244,6 +248,7 @@
 			children = (
 				8168A03A0CF35D31CB65A83D /* Cadenza.entitlements */,
 				80A93A766EECE9AFCF6D7A63 /* Info.plist */,
+				92C9560A66264D4A08F67D2C /* PrivacyInfo.xcprivacy */,
 				6F81720DF08135D5D15F4D53 /* App */,
 				CD267FB4B2C5BA72212D216E /* Core */,
 				CA7E8F713726F5C2611C54B1 /* Features */,
@@ -386,6 +391,7 @@
 				5760DB9724C299DFF5F948A3 /* ConnectionStore.swift */,
 				5D0FB5A8B80CB8B1C6B8B25A /* Models.swift */,
 				9903E82F572E481CE9106984 /* OnboardingData.swift */,
+				E67F3299B4806BC5C6E80B6E /* PushNotificationManager.swift */,
 				1F1E23471928251AAC31791C /* Repository.swift */,
 				645B0CBEFCC1C8D172F4646D /* SessionStore.swift */,
 				45884A21357966F4AEF4862F /* UserDefaultsLocalStorage.swift */,
@@ -481,6 +487,7 @@
 			files = (
 				F8E14A5E953F7D65091DD02B /* Assets.xcassets in Resources */,
 				87CD662E695C616414CF9857 /* Localizable.xcstrings in Resources */,
+				7E22C9E5B5A70D765858F3D3 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -547,6 +554,7 @@
 				5DE22140CE2B91F271420554 /* ProfileSettingsView.swift in Sources */,
 				241FCE119419093897D0A02E /* ProfileView.swift in Sources */,
 				0D79AA013B2A57D864855BC3 /* PublicProfileView.swift in Sources */,
+				360823114082C1DAF1B4D2A5 /* PushNotificationManager.swift in Sources */,
 				2D3715EB25C22DEA00B35A43 /* RecommendationEditSheet.swift in Sources */,
 				485E08EA0D68316596F98394 /* Repository.swift in Sources */,
 				D9B4AAA0E75734E62924A051 /* ResetPasswordView.swift in Sources */,

@@ -20,6 +20,11 @@ final class SessionStore {
     /// the raw auth callback.
     var authenticatedDataRevision = 0
 
+    // MARK: - Push notifications
+    /// 알림 탭으로 이동 요청 카운터 (RootTabView 에서 onChange 감지)
+    var openNotificationsRevision = 0
+    @ObservationIgnored private var pushToken: String?
+
     init() {
         #if DEBUG
         let authStorage: any AuthLocalStorage = UserDefaultsLocalStorage()
@@ -42,6 +47,14 @@ final class SessionStore {
         connections = ConnectionStore(fetch: { try await repository.connectionRecords(userId: $0) },
                                       change: { try await repository.transitionConnection(with: $0, action: $1) })
         Task { await observeAuth() }
+
+        // PushNotificationManager 콜백 연결
+        PushNotificationManager.shared.onTokenRegistered = { [weak self] token in
+            Task { [weak self] in await self?.registerPushToken(token) }
+        }
+        PushNotificationManager.shared.onNotificationTap = { [weak self] in
+            self?.openNotificationsRevision &+= 1
+        }
     }
 
     var currentUserID: UUID? { session?.user.id }
@@ -49,6 +62,8 @@ final class SessionStore {
         guard let p = profile else { return false }
         return !p.onboardingComplete
     }
+
+    // MARK: - Auth observation
 
     private func observeAuth() async {
         #if DEBUG
@@ -100,8 +115,15 @@ final class SessionStore {
     }
 
     private func applyAuthChange(_ candidate: Session?) async {
+        #if DEBUG
         print("[Auth] applyAuthChange event — session: \(candidate?.user.email ?? "nil")")
+        #endif
         guard let candidate else {
+            // 로그아웃: 저장된 토큰 서버에서 제거
+            if let token = pushToken {
+                try? await repo.unregisterPushToken(token)
+                pushToken = nil
+            }
             session = nil
             connections.reset(for: nil)
             profile = nil
@@ -120,6 +142,10 @@ final class SessionStore {
             if userChanged {
                 profile = nil
                 connections.reset(for: validSession.user.id)
+                // 다른 계정으로 전환 시 이전 토큰 재등록
+                if let token = pushToken {
+                    try? await repo.registerPushToken(token, userId: validSession.user.id)
+                }
             }
 
             do {
@@ -129,7 +155,9 @@ final class SessionStore {
                 profileError = error.localizedDescription
             }
         } catch {
+            #if DEBUG
             print("[Auth] applyAuthChange catch: \(error)")
+            #endif
             session = nil
             connections.reset(for: nil)
             profile = nil
@@ -140,6 +168,20 @@ final class SessionStore {
         isBootstrapping = false
     }
 
+    // MARK: - Push token
+
+    func registerPushToken(_ token: String) async {
+        pushToken = token
+        guard let uid = currentUserID else { return }
+        try? await repo.registerPushToken(token, userId: uid)
+    }
+
+    func navigateToNotificationsTab() {
+        openNotificationsRevision &+= 1
+    }
+
+    // MARK: - Auth actions
+
     func signUp(name: String, email: String, password: String) async throws {
         try await client.auth.signUp(
             email: email,
@@ -149,13 +191,7 @@ final class SessionStore {
     }
 
     func signIn(email: String, password: String) async throws {
-        do {
-            try await client.auth.signIn(email: email, password: password)
-            print("[Auth] signIn success")
-        } catch {
-            print("[Auth] signIn error: \(error)")
-            throw error
-        }
+        try await client.auth.signIn(email: email, password: password)
     }
 
     func signInWithGoogle() async throws {
@@ -166,7 +202,7 @@ final class SessionStore {
     }
 
     func signInWithApple() async throws {
-        let nonce = makeRandomNonce()
+        let nonce = try makeRandomNonce()
         let hashedNonce = sha256Hex(nonce)
 
         let request = ASAuthorizationAppleIDProvider().createRequest()
@@ -204,6 +240,10 @@ final class SessionStore {
     }
 
     func signOut() async {
+        if let token = pushToken {
+            try? await repo.unregisterPushToken(token)
+            pushToken = nil
+        }
         try? await client.auth.signOut()
         session = nil
         connections.reset(for: nil)

@@ -1477,6 +1477,24 @@ struct Repository {
     }
 
     /// cv-export Edge Function 호출 → 렌더된 PDF 의 signed URL.
+    // MARK: - Push tokens
+
+    func registerPushToken(_ token: String, userId: UUID) async throws {
+        try await client.from("push_tokens")
+            .upsert(
+                ["user_id": userId.uuidString, "token": token, "platform": "ios"],
+                onConflict: "user_id, token"
+            )
+            .execute()
+    }
+
+    func unregisterPushToken(_ token: String) async throws {
+        try await client.from("push_tokens")
+            .delete()
+            .eq("token", value: token)
+            .execute()
+    }
+
     func exportCV() async throws -> URL {
         struct Empty: Encodable {}
         struct Res: Decodable { let url: String?; let error: String? }

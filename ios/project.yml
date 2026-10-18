@@ -31,6 +31,7 @@ targets:
       path: Cadenza/Info.plist
       properties:
         CFBundleDisplayName: Cadenza
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
@@ -48,9 +49,11 @@ targets:
           NSAllowsLocalNetworking: true
         NSContactsUsageDescription: "지인을 찾아 팔로우를 추천하기 위해 연락처를 사용합니다."
         NSCameraUsageDescription: "공연 포스터·티켓 증빙을 촬영하기 위해 카메라를 사용합니다."
+        NSPhotoLibraryUsageDescription: "공연 활동 기록에 사진을 첨부하기 위해 사진 라이브러리에 접근합니다."
     entitlements:
       path: Cadenza/Cadenza.entitlements
       properties:
+        aps-environment: development
         com.apple.developer.applesignin:
           - Default
     settings:

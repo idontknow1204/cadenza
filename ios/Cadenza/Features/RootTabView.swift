@@ -77,6 +77,13 @@ struct RootTabView: View {
                 await refreshConnectionsAndBadge(me, force: true)
             }
         }
+        .task {
+            // 메인 화면 진입 후 알림 권한 요청 (최초 1회 시스템 다이얼로그 표시)
+            PushNotificationManager.shared.requestPermissionAndRegister()
+        }
+        .onChange(of: session.openNotificationsRevision) { _, _ in
+            selection = 1
+        }
         .alert("error.title", isPresented: Binding(
             get: { session.connections.errorMessage != nil },
             set: { if !$0 { session.connections.errorMessage = nil } }
