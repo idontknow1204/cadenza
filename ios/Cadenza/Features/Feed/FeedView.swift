@@ -746,22 +746,8 @@ struct ActivityCard: View {
                     .padding(.bottom, 14)
             }
 
-            // ── Images ────────────────────────────────────────
-            if !item.imageUrls.isEmpty {
-                imageArea.padding(.bottom, 8)
-            }
-
-            // ── Link preview ──────────────────────────────────
-            if let linkUrl = item.linkUrl, !linkUrl.isEmpty {
-                LinkPreviewCard(
-                    urlString: linkUrl,
-                    title: item.linkTitle,
-                    siteName: item.linkSiteName,
-                    imageUrl: item.linkImageUrl
-                )
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
-            }
+            // ── Media block: 이미지 + 링크 프리뷰는 같은 수평 범위 ──
+            mediaBlock
 
             // ── Stats row ─────────────────────────────────────
             if likeCount > 0 || commentCount > 0 {
@@ -966,6 +952,30 @@ struct ActivityCard: View {
             .foregroundStyle(Color.accentColor)
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Media block (images + link preview)
+
+    @ViewBuilder
+    private var mediaBlock: some View {
+        let hasImages = !item.imageUrls.isEmpty
+        let linkUrl = item.linkUrl.flatMap { $0.isEmpty ? nil : $0 }
+        if hasImages || linkUrl != nil {
+            VStack(spacing: 0) {
+                if hasImages {
+                    imageArea
+                }
+                if let linkUrl {
+                    LinkPreviewCard(
+                        urlString: linkUrl,
+                        title: item.linkTitle,
+                        siteName: item.linkSiteName,
+                        imageUrl: item.linkImageUrl
+                    )
+                }
+            }
+            .padding(.bottom, 12)
+        }
     }
 
     // MARK: - Images

@@ -15,6 +15,7 @@ struct PublicProfileView: View {
     private var connStatus: ConnectionStatus { session.connections.status(for: userId) }
     @State private var loading = false
     @State private var showConnections = false
+    @State private var showDisconnectConfirm = false
 
     private var isOwnProfile: Bool { userId == session.currentUserID }
 
@@ -159,12 +160,21 @@ struct PublicProfileView: View {
                 }
             }
         case .connected:
-            Button { Task { await disconnectUser() } } label: {
+            Button { showDisconnectConfirm = true } label: {
                 Text("연결됨")
                     .font(.subheadline.weight(.medium))
                     .padding(.horizontal, 14).padding(.vertical, 7)
                     .background(Color.secondary.opacity(0.12), in: Capsule())
                     .foregroundStyle(.primary)
+            }
+            .confirmationDialog(
+                localized("연결을 끊으시겠어요?", "Disconnect?", "Verbindung trennen?"),
+                isPresented: $showDisconnectConfirm,
+                titleVisibility: .visible
+            ) {
+                Button(localized("연결 해제", "Disconnect", "Trennen"), role: .destructive) {
+                    Task { await disconnectUser() }
+                }
             }
         }
     }

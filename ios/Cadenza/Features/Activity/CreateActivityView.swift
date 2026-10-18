@@ -11,6 +11,7 @@ struct CreateActivityView: View {
 
     @State private var type: ActivityType = .performance
     @State private var date = Date()
+    @State private var title = ""
     @State private var location = ""
     @State private var role = ""
     @State private var program = ""
@@ -145,6 +146,10 @@ struct CreateActivityView: View {
 
                 // ── Common fields (type-aware hints) ───────────
                 Section {
+                    TextField(text: $title) {
+                        Text(LocalizedStringKey(type.titleHint))
+                    }
+                    .onChange(of: title) { _, _ in scheduleDraftSave() }
                     DatePicker(selection: $date, displayedComponents: .date) {
                         Text(verbatim: type.localizedDateLabel)
                     }
@@ -584,7 +589,7 @@ struct CreateActivityView: View {
 
     private func makeDraft() -> ActivityDraft {
         ActivityDraft(
-            type: type, date: date, location: location,
+            type: type, date: date, title: title, location: location,
             role: role, program: program, prize: prize, organizer: organizer,
             visibility: visibility, personalNote: personalNote,
             linkInput: linkInput, selectedOrgId: selectedOrgId
@@ -595,6 +600,7 @@ struct CreateActivityView: View {
         guard let draft = ActivityDraft.load(), !draft.isEmpty else { return }
         type = draft.type
         date = draft.date
+        title = draft.title
         location = draft.location
         role = draft.role
         program = draft.program
@@ -628,6 +634,7 @@ struct CreateActivityView: View {
     private func clearDraft() {
         type = .performance
         date = Date()
+        title = ""
         location = ""
         role = ""
         program = ""
@@ -665,7 +672,7 @@ struct CreateActivityView: View {
                     userId: me,
                     orgId: selectedOrgId,
                     type: type,
-                    title: "",
+                    title: title,
                     activityDate: Self.dateFmt.string(from: date),
                     location: location.isEmpty ? nil : location,
                     role: role.isEmpty ? nil : role,
