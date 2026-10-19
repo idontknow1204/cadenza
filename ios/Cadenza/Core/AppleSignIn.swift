@@ -4,10 +4,12 @@ import UIKit
 
 // MARK: - Nonce helpers
 
-func makeRandomNonce(length: Int = 32) -> String {
+enum NonceError: Error { case secRandomFailed }
+
+func makeRandomNonce(length: Int = 32) throws -> String {
     var bytes = [UInt8](repeating: 0, count: length)
     guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else {
-        fatalError("SecRandomCopyBytes failed")
+        throw NonceError.secRandomFailed
     }
     let charset = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
     return String(bytes.map { charset[Int($0) % charset.count] })

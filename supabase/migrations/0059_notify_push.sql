@@ -4,25 +4,25 @@
 --   push 실패가 주 트랜잭션을 절대 블록하지 않도록 EXCEPTION WHEN OTHERS 처리.
 --
 --   배포 후 Supabase Dashboard → SQL Editor 에서 아래 명령 1회 실행 필요:
---     alter database postgres
---       set "app.settings.push_service_key" = '<SERVICE_ROLE_KEY>';
---   (Supabase Dashboard → Settings → API → service_role 키 복사)
+--     SELECT vault.create_secret('<SERVICE_ROLE_KEY>', 'push_service_key');
+--   (SERVICE_ROLE_KEY: Dashboard → Settings → API → service_role)
 
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
 CREATE OR REPLACE FUNCTION public.push_on_notification()
-RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = 'public, extensions, vault, pgsodium'
 AS $$
 DECLARE
   v_sender_name text;
   v_key         text;
 BEGIN
-  -- service role key 조회 (미설정 시 조용히 종료)
-  BEGIN
-    v_key := current_setting('app.settings.push_service_key');
-  EXCEPTION WHEN OTHERS THEN
-    RETURN NEW;
-  END;
+  -- Vault 에서 service role key 조회 (미등록 시 조용히 종료)
+  SELECT decrypted_secret INTO v_key
+    FROM vault.decrypted_secrets
+    WHERE name = 'push_service_key'
+    LIMIT 1;
+
   IF v_key IS NULL OR v_key = '' THEN RETURN NEW; END IF;
 
   -- 발신자 이름 조회
@@ -38,7 +38,7 @@ BEGIN
                  'recipient_id', NEW.recipient_id,
                  'type',         NEW.type,
                  'sender_name',  COALESCE(v_sender_name, '')
-               )::text,
+               ),
     headers := jsonb_build_object(
                  'Content-Type',  'application/json',
                  'Authorization', 'Bearer ' || v_key
