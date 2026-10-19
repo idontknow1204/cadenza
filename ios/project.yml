@@ -53,7 +53,7 @@ targets:
     entitlements:
       path: Cadenza/Cadenza.entitlements
       properties:
-        aps-environment: development
+        aps-environment: production
         com.apple.developer.applesignin:
           - Default
     settings:
