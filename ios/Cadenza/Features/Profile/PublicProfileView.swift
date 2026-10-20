@@ -17,7 +17,30 @@ struct PublicProfileView: View {
     @State private var showConnections = false
     @State private var showDisconnectConfirm = false
 
+    // 다국어: 방문자 언어로 프로필 표시. 베이스(ko) 위에 cv_i18n 오버레이를 덮어씀.
+    @State private var viewerLang = UserDefaults.standard.string(forKey: "appLanguage") ?? "ko"
+    @State private var didInitLang = false
+    // 오버레이 미적용 원본 — 언어 전환 시 재조회 없이 다시 덮어쓰기 위해 보관.
+    @State private var rawProfile: Profile?
+    @State private var rawActivities: [ActivityWithAuthor] = []
+    @State private var rawAffiliations: [Affiliation] = []
+    @State private var rawCareers: [Career] = []
+    @State private var rawAwards: [ProfileAward] = []
+
     private var isOwnProfile: Bool { userId == session.currentUserID }
+
+    /// 작성자가 제공하는 언어 목록 (ko 베이스 + 오버레이 언어). 1개뿐이면 전환 UI 숨김.
+    private var availableLangs: [String] {
+        ["ko"] + (profile?.profileLangs ?? [])
+    }
+    private func langLabel(_ code: String) -> String {
+        switch code {
+        case "ko": return "한국어"
+        case "en": return "English"
+        case "de": return "Deutsch"
+        default:   return code.uppercased()
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -26,6 +49,9 @@ struct PublicProfileView: View {
                     ProgressView().padding(40)
                 } else if let profile {
                     headerCard(profile)
+                    if availableLangs.count > 1 {
+                        languageSwitcher
+                    }
                     if profile.showsSection(.bio), let bio = profile.bio, !bio.isEmpty {
                         bioCard(bio)
                     }
@@ -179,6 +205,34 @@ struct PublicProfileView: View {
         }
     }
 
+    // MARK: - Language switcher
+
+    private var languageSwitcher: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                Image(systemName: "globe")
+                    .font(.caption).foregroundStyle(.secondary)
+                ForEach(availableLangs, id: \.self) { code in
+                    let selected = code == viewerLang
+                    Button {
+                        guard code != viewerLang else { return }
+                        viewerLang = code
+                        Task { await applyLanguage() }
+                    } label: {
+                        Text(langLabel(code))
+                            .font(.caption.weight(selected ? .semibold : .regular))
+                            .padding(.horizontal, 12).padding(.vertical, 6)
+                            .background(selected ? Color.accentColor : Color.secondary.opacity(0.12),
+                                        in: Capsule())
+                            .foregroundStyle(selected ? .white : .secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
     // MARK: - Bio card
 
     private func bioCard(_ bio: String) -> some View {
@@ -261,14 +315,108 @@ struct PublicProfileView: View {
         async let lang = session.repo.languages(forUser: userId)
         async let cnt  = session.repo.connectionCount(userId: userId)
         async let cs: Void = session.connections.refresh()
-        profile      = try? await p
-        activities   = (try? await acts) ?? []
-        affiliations = (try? await affs) ?? []
-        careers      = (try? await cars) ?? []
-        awards       = (try? await awardRecords) ?? []
-        languages    = (try? await lang) ?? []
+        rawProfile      = try? await p
+        rawActivities   = (try? await acts) ?? []
+        rawAffiliations = (try? await affs) ?? []
+        rawCareers      = (try? await cars) ?? []
+        rawAwards       = (try? await awardRecords) ?? []
+        languages       = (try? await lang) ?? []
         if let count = try? await cnt { contactCount = count }
         await cs
+
+        // 최초 1회: 방문자 앱 언어가 작성자 제공 언어에 있으면 그 언어로, 없으면 ko.
+        if !didInitLang {
+            let offered = ["ko"] + (rawProfile?.profileLangs ?? [])
+            viewerLang = offered.contains(viewerLang) ? viewerLang : "ko"
+            didInitLang = true
+        }
+        await applyLanguage()
+    }
+
+    /// viewerLang 에 맞춰 원본에 오버레이를 덮어써 표시용 상태를 갱신.
+    private func applyLanguage() async {
+        // 원본에서 시작 (ko 베이스)
+        profile      = rawProfile
+        activities   = rawActivities
+        affiliations = rawAffiliations
+        careers      = rawCareers
+        awards       = rawAwards
+
+        guard viewerLang != "ko", let uid = rawProfile?.id else { return }
+        let overlays = (try? await session.repo.profileOverlays(userId: uid, lang: viewerLang)) ?? [:]
+        guard !overlays.isEmpty else { return }
+
+        // profile-level (이름/소개/악기)
+        if let patch = overlays["profile:\(uid.uuidString)"] {
+            if let v = patch["name"], !v.isEmpty { profile?.realName = v }
+            if let v = patch["instrument"], !v.isEmpty { profile?.instrument = v }
+            if let v = patch["bio"], !v.isEmpty { profile?.bio = v }
+        }
+        activities   = rawActivities.map   { applyActivity($0, overlays: overlays) }
+        affiliations = rawAffiliations.map { applyAffiliation($0, overlays: overlays) }
+        careers      = rawCareers.map      { applyCareer($0, overlays: overlays) }
+        awards       = rawAwards.map       { applyAward($0, overlays: overlays) }
+    }
+
+    private func applyActivity(_ a: ActivityWithAuthor,
+                               overlays: [String: [String: String]]) -> ActivityWithAuthor {
+        guard let patch = overlays["activity:\(a.id.uuidString)"], !patch.isEmpty else { return a }
+        func v(_ k: String) -> String? { patch[k].flatMap { $0.isEmpty ? nil : $0 } }
+        var title = a.title, location = a.location, role = a.role, organizer = a.organizer, prize = a.prize
+        switch a.type {
+        case .performance:
+            if let x = v("title") { title = x }
+            if let x = v("org")   { organizer = x }
+            if let x = v("place") { location = x }
+            if let x = v("detail") { role = x }
+        case .competition:
+            if let x = v("title")  { title = x }
+            if let x = v("place")  { location = x }
+            if let x = v("result") { prize = x }
+        case .education:
+            if let x = v("institution") { title = x }
+            if let x = v("place")       { location = x }
+            if let x = v("teacher")     { role = x }
+        case .recording:
+            break
+        }
+        return ActivityWithAuthor(
+            id: a.id, userId: a.userId, type: a.type, title: title,
+            activityDate: a.activityDate, location: location, role: role, program: a.program,
+            prize: prize, organizer: organizer, personalNote: a.personalNote, imageUrls: a.imageUrls,
+            verification: a.verification, createdAt: a.createdAt, author: a.author, org: a.org,
+            feedReason: a.feedReason, linkUrl: a.linkUrl, linkTitle: a.linkTitle,
+            linkDescription: a.linkDescription, linkImageUrl: a.linkImageUrl, linkSiteName: a.linkSiteName)
+    }
+
+    private func applyAffiliation(_ a: Affiliation,
+                                  overlays: [String: [String: String]]) -> Affiliation {
+        var a = a
+        if let patch = overlays["affiliation:\(a.id.uuidString)"],
+           let v = patch["institution"], !v.isEmpty { a.institutionName = v }
+        return a
+    }
+
+    private func applyCareer(_ c: Career, overlays: [String: [String: String]]) -> Career {
+        var c = c
+        if let patch = overlays["career:\(c.id.uuidString)"] {
+            if let v = patch["organization"], !v.isEmpty { c.organization = v }
+            if let v = patch["role"], !v.isEmpty { c.role = v }
+            if let v = patch["description"], !v.isEmpty { c.description = v }
+            if let v = patch["contribution"], !v.isEmpty { c.contribution = v }
+        }
+        return c
+    }
+
+    private func applyAward(_ aw: ProfileAward, overlays: [String: [String: String]]) -> ProfileAward {
+        var aw = aw
+        if let patch = overlays["award:\(aw.id.uuidString)"] {
+            if let v = patch["title"], !v.isEmpty { aw.title = v }
+            if let v = patch["prize"], !v.isEmpty { aw.prize = v }
+            if let v = patch["issuer"], !v.isEmpty { aw.issuer = v }
+            if let v = patch["details"], !v.isEmpty { aw.details = v }
+        }
+        return aw
     }
 
     // MARK: - Connection actions

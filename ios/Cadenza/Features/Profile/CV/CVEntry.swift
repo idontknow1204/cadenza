@@ -20,7 +20,8 @@ struct CVEntry: Identifiable {
     let fields: [CVFieldSpec]
 
     static func build(activities: [Activity], affiliations: [Affiliation],
-                      cvEntries: [CVEntryRow] = []) -> [CVEntry] {
+                      cvEntries: [CVEntryRow] = [],
+                      careers: [Career] = [], awards: [ProfileAward] = []) -> [CVEntry] {
         var out: [CVEntry] = []
 
         let titleLabel  = localized("제목", "Title", "Titel")
@@ -31,6 +32,10 @@ struct CVEntry: Identifiable {
         let instLabel   = localized("기관명", "Institution", "Institution")
         let degreeLabel = localized("학위", "Degree", "Abschluss")
         let teacherLabel = localized("사사 교수", "Teacher", "Lehrer")
+        let roleLabel     = localized("역할", "Role", "Rolle")
+        let contribLabel  = localized("기여", "Contribution", "Beitrag")
+        let issuerLabel   = localized("주최", "Issuer", "Veranstalter")
+        let prizeLabel    = localized("수상", "Prize", "Preis")
 
         for a in activities {
             let idKey = "activity:\(a.id.uuidString)"
@@ -131,6 +136,36 @@ struct CVEntry: Identifiable {
             default:
                 break
             }
+        }
+
+        // 경력 (career) — 프로필 전용 항목
+        for c in careers {
+            out.append(CVEntry(
+                id: "career:\(c.id.uuidString)", sourceKind: "career", sourceId: c.id,
+                kind: "career",
+                sectionLabel: localized("경력", "Career", "Werdegang"),
+                titleOriginal: c.organization, subtitleOriginal: c.role,
+                fields: [
+                    CVFieldSpec(key: "organization", label: orgLabel,    original: c.organization),
+                    CVFieldSpec(key: "role",         label: roleLabel,   original: c.role),
+                    CVFieldSpec(key: "description",  label: detailLabel, original: c.description),
+                    CVFieldSpec(key: "contribution", label: contribLabel, original: c.contribution),
+                ]))
+        }
+
+        // 수상 (award) — 프로필 전용 항목
+        for aw in awards {
+            out.append(CVEntry(
+                id: "award:\(aw.id.uuidString)", sourceKind: "award", sourceId: aw.id,
+                kind: "award",
+                sectionLabel: localized("수상", "Awards", "Auszeichnungen"),
+                titleOriginal: aw.title, subtitleOriginal: aw.prize,
+                fields: [
+                    CVFieldSpec(key: "title",   label: titleLabel,  original: aw.title),
+                    CVFieldSpec(key: "prize",   label: prizeLabel,  original: aw.prize),
+                    CVFieldSpec(key: "issuer",  label: issuerLabel, original: aw.issuer),
+                    CVFieldSpec(key: "details", label: detailLabel, original: aw.details),
+                ]))
         }
 
         return out

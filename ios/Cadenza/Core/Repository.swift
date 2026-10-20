@@ -1416,6 +1416,21 @@ struct Repository {
 
     // MARK: - 다국어 프로필 (profile-level overlay + 언어 목록)
 
+    /// 방문자 읽기용: 작성자의 모든 오버레이를 언어별로 한 번에 조회.
+    /// 반환 키는 "<kind>:<uuid>" (예: "profile:<user>", "activity:<id>"), 값은 patch.
+    /// cv_i18n RLS 는 소유자 전용이라 SECURITY DEFINER RPC(profile_i18n)로 우회한다.
+    func profileOverlays(userId: UUID, lang: String) async throws -> [String: [String: String]] {
+        struct Req: Encodable {
+            let pUser: UUID
+            let pLang: String
+            enum CodingKeys: String, CodingKey { case pUser = "p_user"; case pLang = "p_lang" }
+        }
+        return try await client
+            .rpc("profile_i18n", params: Req(pUser: userId, pLang: lang))
+            .execute()
+            .value
+    }
+
     /// profile-level 오버레이 patch (name/bio/instrument/eyebrow) for a language.
     func profileOverlay(userId: UUID, lang: String) async throws -> [String: String] {
         struct Row: Decodable { let patch: [String: String] }

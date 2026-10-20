@@ -160,8 +160,12 @@ struct MultilingualProfileEditorView: View {
             async let acts = session.repo.cvActivities(userId: me)
             async let affs = session.repo.affiliations(forUser: me)
             async let ces = session.repo.cvEntries(userId: me)
-            let (activities, affiliations, entryRows) = try await (acts, affs, ces)
-            entries = CVEntry.build(activities: activities, affiliations: affiliations, cvEntries: entryRows)
+            async let cars = session.repo.careers(forUser: me)
+            async let aws = session.repo.awards(forUser: me)
+            let (activities, affiliations, entryRows, careerRows, awardRows) =
+                try await (acts, affs, ces, cars, aws)
+            entries = CVEntry.build(activities: activities, affiliations: affiliations,
+                                    cvEntries: entryRows, careers: careerRows, awards: awardRows)
             let overrideList = (try? await session.repo.cvOverrides(userId: me, lang: lang)) ?? []
             overrides = Dictionary(uniqueKeysWithValues:
                 overrideList.map { ("\($0.sourceKind):\($0.sourceId.uuidString)", $0) })
