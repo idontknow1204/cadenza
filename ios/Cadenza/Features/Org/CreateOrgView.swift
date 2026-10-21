@@ -27,7 +27,7 @@ struct CreateOrgView: View {
                     HStack {
                         OrgAvatar(category: category, size: 52)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(name.isEmpty ? "기관 이름" : name)
+                            Text(name.isEmpty ? localized("기관 이름", "Organization name", "Organisationsname") : name)
                                 .font(.headline)
                                 .foregroundStyle(name.isEmpty ? Color.secondary : Color.primary)
                             Text(category.label)
@@ -55,7 +55,7 @@ struct CreateOrgView: View {
                             .onChange(of: handle) { _, v in
                                 handleEdited = true
                                 handle = v.filter { $0.isLetter || $0.isNumber || $0 == "_" || $0 == "." }
-                                handleError = handle.count < 3 ? "3자 이상 입력하세요" : nil
+                                handleError = handle.count < 3 ? localized("3자 이상 입력하세요", "Minimum 3 characters", "Mindestens 3 Zeichen") : nil
                             }
                     }
                     if let err = handleError {

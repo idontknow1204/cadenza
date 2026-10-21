@@ -176,7 +176,9 @@ struct CommentsSheet: View {
                 HStack(spacing: 6) {
                     Image(systemName: "arrowshape.turn.up.left")
                         .font(.caption2).foregroundStyle(.secondary)
-                    Text("\(r.author?.realName ?? "—")님에게 답글")
+                    Text(localized("\(r.author?.realName ?? "—")님에게 답글",
+                                   "Replying to \(r.author?.realName ?? "—")",
+                                   "Antwort an \(r.author?.realName ?? "—")"))
                         .font(.caption).foregroundStyle(.secondary)
                     Spacer()
                     Button {
@@ -294,9 +296,9 @@ struct CommentsSheet: View {
         }
         guard let date else { return "" }
         let diff = Int(-date.timeIntervalSinceNow)
-        if diff < 60  { return "방금" }
-        if diff < 3600 { return "\(diff / 60)분 전" }
-        if diff < 86400 { return "\(diff / 3600)시간 전" }
-        return "\(diff / 86400)일 전"
+        if diff < 60  { return localized("방금", "Just now", "Gerade eben") }
+        if diff < 3600 { return localized("\(diff / 60)분 전", "\(diff / 60)m ago", "vor \(diff / 60) Min.") }
+        if diff < 86400 { return localized("\(diff / 3600)시간 전", "\(diff / 3600)h ago", "vor \(diff / 3600) Std.") }
+        return localized("\(diff / 86400)일 전", "\(diff / 86400)d ago", "vor \(diff / 86400) T.")
     }
 }

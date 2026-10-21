@@ -983,15 +983,15 @@ struct AppNotification: Identifiable, Codable {
         fmt2.formatOptions = [.withInternetDateTime]
         guard let date = fmt1.date(from: createdAt) ?? fmt2.date(from: createdAt) else { return "" }
         let s = Int(-date.timeIntervalSinceNow)
-        if s < 60  { return "방금" }
+        if s < 60  { return localized("방금", "Just now", "Gerade eben") }
         let m = s / 60
-        if m < 60  { return "\(m)분 전" }
+        if m < 60  { return localized("\(m)분 전", "\(m)m ago", "vor \(m) Min.") }
         let h = m / 60
-        if h < 24  { return "\(h)시간 전" }
+        if h < 24  { return localized("\(h)시간 전", "\(h)h ago", "vor \(h) Std.") }
         let d = h / 24
-        if d < 7   { return "\(d)일 전" }
-        if d < 30  { return "\(d / 7)주 전" }
-        return "\(d / 30)달 전"
+        if d < 7   { return localized("\(d)일 전", "\(d)d ago", "vor \(d) T.") }
+        if d < 30  { return localized("\(d / 7)주 전", "\(d / 7)w ago", "vor \(d / 7) Wo.") }
+        return localized("\(d / 30)달 전", "\(d / 30)mo ago", "vor \(d / 30) Mon.")
     }
 
     var bodyText: String {

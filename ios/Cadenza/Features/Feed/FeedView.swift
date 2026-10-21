@@ -570,18 +570,19 @@ struct ActivityCard: View {
 
     private func relativeTime(from date: Date) -> String {
         let seconds = max(0, Int(Date().timeIntervalSince(date)))
-        if seconds < 60 { return "방금" }
+        if seconds < 60 { return localized("방금", "Just now", "Gerade eben") }
         let minutes = seconds / 60
-        if minutes < 60 { return "\(minutes)분 전" }
+        if minutes < 60 { return localized("\(minutes)분 전", "\(minutes)m ago", "vor \(minutes) Min.") }
         let hours = minutes / 60
-        if hours < 24 { return "\(hours)시간 전" }
+        if hours < 24 { return localized("\(hours)시간 전", "\(hours)h ago", "vor \(hours) Std.") }
         let days = hours / 24
-        if days < 7 { return "\(days)일 전" }
+        if days < 7 { return localized("\(days)일 전", "\(days)d ago", "vor \(days) T.") }
         let weeks = days / 7
-        if weeks < 5 { return "\(weeks)주 전" }
+        if weeks < 5 { return localized("\(weeks)주 전", "\(weeks)w ago", "vor \(weeks) Wo.") }
         let months = days / 30
-        if months < 12 { return "\(months)개월 전" }
-        return "\(days / 365)년 전"
+        if months < 12 { return localized("\(months)개월 전", "\(months)mo ago", "vor \(months) Mon.") }
+        let years = days / 365
+        return localized("\(years)년 전", "\(years)y ago", "vor \(years) J.")
     }
 
     private var showConnectButton: Bool {
@@ -1112,19 +1113,19 @@ struct ActivityCard: View {
             Button { Task { await toggleLike() } } label: {
                 actionLabel(
                     icon: isLiked ? "hand.thumbsup.fill" : "hand.thumbsup",
-                    title: "좋아요",
+                    title: localized("좋아요", "Like", "Gefällt mir"),
                     tint: isLiked ? Color.accentColor : Color.secondary
                 )
             }
             .buttonStyle(.plain)
 
             Button { showComments = true } label: {
-                actionLabel(icon: "bubble.right", title: "댓글")
+                actionLabel(icon: "bubble.right", title: localized("댓글", "Comment", "Kommentar"))
             }
             .buttonStyle(.plain)
 
             ShareLink(item: shareText) {
-                actionLabel(icon: "square.and.arrow.up", title: "공유")
+                actionLabel(icon: "square.and.arrow.up", title: localized("공유", "Share", "Teilen"))
             }
         }
     }

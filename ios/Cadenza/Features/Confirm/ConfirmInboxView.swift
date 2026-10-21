@@ -111,7 +111,9 @@ struct TagPendingRow: View {
             HStack(spacing: 5) {
                 Image(systemName: "at")
                     .font(.caption2).foregroundStyle(Color.accentColor)
-                Text("\(item.author?.realName ?? "—")님이 회원님을 태그했습니다")
+                Text(localized("\(item.author?.realName ?? "—")님이 회원님을 태그했습니다",
+                               "\(item.author?.realName ?? "—") tagged you",
+                               "\(item.author?.realName ?? "—") hat dich markiert"))
                     .font(.caption).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 16)
@@ -180,7 +182,9 @@ struct TaggedActivityRow: View {
             HStack(spacing: 5) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.caption2).foregroundStyle(.green)
-                Text("\(item.author?.realName ?? "—")님의 게시물에 태그됨")
+                Text(localized("\(item.author?.realName ?? "—")님의 게시물에 태그됨",
+                               "Tagged in \(item.author?.realName ?? "—")'s post",
+                               "In \(item.author?.realName ?? "—")s Beitrag markiert"))
                     .font(.caption).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 16)
