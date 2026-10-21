@@ -35,6 +35,7 @@ import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.offset
@@ -95,6 +96,7 @@ import com.cadenza.android.ui.profile.sheets.RecommendationEditSheet
 fun ProfileScreen(
     contentPadding: PaddingValues = PaddingValues(),
     onNavigateToUser: (String) -> Unit = {},
+    onPreview: (String) -> Unit = {},
     session: SessionViewModel = hiltViewModel(),
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -149,6 +151,12 @@ fun ProfileScreen(
                     )
                 },
                 actions = {
+                    IconButton(onClick = { userId?.let(onPreview) }, enabled = profile != null && userId != null) {
+                        Icon(
+                            Icons.Outlined.Visibility,
+                            contentDescription = AppLocale.localized("미리보기", "Preview", "Vorschau"),
+                        )
+                    }
                     IconButton(onClick = { showManageSections = true }, enabled = profile != null) {
                         Icon(Icons.Outlined.Tune, contentDescription = null)
                     }

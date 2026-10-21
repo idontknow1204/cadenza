@@ -49,6 +49,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -222,6 +224,7 @@ fun RootNavigation(
                     contentPadding = padding,
                     session = session,
                     onNavigateToUser = { userId -> navController.navigate("public_profile/$userId") },
+                    onPreview = { userId -> navController.navigate("public_profile/$userId?preview=true") },
                 )
             }
             composable("org_page/{orgId}") { backStackEntry ->
@@ -233,10 +236,18 @@ fun RootNavigation(
                     session = session,
                 )
             }
-            composable("public_profile/{userId}") { backStackEntry ->
+            composable(
+                route = "public_profile/{userId}?preview={preview}",
+                arguments = listOf(
+                    navArgument("userId") { type = NavType.StringType },
+                    navArgument("preview") { type = NavType.StringType; defaultValue = "false" },
+                ),
+            ) { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId") ?: return@composable
+                val preview = backStackEntry.arguments?.getString("preview") == "true"
                 PublicProfileScreen(
                     userId = userId,
+                    isPreview = preview,
                     onBack = { navController.popBackStack() },
                     onNavigateToUser = { targetId -> navController.navigate("public_profile/$targetId") },
                     session = session,

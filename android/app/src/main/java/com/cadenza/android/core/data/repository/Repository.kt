@@ -1017,6 +1017,20 @@ class Repository @Inject constructor(
         return rows.firstOrNull()?.patch ?: emptyMap()
     }
 
+    @Serializable private data class ProfileI18nParams(
+        @SerialName("p_user") val pUser: String,
+        @SerialName("p_lang") val pLang: String,
+    )
+
+    /**
+     * 방문자 읽기용: 작성자의 모든 오버레이를 언어별로 한 번에 조회.
+     * 반환 키는 "<kind>:<uuid>" (예: "profile:<user>", "activity:<id>"), 값은 patch.
+     * cv_i18n RLS 는 소유자 전용이라 SECURITY DEFINER RPC(profile_i18n)로 우회한다.
+     */
+    suspend fun profileOverlays(userId: String, lang: String): Map<String, Map<String, String>> =
+        client.postgrest.rpc("profile_i18n", ProfileI18nParams(userId, lang))
+            .decodeAs()
+
     suspend fun upsertProfileOverlay(userId: String, lang: String, patch: Map<String, String>) {
         client.postgrest["cv_i18n"].upsert(
             CVOverrideRow("profile", userId, userId, lang, patch, true),

@@ -18,14 +18,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -54,6 +59,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cadenza.android.core.data.model.Affiliation
+import com.cadenza.android.core.data.model.ActivityType
 import com.cadenza.android.core.data.model.ActivityWithAuthor
 import com.cadenza.android.core.data.model.Career
 import com.cadenza.android.core.data.model.ConnectionAction
@@ -91,6 +97,8 @@ class PublicProfileViewModel @Inject constructor(
 ) : ViewModel() {
 
     val userId: String = savedStateHandle.get<String>("userId") ?: ""
+    /** 본인이 "다른 사람에게 보이는 모습"을 점검하는 미리보기 모드. */
+    val isPreview: Boolean = savedStateHandle.get<String>("preview") == "true"
 
     private val _profile = MutableStateFlow<Profile?>(null)
     val profile: StateFlow<Profile?> = _profile.asStateFlow()
@@ -116,6 +124,18 @@ class PublicProfileViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    // 다국어: 방문자 언어로 프로필 표시. 베이스(ko) 위에 cv_i18n 오버레이를 덮어씀.
+    private val _viewerLang = MutableStateFlow(AppLocale.language)
+    val viewerLang: StateFlow<String> = _viewerLang.asStateFlow()
+
+    // 오버레이 미적용 원본 — 언어 전환 시 재조회 없이 다시 덮어쓰기 위해 보관.
+    private var rawProfile: Profile? = null
+    private var rawActivities: List<ActivityWithAuthor> = emptyList()
+    private var rawAffiliations: List<Affiliation> = emptyList()
+    private var rawCareers: List<Career> = emptyList()
+    private var rawAwards: List<ProfileAward> = emptyList()
+    private var didInitLang = false
+
     init {
         if (userId.isNotEmpty()) load()
     }
@@ -133,18 +153,115 @@ class PublicProfileViewModel @Inject constructor(
                     val aw  = async { runCatching { repository.awards(forUser = userId) }.getOrElse { emptyList() } }
                     val l   = async { runCatching { repository.languages(forUser = userId) }.getOrElse { emptyList() } }
                     val cnt = async { runCatching { repository.connectionCount(userId = userId) }.getOrNull() }
-                    _profile.value = p.await()
-                    _activities.value = a.await()
-                    _affiliations.value = af.await()
-                    _careers.value = c.await()
-                    _awards.value = aw.await()
+                    rawProfile = p.await()
+                    rawActivities = a.await()
+                    rawAffiliations = af.await()
+                    rawCareers = c.await()
+                    rawAwards = aw.await()
                     _languages.value = l.await()
                     cnt.await()?.let { _connectionCount.value = it }
                 }
+
+                // 최초 1회: 방문자 앱 언어가 작성자 제공 언어에 있으면 그 언어로, 없으면 ko.
+                // (미리보기는 전 언어 전환을 허용하므로 clamp 하지 않음)
+                if (!didInitLang) {
+                    if (!isPreview) {
+                        val offered = listOf("ko") + (rawProfile?.profileLangs ?: emptyList())
+                        if (_viewerLang.value !in offered) _viewerLang.value = "ko"
+                    }
+                    didInitLang = true
+                }
+                applyLanguage()
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+
+    /** 전환 칩에서 언어 선택 → 재조회 없이 원본에 해당 언어 오버레이를 덮어씀. */
+    fun setLanguage(lang: String) {
+        if (lang == _viewerLang.value) return
+        _viewerLang.value = lang
+        viewModelScope.launch { applyLanguage() }
+    }
+
+    private suspend fun applyLanguage() {
+        // 원본에서 시작 (ko 베이스)
+        _profile.value = rawProfile
+        _activities.value = rawActivities
+        _affiliations.value = rawAffiliations
+        _careers.value = rawCareers
+        _awards.value = rawAwards
+
+        val lang = _viewerLang.value
+        val uid = rawProfile?.id ?: return
+        if (lang == "ko") return
+        val overlays = runCatching { repository.profileOverlays(userId = uid, lang = lang) }
+            .getOrElse { emptyMap() }
+        if (overlays.isEmpty()) return
+
+        // profile-level (이름/소개/악기)
+        overlays["profile:$uid"]?.let { patch ->
+            _profile.value = rawProfile?.copy(
+                realName   = patch["name"]?.takeIf { it.isNotEmpty() } ?: rawProfile!!.realName,
+                instrument = patch["instrument"]?.takeIf { it.isNotEmpty() } ?: rawProfile!!.instrument,
+                bio        = patch["bio"]?.takeIf { it.isNotEmpty() } ?: rawProfile!!.bio,
+            )
+        }
+        _activities.value   = rawActivities.map   { applyActivity(it, overlays) }
+        _affiliations.value = rawAffiliations.map { applyAffiliation(it, overlays) }
+        _careers.value      = rawCareers.map      { applyCareer(it, overlays) }
+        _awards.value       = rawAwards.map       { applyAward(it, overlays) }
+    }
+
+    private fun applyActivity(a: ActivityWithAuthor, overlays: Map<String, Map<String, String>>): ActivityWithAuthor {
+        val patch = overlays["activity:${a.id}"]?.takeIf { it.isNotEmpty() } ?: return a
+        fun v(k: String): String? = patch[k]?.takeIf { it.isNotEmpty() }
+        return when (a.type) {
+            ActivityType.PERFORMANCE -> a.copy(
+                title = v("title") ?: a.title,
+                organizer = v("org") ?: a.organizer,
+                location = v("place") ?: a.location,
+                role = v("detail") ?: a.role,
+            )
+            ActivityType.COMPETITION -> a.copy(
+                title = v("title") ?: a.title,
+                location = v("place") ?: a.location,
+                prize = v("result") ?: a.prize,
+            )
+            ActivityType.EDUCATION -> a.copy(
+                title = v("institution") ?: a.title,
+                location = v("place") ?: a.location,
+                role = v("teacher") ?: a.role,
+            )
+            ActivityType.RECORDING -> a
+        }
+    }
+
+    private fun applyAffiliation(a: Affiliation, overlays: Map<String, Map<String, String>>): Affiliation {
+        val patch = overlays["affiliation:${a.id}"] ?: return a
+        val inst = patch["institution"]?.takeIf { it.isNotEmpty() } ?: return a
+        return a.copy(institutionName = inst)
+    }
+
+    private fun applyCareer(c: Career, overlays: Map<String, Map<String, String>>): Career {
+        val patch = overlays["career:${c.id}"] ?: return c
+        return c.copy(
+            organization = patch["organization"]?.takeIf { it.isNotEmpty() } ?: c.organization,
+            role = patch["role"]?.takeIf { it.isNotEmpty() } ?: c.role,
+            description = patch["description"]?.takeIf { it.isNotEmpty() } ?: c.description,
+            contribution = patch["contribution"]?.takeIf { it.isNotEmpty() } ?: c.contribution,
+        )
+    }
+
+    private fun applyAward(aw: ProfileAward, overlays: Map<String, Map<String, String>>): ProfileAward {
+        val patch = overlays["award:${aw.id}"] ?: return aw
+        return aw.copy(
+            title = patch["title"]?.takeIf { it.isNotEmpty() } ?: aw.title,
+            prize = patch["prize"]?.takeIf { it.isNotEmpty() } ?: aw.prize,
+            issuer = patch["issuer"]?.takeIf { it.isNotEmpty() } ?: aw.issuer,
+            details = patch["details"]?.takeIf { it.isNotEmpty() } ?: aw.details,
+        )
     }
 
     fun reloadConnectionCount() {
@@ -163,6 +280,7 @@ class PublicProfileViewModel @Inject constructor(
 fun PublicProfileScreen(
     userId: String,
     onBack: () -> Unit,
+    isPreview: Boolean = false,
     onNavigateToUser: (String) -> Unit = {},
     session: SessionViewModel = hiltViewModel(),
     viewModel: PublicProfileViewModel = hiltViewModel(),
@@ -175,6 +293,11 @@ fun PublicProfileScreen(
     val languages by viewModel.languages.collectAsState()
     val connectionCount by viewModel.connectionCount.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val viewerLang by viewModel.viewerLang.collectAsState()
+
+    // 전환 칩에 노출할 언어: 실제 방문자는 ko + 작성자 제공 언어, 미리보기는 앱 전 언어.
+    val availableLangs = if (isPreview) listOf("ko", "en", "de")
+                         else listOf("ko") + (profile?.profileLangs ?: emptyList())
 
     val statuses by viewModel.connectionStore.statuses.collectAsState()
     val updating by viewModel.connectionStore.updating.collectAsState()
@@ -194,7 +317,12 @@ fun PublicProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(profile?.realName ?: AppLocale.localized("프로필", "Profile", "Profil")) },
+                title = {
+                    Text(
+                        if (isPreview) AppLocale.localized("미리보기", "Preview", "Vorschau")
+                        else profile?.realName ?: AppLocale.localized("프로필", "Profile", "Profil")
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
@@ -227,6 +355,18 @@ fun PublicProfileScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     profile?.let { p ->
+                        if (isPreview) {
+                            item("preview_banner") { PreviewBanner() }
+                        }
+                        if (isPreview || availableLangs.size > 1) {
+                            item("lang_switcher") {
+                                LanguageSwitcher(
+                                    langs = availableLangs,
+                                    selected = viewerLang,
+                                    onSelect = { viewModel.setLanguage(it) },
+                                )
+                            }
+                        }
                         item("header") {
                             SectionCard {
                                 // iOS: HStack(alignment: .top, spacing: 14)
@@ -413,6 +553,81 @@ fun PublicProfileScreen(
             onNavigateToUser = { targetId -> showConnectionsList = false; onNavigateToUser(targetId) },
             onDismiss = { showConnectionsList = false },
         )
+    }
+}
+
+// ── Preview banner ─────────────────────────────────────────────────────────────
+
+@Composable
+private fun PreviewBanner() {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.Top,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(12.dp))
+            .padding(12.dp),
+    ) {
+        Icon(
+            Icons.Outlined.Visibility,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+        )
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                AppLocale.localized("미리보기", "Preview", "Vorschau"),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                AppLocale.localized(
+                    "다른 사람에게 이렇게 보입니다. 아래 언어를 전환해 각 언어 버전을 확인하세요.",
+                    "This is how others see your profile. Switch languages below to check each version.",
+                    "So sehen andere Ihr Profil. Wechseln Sie unten die Sprache, um jede Version zu prüfen.",
+                ),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+// ── Language switcher ────────────────────────────────────────────────────────
+
+@Composable
+private fun LanguageSwitcher(
+    langs: List<String>,
+    selected: String,
+    onSelect: (String) -> Unit,
+) {
+    fun label(code: String) = when (code) {
+        "ko" -> "한국어"
+        "en" -> "English"
+        "de" -> "Deutsch"
+        else -> code.uppercase()
+    }
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp),
+    ) {
+        Icon(
+            Icons.Outlined.Language,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp),
+        )
+        langs.forEach { code ->
+            FilterChip(
+                selected = code == selected,
+                onClick = { onSelect(code) },
+                label = { Text(label(code), style = MaterialTheme.typography.labelMedium) },
+            )
+        }
     }
 }
 
