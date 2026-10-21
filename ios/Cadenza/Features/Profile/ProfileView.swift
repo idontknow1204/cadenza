@@ -100,7 +100,7 @@ struct ProfileView: View {
                 withAnimation { proxy.scrollTo("profile-top", anchor: .top) }
             }
             } // ScrollViewReader
-            .navigationTitle("tab.profile")
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $showAllActivities) {
                 if let profile {
