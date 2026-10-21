@@ -132,7 +132,7 @@
 		80A93A766EECE9AFCF6D7A63 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8168A03A0CF35D31CB65A83D /* Cadenza.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Cadenza.entitlements; sourceTree = "<group>"; };
 		8A87C23E26A6DF4356A95BD3 /* Step3AffiliationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step3AffiliationView.swift; sourceTree = "<group>"; };
-		92C9560A66264D4A08F67D2C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		92C9560A66264D4A08F67D2C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		96FF1C39767102D5128F648F /* CadenzaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadenzaApp.swift; sourceTree = "<group>"; };
 		9903E82F572E481CE9106984 /* OnboardingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingData.swift; sourceTree = "<group>"; };
 		9DA52A1924F97BC927EEC642 /* ForgotPasswordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordSheet.swift; sourceTree = "<group>"; };
@@ -151,7 +151,7 @@
 		D0518ACC253D43857744B39B /* AffiliationEditSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffiliationEditSheet.swift; sourceTree = "<group>"; };
 		D7C8B182D538A2F38E1F9645 /* CreateActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateActivityView.swift; sourceTree = "<group>"; };
 		DDA4147AE3B8EF5FC537C5CE /* CVEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVEntry.swift; sourceTree = "<group>"; };
-		DDFBE399676A3E84FCF154B9 /* Cadenza.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Cadenza.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDFBE399676A3E84FCF154B9 /* Cadenza.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cadenza.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1485A487967DA985B441408 /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
 		E1A1BD5D603F87116423CDDE /* MultilingualProfileEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilingualProfileEditorView.swift; sourceTree = "<group>"; };
 		E1ACD8DE709619EEBA8B10C2 /* ProfileActivitiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileActivitiesView.swift; sourceTree = "<group>"; };
@@ -453,8 +453,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 4657FC78F268FEA51E353563 /* Build configuration list for PBXProject "Cadenza" */;
 			developmentRegion = ko;
@@ -583,6 +581,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Cadenza/Cadenza.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = KWFT97NUML;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Cadenza/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -602,6 +601,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Cadenza/Cadenza.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = KWFT97NUML;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Cadenza/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
