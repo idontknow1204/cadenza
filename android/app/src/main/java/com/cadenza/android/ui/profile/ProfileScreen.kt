@@ -128,6 +128,7 @@ fun ProfileScreen(
     var showManageSections by remember { mutableStateOf(false) }
     var showSettings   by remember { mutableStateOf(false) }
     var showCVEditor   by remember { mutableStateOf(false) }
+    var showMultilingual by remember { mutableStateOf(false) }
 
     val userId = session.currentUserId
 
@@ -142,14 +143,7 @@ fun ProfileScreen(
         topBar = {
             // iOS: .navigationBarTitleDisplayMode(.inline) → centered inline title
             CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        AppLocale.localized("프로필", "Profile", "Profil"),
-                        // 알림·채용 탭의 기본 TopAppBar 제목과 같은 크기(titleLarge 20sp), 5dp 아래로
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.offset(y = 5.dp),
-                    )
-                },
+                title = {},
                 actions = {
                     IconButton(onClick = { userId?.let(onPreview) }, enabled = profile != null && userId != null) {
                         Icon(
@@ -522,6 +516,7 @@ fun ProfileScreen(
             onDismiss = { showSettings = false },
             onSignOut = { session.signOut(); showSettings = false },
             onEditCv = { showSettings = false; showCVEditor = true },
+            onEditMultilingual = { showSettings = false; showMultilingual = true },
             onEditLanguages = { showLanguageEdit = true },
         )
     }
@@ -531,6 +526,14 @@ fun ProfileScreen(
             profile = profile,
             onDismiss = { showCVEditor = false },
             onProfileUpdated = { session.refreshProfile() },
+        )
+    }
+    if (showMultilingual && userId != null) {
+        com.cadenza.android.ui.cv.MultilingualProfileEditorScreen(
+            userId = userId,
+            profile = profile,
+            onDismiss = { showMultilingual = false },
+            onSaved = { session.refreshProfile() },
         )
     }
 }

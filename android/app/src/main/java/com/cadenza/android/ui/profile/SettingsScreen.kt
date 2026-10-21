@@ -73,6 +73,7 @@ fun ProfileSettingsSheet(
     onDismiss: () -> Unit,
     onSignOut: () -> Unit,
     onEditCv: () -> Unit = {},
+    onEditMultilingual: () -> Unit = {},
     onEditLanguages: () -> Unit = {},
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -127,6 +128,15 @@ fun ProfileSettingsSheet(
                     title = AppLocale.localized("CV / 이력서", "CV / Résumé", "Lebenslauf"),
                     subtitle = AppLocale.localized("영어 CV 편집·PDF 내보내기", "Edit your English CV, export PDF", "Englischen CV bearbeiten, PDF"),
                     onClick = onEditCv,
+                )
+            }
+            item {
+                SettingsRow(
+                    icon = Icons.Outlined.Language,
+                    iconColor = Color(0xFFEC407A),
+                    title = AppLocale.localized("다국어 프로필", "Multilingual profile", "Mehrsprachiges Profil"),
+                    subtitle = AppLocale.localized("언어별 프로필 작성 (방문자 언어로 표시)", "Write per-language versions shown in visitor's language", "Sprachversionen je nach Besuchersprache"),
+                    onClick = onEditMultilingual,
                 )
             }
             item {

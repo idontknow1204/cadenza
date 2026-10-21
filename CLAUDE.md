@@ -130,6 +130,6 @@ v1 범위: **iOS 전 기능 한 번에 이식**. 제외: Apple Sign In(후순위
 |---------|----------|------|
 | 다국어 공개 프로필 (방문자 언어로 표시, 오버레이 폴백) | ✅ | PublicProfileViewModel 오버레이 병합 + `profileOverlays` RPC(0060) + 언어 전환 칩 |
 | 프로필 미리보기 (다른 사람에게 보이는 모습) | ✅ | ProfileScreen 눈 아이콘 → `public_profile/{id}?preview=true`, 배너+전 언어 전환 |
-| 다국어 **작성** 편집기 (en/de 오버레이 입력, career/award 포함) | ⏳ 미포팅 | iOS MultilingualProfileEditorView 대응 UI 없음. Android CVEditor는 영어 CV 전용. 작성은 iOS로, Android는 읽기/표시만 (공유 DB) |
+| 다국어 **작성** 편집기 (en/de 오버레이 입력, career/award 포함) | ✅ | MultilingualProfileEditorScreen (설정→다국어 프로필). CVEntryOverrideSheet 재사용, AI 번역 제안, buildCVEntries에 career/award 추가 |
 | 푸시 알림 (APNs) | N/A | Android는 FCM, v1 제외 |
 | App Store 대응 (PrivacyInfo, aps-environment 등) | N/A | iOS 전용 |

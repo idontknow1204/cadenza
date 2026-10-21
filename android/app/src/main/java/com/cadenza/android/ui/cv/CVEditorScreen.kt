@@ -64,7 +64,9 @@ import com.cadenza.android.core.data.model.ActivityType
 import com.cadenza.android.core.data.model.Affiliation
 import com.cadenza.android.core.data.model.CVEntryRow
 import com.cadenza.android.core.data.model.CVOverride
+import com.cadenza.android.core.data.model.Career
 import com.cadenza.android.core.data.model.Profile
+import com.cadenza.android.core.data.model.ProfileAward
 import com.cadenza.android.core.data.repository.Repository
 import com.cadenza.android.core.util.AppLocale
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -101,6 +103,8 @@ fun buildCVEntries(
     activities: List<Activity>,
     affiliations: List<Affiliation>,
     cvEntries: List<CVEntryRow>,
+    careers: List<Career> = emptyList(),
+    awards: List<ProfileAward> = emptyList(),
 ): List<CVEntry> {
     val out = mutableListOf<CVEntry>()
 
@@ -112,6 +116,10 @@ fun buildCVEntries(
     val instLabel    = AppLocale.localized("기관명", "Institution", "Institution")
     val degreeLabel  = AppLocale.localized("학위", "Degree", "Abschluss")
     val teacherLabel = AppLocale.localized("사사 교수", "Teacher", "Lehrer")
+    val roleLabel    = AppLocale.localized("역할", "Role", "Rolle")
+    val contribLabel = AppLocale.localized("기여", "Contribution", "Beitrag")
+    val issuerLabel  = AppLocale.localized("주최", "Issuer", "Veranstalter")
+    val prizeLabel   = AppLocale.localized("수상", "Prize", "Preis")
 
     for (a in activities) {
         val idKey = "activity:${a.id}"
@@ -200,6 +208,34 @@ fun buildCVEntries(
                     CVFieldSpec("teacher",     teacherLabel, ce.teacher),
                 )))
         }
+    }
+
+    // 경력 (career) — 프로필 전용 항목
+    for (c in careers) {
+        out.add(CVEntry(
+            id = "career:${c.id}", sourceKind = "career", sourceId = c.id, kind = "career",
+            sectionLabel = AppLocale.localized("경력", "Career", "Werdegang"),
+            titleOriginal = c.organization, subtitleOriginal = c.role,
+            fields = listOf(
+                CVFieldSpec("organization", orgLabel,     c.organization),
+                CVFieldSpec("role",         roleLabel,    c.role),
+                CVFieldSpec("description",  detailLabel,  c.description),
+                CVFieldSpec("contribution", contribLabel, c.contribution),
+            )))
+    }
+
+    // 수상 (award) — 프로필 전용 항목
+    for (aw in awards) {
+        out.add(CVEntry(
+            id = "award:${aw.id}", sourceKind = "award", sourceId = aw.id, kind = "award",
+            sectionLabel = AppLocale.localized("수상", "Awards", "Auszeichnungen"),
+            titleOriginal = aw.title, subtitleOriginal = aw.prize,
+            fields = listOf(
+                CVFieldSpec("title",   titleLabel,  aw.title),
+                CVFieldSpec("prize",   prizeLabel,  aw.prize),
+                CVFieldSpec("issuer",  issuerLabel, aw.issuer),
+                CVFieldSpec("details", detailLabel, aw.details),
+            )))
     }
 
     return out
