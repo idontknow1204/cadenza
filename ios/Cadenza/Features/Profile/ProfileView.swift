@@ -43,6 +43,7 @@ struct ProfileView: View {
     @State private var showSettings = false
     @State private var showConnections = false
     @State private var showAllActivities = false
+    @State private var showPreview = false
 
     private var profile: Profile? { session.profile }
 
@@ -110,7 +111,21 @@ struct ProfileView: View {
                     )
                 }
             }
+            .navigationDestination(isPresented: $showPreview) {
+                if let profile {
+                    PublicProfileView(userId: profile.id, isPreview: true)
+                }
+            }
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showPreview = true } label: {
+                        Image(systemName: "eye")
+                    }
+                    .foregroundStyle(.primary)
+                    .disabled(profile == nil)
+                    .accessibilityLabel(localized("다른 사람에게 보이는 모습", "View as others", "Aus Sicht anderer"))
+                    .accessibilityIdentifier("profile.preview")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showAddSection = true } label: {
                         Image(systemName: "slider.horizontal.3")

@@ -2,6 +2,9 @@ import SwiftUI
 
 struct PublicProfileView: View {
     let userId: UUID
+    /// 본인이 "다른 사람에게 보이는 모습"을 점검하는 미리보기 모드.
+    /// 안내 배너를 띄우고, 번역 저장 여부와 무관하게 전 언어 전환을 허용한다.
+    var isPreview: Bool = false
 
     @Environment(SessionStore.self) private var session
 
@@ -29,9 +32,12 @@ struct PublicProfileView: View {
 
     private var isOwnProfile: Bool { userId == session.currentUserID }
 
-    /// 작성자가 제공하는 언어 목록 (ko 베이스 + 오버레이 언어). 1개뿐이면 전환 UI 숨김.
+    /// 전환 칩에 노출할 언어 목록.
+    /// 실제 방문자: ko 베이스 + 작성자가 제공한 오버레이 언어 (1개뿐이면 칩 숨김).
+    /// 미리보기: 번역 저장 여부와 무관하게 앱 지원 전 언어를 보여줘, 각 언어로
+    /// 외국인에게 어떻게 보일지(폴백 포함) 점검할 수 있게 한다.
     private var availableLangs: [String] {
-        ["ko"] + (profile?.profileLangs ?? [])
+        isPreview ? ["ko", "en", "de"] : ["ko"] + (profile?.profileLangs ?? [])
     }
     private func langLabel(_ code: String) -> String {
         switch code {
@@ -48,8 +54,11 @@ struct PublicProfileView: View {
                 if loading && profile == nil {
                     ProgressView().padding(40)
                 } else if let profile {
+                    if isPreview {
+                        previewBanner
+                    }
                     headerCard(profile)
-                    if availableLangs.count > 1 {
+                    if isPreview || availableLangs.count > 1 {
                         languageSwitcher
                     }
                     if profile.showsSection(.bio), let bio = profile.bio, !bio.isEmpty {
@@ -76,7 +85,9 @@ struct PublicProfileView: View {
             .adaptiveContentWidth()
         }
         .background(Color(.secondarySystemBackground))
-        .navigationTitle(profile?.realName ?? "프로필")
+        .navigationTitle(isPreview
+                         ? localized("미리보기", "Preview", "Vorschau")
+                         : (profile?.realName ?? "프로필"))
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .task(id: session.connections.revision) {
@@ -203,6 +214,30 @@ struct PublicProfileView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Preview banner
+
+    private var previewBanner: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "eye")
+                .font(.subheadline).foregroundStyle(Color.accentColor)
+                .padding(.top, 1)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(localized("미리보기", "Preview", "Vorschau"))
+                    .font(.subheadline.weight(.semibold))
+                Text(localized("다른 사람에게 이렇게 보입니다. 아래 언어를 전환해 각 언어 버전을 확인하세요.",
+                               "This is how others see your profile. Switch languages below to check each version.",
+                               "So sehen andere Ihr Profil. Wechseln Sie unten die Sprache, um jede Version zu prüfen."))
+                    .font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.accentColor.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal, 16)
     }
 
     // MARK: - Language switcher
