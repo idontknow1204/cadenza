@@ -58,9 +58,6 @@ struct PublicProfileView: View {
                         previewBanner
                     }
                     headerCard(profile)
-                    if isPreview || availableLangs.count > 1 {
-                        languageSwitcher
-                    }
                     if profile.showsSection(.bio), let bio = profile.bio, !bio.isEmpty {
                         bioCard(bio)
                     }
@@ -89,6 +86,30 @@ struct PublicProfileView: View {
                          ? localized("미리보기", "Preview", "Vorschau")
                          : (profile?.realName ?? "프로필"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if isPreview || availableLangs.count > 1 {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        ForEach(availableLangs, id: \.self) { code in
+                            Button {
+                                guard code != viewerLang else { return }
+                                viewerLang = code
+                                Task { await applyLanguage() }
+                            } label: {
+                                if code == viewerLang {
+                                    Label(langLabel(code), systemImage: "checkmark")
+                                } else {
+                                    Text(langLabel(code))
+                                }
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .accessibilityLabel(localized("언어 선택", "Choose language", "Sprache wählen"))
+                }
+            }
+        }
         .task { await load() }
         .task(id: session.connections.revision) {
             await refreshCount()
@@ -226,9 +247,9 @@ struct PublicProfileView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(localized("미리보기", "Preview", "Vorschau"))
                     .font(.subheadline.weight(.semibold))
-                Text(localized("다른 사람에게 이렇게 보입니다. 아래 언어를 전환해 각 언어 버전을 확인하세요.",
-                               "This is how others see your profile. Switch languages below to check each version.",
-                               "So sehen andere Ihr Profil. Wechseln Sie unten die Sprache, um jede Version zu prüfen."))
+                Text(localized("다른 사람에게 이렇게 보입니다. 우측 상단에서 언어를 전환해 각 언어 버전을 확인하세요.",
+                               "This is how others see your profile. Switch languages from the top-right to check each version.",
+                               "So sehen andere Ihr Profil. Wechseln Sie oben rechts die Sprache, um jede Version zu prüfen."))
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -238,34 +259,6 @@ struct PublicProfileView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.accentColor.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
         .padding(.horizontal, 16)
-    }
-
-    // MARK: - Language switcher
-
-    private var languageSwitcher: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                Image(systemName: "globe")
-                    .font(.caption).foregroundStyle(.secondary)
-                ForEach(availableLangs, id: \.self) { code in
-                    let selected = code == viewerLang
-                    Button {
-                        guard code != viewerLang else { return }
-                        viewerLang = code
-                        Task { await applyLanguage() }
-                    } label: {
-                        Text(langLabel(code))
-                            .font(.caption.weight(selected ? .semibold : .regular))
-                            .padding(.horizontal, 12).padding(.vertical, 6)
-                            .background(selected ? Color.accentColor : Color.secondary.opacity(0.12),
-                                        in: Capsule())
-                            .foregroundStyle(selected ? .white : .secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.horizontal, 16)
-        }
     }
 
     // MARK: - Bio card

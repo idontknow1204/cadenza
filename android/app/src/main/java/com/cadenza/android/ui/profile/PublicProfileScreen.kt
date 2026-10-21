@@ -18,19 +18,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -295,9 +295,10 @@ fun PublicProfileScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val viewerLang by viewModel.viewerLang.collectAsState()
 
-    // 전환 칩에 노출할 언어: 실제 방문자는 ko + 작성자 제공 언어, 미리보기는 앱 전 언어.
+    // 전환 메뉴에 노출할 언어: 실제 방문자는 ko + 작성자 제공 언어, 미리보기는 앱 전 언어.
     val availableLangs = if (isPreview) listOf("ko", "en", "de")
                          else listOf("ko") + (profile?.profileLangs ?: emptyList())
+    var langMenuExpanded by remember { mutableStateOf(false) }
 
     val statuses by viewModel.connectionStore.statuses.collectAsState()
     val updating by viewModel.connectionStore.updating.collectAsState()
@@ -326,6 +327,37 @@ fun PublicProfileScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
+                actions = {
+                    if (isPreview || availableLangs.size > 1) {
+                        Box {
+                            IconButton(onClick = { langMenuExpanded = true }) {
+                                Icon(
+                                    Icons.Default.MoreVert,
+                                    contentDescription = AppLocale.localized("언어 선택", "Choose language", "Sprache wählen"),
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = langMenuExpanded,
+                                onDismissRequest = { langMenuExpanded = false },
+                            ) {
+                                availableLangs.forEach { code ->
+                                    DropdownMenuItem(
+                                        text = { Text(langLabel(code)) },
+                                        onClick = {
+                                            langMenuExpanded = false
+                                            viewModel.setLanguage(code)
+                                        },
+                                        trailingIcon = {
+                                            if (code == viewerLang) {
+                                                Icon(Icons.Default.Check, contentDescription = null)
+                                            }
+                                        },
+                                    )
+                                }
+                            }
+                        }
                     }
                 },
                 windowInsets = WindowInsets.statusBars,
@@ -357,15 +389,6 @@ fun PublicProfileScreen(
                     profile?.let { p ->
                         if (isPreview) {
                             item("preview_banner") { PreviewBanner() }
-                        }
-                        if (isPreview || availableLangs.size > 1) {
-                            item("lang_switcher") {
-                                LanguageSwitcher(
-                                    langs = availableLangs,
-                                    selected = viewerLang,
-                                    onSelect = { viewModel.setLanguage(it) },
-                                )
-                            }
                         }
                         item("header") {
                             SectionCard {
@@ -582,9 +605,9 @@ private fun PreviewBanner() {
             )
             Text(
                 AppLocale.localized(
-                    "다른 사람에게 이렇게 보입니다. 아래 언어를 전환해 각 언어 버전을 확인하세요.",
-                    "This is how others see your profile. Switch languages below to check each version.",
-                    "So sehen andere Ihr Profil. Wechseln Sie unten die Sprache, um jede Version zu prüfen.",
+                    "다른 사람에게 이렇게 보입니다. 우측 상단에서 언어를 전환해 각 언어 버전을 확인하세요.",
+                    "This is how others see your profile. Switch languages from the top-right to check each version.",
+                    "So sehen andere Ihr Profil. Wechseln Sie oben rechts die Sprache, um jede Version zu prüfen.",
                 ),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -593,42 +616,13 @@ private fun PreviewBanner() {
     }
 }
 
-// ── Language switcher ────────────────────────────────────────────────────────
+// ── Language label ───────────────────────────────────────────────────────────
 
-@Composable
-private fun LanguageSwitcher(
-    langs: List<String>,
-    selected: String,
-    onSelect: (String) -> Unit,
-) {
-    fun label(code: String) = when (code) {
-        "ko" -> "한국어"
-        "en" -> "English"
-        "de" -> "Deutsch"
-        else -> code.uppercase()
-    }
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp),
-    ) {
-        Icon(
-            Icons.Outlined.Language,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(18.dp),
-        )
-        langs.forEach { code ->
-            FilterChip(
-                selected = code == selected,
-                onClick = { onSelect(code) },
-                label = { Text(label(code), style = MaterialTheme.typography.labelMedium) },
-            )
-        }
-    }
+private fun langLabel(code: String) = when (code) {
+    "ko" -> "한국어"
+    "en" -> "English"
+    "de" -> "Deutsch"
+    else -> code.uppercase()
 }
 
 // ── Connection button ────────────────────────────────────────────────────────
