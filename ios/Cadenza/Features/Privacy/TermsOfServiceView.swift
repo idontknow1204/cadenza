@@ -50,7 +50,7 @@ struct TermsOfServiceView: View {
 
 서비스는 음악가의 활동 이력 기록, 협업자 확인, 프로필·CV 공유, 커뮤니티 연결을 위한 플랫폼입니다. 서비스에 가입하거나 접근함으로써 본 약관에 동의하는 것으로 간주합니다.
 
-• 서비스 제공자: Cadenza (개인 개발자, kimgeonho0327@gmail.com)
+• 서비스 제공자: Cadenza (개인 개발자, team@je-jal.com)
 • 적용 범위: iOS 앱, 공개 웹 프로필(fermata.app), API 서비스 전체
 • 최소 이용 연령: 만 14세 이상
 """
@@ -185,7 +185,7 @@ These Terms govern the relationship between Cadenza (the "Service") and you as a
 
 The Service is a platform for musicians to record activity history, confirm collaborations, share profiles and CVs, and build professional networks. By registering or accessing the Service, you agree to these Terms.
 
-• **Provider**: Cadenza (independent developer, kimgeonho0327@gmail.com)
+• **Provider**: Cadenza (independent developer, team@je-jal.com)
 • **Scope**: iOS app, public web profiles (fermata.app), and all API services
 • **Minimum age**: 14 years old
 """
@@ -320,7 +320,7 @@ Diese Nutzungsbedingungen regeln das Verhältnis zwischen Cadenza (dem „Dienst
 
 Der Dienst ist eine Plattform für Musiker, um Aktivitäten zu dokumentieren, Mitwirkende zu bestätigen, Profile und Lebensläufe zu teilen und professionelle Netzwerke aufzubauen. Mit der Registrierung oder Nutzung des Dienstes stimmst du diesen Bedingungen zu.
 
-• **Anbieter**: Cadenza (unabhängiger Entwickler, kimgeonho0327@gmail.com)
+• **Anbieter**: Cadenza (unabhängiger Entwickler, team@je-jal.com)
 • **Geltungsbereich**: iOS-App, öffentliche Webprofile (fermata.app) und alle API-Dienste
 • **Mindestalter**: 14 Jahre
 """
