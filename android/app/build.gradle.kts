@@ -25,13 +25,13 @@ fun gradleOrLocal(key: String): String =
 
 android {
     namespace = "com.cadenza.android"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.cadenza.android"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 1
+        targetSdk = 36
+        versionCode = 3
         versionName = "0.1.0"
 
         buildConfigField("String", "SUPABASE_URL",      "\"${gradleOrLocal("SUPABASE_URL")}\"")
