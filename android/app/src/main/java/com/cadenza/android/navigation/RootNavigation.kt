@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -36,6 +37,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 import com.cadenza.android.core.util.AppLocale
 import com.cadenza.android.ui.theme.CadenzaAccent
 import androidx.compose.runtime.Composable
@@ -83,11 +103,46 @@ private val tabs = listOf(Tab.Feed, Tab.Notifications, Tab.Create, Tab.Jobs, Tab
 
 // 탭바 치수 — 화면 보며 조정하는 값
 private val TabBarHeight = 46.dp
-private val TabBarTopMargin = 10.dp  // 탭바 윗쪽 여유
-private val TabBarBottomMargin = 0.dp  // 탭바 아랫쪽 여유 (내비게이션 바 위)
+private val TabBarTopMargin = 8.dp  // 캡슐 안쪽 윗 여유
+private val TabBarBottomMargin = 4.dp  // 캡슐 안쪽 아랫 여유
+private val FloatingBarBottomGap = 8.dp  // 캡슐과 화면(내비게이션 바) 아래 사이 간격
 private val TabGatherDp = 10.dp  // 탭 사이 중심 간격을 이만큼 좁힘
 private val TabIconLabelGap = 0.dp
 private val TabPillHeight = 26.dp
+private val TabPillWidth = 56.dp
+private val TabShadowColor = Color.Black.copy(alpha = 0.10f)  // 탭바 아이콘·라벨·pill 그림자
+
+/** 선택된 탭 뒤의 pill — 탭이 바뀌면 옆 탭으로 부드럽게 이동한다. */
+@Composable
+private fun SlidingTabPill(target: Offset?, containerOrigin: Offset) {
+    if (target == null) return
+    val x = remember { Animatable(0f) }
+    val y = remember { Animatable(0f) }
+    var placed by remember { mutableStateOf(false) }
+    val rel = target - containerOrigin
+    LaunchedEffect(rel) {
+        if (!placed) {
+            x.snapTo(rel.x); y.snapTo(rel.y); placed = true
+        } else {
+            launch { x.animateTo(rel.x, spring(dampingRatio = 0.8f, stiffness = 500f)) }
+            launch { y.animateTo(rel.y, spring(dampingRatio = 0.8f, stiffness = 500f)) }
+        }
+    }
+    if (placed) {
+        Box(
+            Modifier
+                .offset { IntOffset(x.value.roundToInt(), y.value.roundToInt()) }
+                .size(width = TabPillWidth, height = TabPillHeight)
+                .shadow(
+                    elevation = 3.dp,
+                    shape = RoundedCornerShape(14.dp),
+                    ambientColor = TabShadowColor,
+                    spotColor = TabShadowColor,
+                )
+                .background(CadenzaAccent.copy(alpha = 0.12f), RoundedCornerShape(14.dp)),
+        )
+    }
+}
 
 @Composable
 private fun TabBarItem(
@@ -95,31 +150,43 @@ private fun TabBarItem(
     icon: ImageVector,
     label: String,
     onClick: () -> Unit,
+    onPillPositioned: (Offset) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val color = if (selected) CadenzaAccent else MaterialTheme.colorScheme.onSurfaceVariant
     Column(
         modifier = modifier
             .fillMaxHeight()
-            .selectable(selected = selected, role = Role.Tab, onClick = onClick),
+            .selectable(
+                selected = selected,
+                role = Role.Tab,
+                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                indication = null, // 눌림 시 회색 사각 리플 제거 (선택 pill은 유지)
+                onClick = onClick,
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Box(
             modifier = Modifier
-                .size(width = 56.dp, height = TabPillHeight)
-                .background(
-                    if (selected) CadenzaAccent.copy(alpha = 0.12f) else Color.Transparent,
-                    RoundedCornerShape(14.dp),
-                ),
+                .size(width = TabPillWidth, height = TabPillHeight)
+                // 선택 pill은 탭바에서 하나만 그려 탭 간에 슬라이드시킨다 (위치만 보고)
+                .onGloballyPositioned { onPillPositioned(it.positionInWindow()) },
             contentAlignment = Alignment.Center,
         ) {
+            // 은은한 글리프 그림자: 아래로 1dp 밀린 반투명 검정 복사본 (API 31+는 블러)
+            Icon(
+                icon, contentDescription = null, tint = TabShadowColor,
+                modifier = Modifier.size(24.dp).offset(y = 1.dp).blur(1.5.dp),
+            )
             Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
         }
         Spacer(Modifier.height(TabIconLabelGap))
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelMedium.copy(
+                shadow = Shadow(TabShadowColor, offset = Offset(0f, 2f), blurRadius = 3f),
+            ),
             color = color,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -143,28 +210,59 @@ fun RootNavigation(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        bottomBar = {
+    // 탭바는 Scaffold bottomBar가 아니라 콘텐츠 위에 겹쳐 띄운다 (캡슐 바깥은 콘텐츠가 그대로 보임)
+    val tabBar: @Composable () -> Unit = {
             // M3 NavigationBarItem은 아이콘-라벨 간격을 조절할 수 없어 직접 그린다.
             val backStack by navController.currentBackStackEntryAsState()
             val current = backStack?.destination
 
-            Column {
-            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f), thickness = 0.5.dp)
-            Surface(color = MaterialTheme.colorScheme.surface) {
-                Row(
+            // iOS식 플로팅 글래스 탭바: 둥근 캡슐 + 반투명 + 가장자리 하이라이트 + 부드러운 그림자
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = FloatingBarBottomGap),
+            ) {
+            val barShape = RoundedCornerShape(30.dp)
+            Surface(
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+                shape = barShape,
+                border = BorderStroke(
+                    0.8.dp,
+                    Brush.verticalGradient(
+                        listOf(Color.White.copy(alpha = 0.65f), Color.White.copy(alpha = 0.12f)),
+                    ),
+                ),
+                modifier = Modifier.shadow(
+                    elevation = 18.dp,
+                    shape = barShape,
+                    ambientColor = Color.Black.copy(alpha = 0.25f),
+                    spotColor = Color.Black.copy(alpha = 0.25f),
+                ),
+            ) {
+                val pillPositions = remember { mutableStateMapOf<Int, Offset>() }
+                var rowOrigin by remember { mutableStateOf(Offset.Zero) }
+                val selectedIndex = tabs.indexOfFirst { tab ->
+                    tab !is Tab.Create && current?.hierarchy?.any { it.route == tab.route } == true
+                }
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .navigationBarsPadding()
                         .padding(top = TabBarTopMargin, bottom = TabBarBottomMargin)
-                        .height(TabBarHeight),
+                        .height(TabBarHeight)
+                        .onGloballyPositioned { rowOrigin = it.positionInWindow() },
+                ) {
+                SlidingTabPill(target = pillPositions[selectedIndex], containerOrigin = rowOrigin)
+                Row(
+                    modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     // 화면 5등분 폭에서 TabGatherDp만큼 줄여 탭 중심 간격을 모은다
                     val tabWidth = LocalConfiguration.current.screenWidthDp.dp / tabs.size - TabGatherDp
-                    tabs.forEach { tab ->
+                    tabs.forEachIndexed { index, tab ->
                         TabBarItem(
+                            onPillPositioned = { pillPositions[index] = it },
                             selected = current?.hierarchy?.any { it.route == tab.route } == true,
                             icon = tab.icon,
                             label = when (tab) {
@@ -190,10 +288,18 @@ fun RootNavigation(
                         )
                     }
                 }
+                }
             }
             }
-        }
-    ) { padding ->
+    }
+
+    var barHeightPx by remember { mutableIntStateOf(0) }
+    val barHeight = with(LocalDensity.current) { barHeightPx.toDp() }
+
+    Box(Modifier.fillMaxSize()) {
+    Scaffold { _ ->
+        // 화면들은 이 값만큼 목록 하단을 비워 마지막 항목이 캡슐에 가리지 않게 한다
+        val padding = PaddingValues(bottom = barHeight)
         NavHost(navController = navController, startDestination = Tab.Feed.route) {
             composable(Tab.Feed.route) {
                 FeedScreen(
@@ -254,6 +360,16 @@ fun RootNavigation(
                 )
             }
         }
+    }
+    SnackbarHost(
+        snackbarHostState,
+        modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = barHeight),
+    )
+    Box(
+        Modifier
+            .align(Alignment.BottomCenter)
+            .onSizeChanged { barHeightPx = it.height },
+    ) { tabBar() }
     }
 
     val createActivityUserId = if (showCreateActivity) session.currentUserId else null

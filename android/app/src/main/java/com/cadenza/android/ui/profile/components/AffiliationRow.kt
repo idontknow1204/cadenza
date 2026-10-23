@@ -55,8 +55,8 @@ fun AffiliationRow(
             if (yearRange.isNotEmpty()) {
                 Text(
                     yearRange,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

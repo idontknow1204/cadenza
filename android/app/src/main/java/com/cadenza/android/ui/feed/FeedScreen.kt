@@ -72,6 +72,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cadenza.android.core.data.model.Job
 import com.cadenza.android.core.session.SessionViewModel
@@ -171,10 +172,10 @@ fun FeedScreen(
         HorizontalDivider()
 
         Box(
-            modifier = Modifier
-                .weight(1f)
-                .padding(bottom = contentPadding.calculateBottomPadding()),
+            modifier = Modifier.weight(1f),
         ) {
+            // 탭바가 콘텐츠 위에 떠 있으므로, 목록 하단을 비워 마지막 항목이 가리지 않게 한다
+            val listBottomPad = PaddingValues(bottom = contentPadding.calculateBottomPadding())
             when {
                 isSearchMode -> {
                     // Search results
@@ -193,7 +194,7 @@ fun FeedScreen(
                             }
                         }
                     } else {
-                        LazyColumn {
+                        LazyColumn(contentPadding = listBottomPad) {
                             if (searchPeople.isNotEmpty()) {
                                 item {
                                     SearchSectionHeader(AppLocale.localized("사람", "People", "Personen"))
@@ -268,7 +269,7 @@ fun FeedScreen(
 
                 searchActive -> {
                     // Search idle (recent + suggested)
-                    LazyColumn {
+                    LazyColumn(contentPadding = listBottomPad) {
                         if (recentSearches.isNotEmpty()) {
                             item {
                                 Row(
@@ -356,7 +357,7 @@ fun FeedScreen(
                             }
                         } else if (items.isEmpty()) {
                             // 스크롤 가능한 컨테이너여야 당겨서 새로고침이 동작한다
-                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = listBottomPad) {
                                 item {
                                     Column(
                                         modifier = Modifier.fillParentMaxSize().padding(horizontal = 32.dp),
@@ -383,7 +384,7 @@ fun FeedScreen(
                                 }
                             }
                         } else {
-                            LazyColumn(state = listState, modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
+                            LazyColumn(state = listState, contentPadding = listBottomPad, modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
                                 items(items, key = { it.id }) { item ->
                                     ActivityCard(
                                         item = item,
@@ -464,12 +465,13 @@ private fun FeedHeader(
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .size(30.dp)
-                        .background(Color.White, RoundedCornerShape(6.dp)),
+                        .size(34.dp)
+                        .background(Color.White, RoundedCornerShape(7.dp)),
                 )
                 Text(
                     text = "Cadenza",
                     style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = 25.sp,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                     ),
@@ -480,9 +482,10 @@ private fun FeedHeader(
                     if (unreadCount > 0) Badge(modifier = Modifier.size(7.dp))
                 },
             ) {
-                IconButton(onClick = onNotifications) {
+                IconButton(onClick = onNotifications, modifier = Modifier.size(46.dp)) {
                     Icon(Icons.Outlined.Notifications,
-                        contentDescription = AppLocale.localized("알림", "Notifications", "Benachrichtigungen"))
+                        contentDescription = AppLocale.localized("알림", "Notifications", "Benachrichtigungen"),
+                        modifier = Modifier.size(27.dp))
                 }
             }
             Spacer(Modifier.width(4.dp))
@@ -490,7 +493,7 @@ private fun FeedHeader(
                 onClick = onCreateActivity,
                 shape = RoundedCornerShape(8.dp),
                 color = CadenzaAccent.copy(alpha = 0.1f),
-                modifier = Modifier.size(44.dp),
+                modifier = Modifier.size(46.dp),
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -498,7 +501,7 @@ private fun FeedHeader(
                         contentDescription = AppLocale.localized("활동 기록", "Record activity", "Aktivität"),
                         tint = CadenzaAccent,
                         // EditNote 글리프의 잉크 중심 쏠림 보정 (수동 조정값)
-                        modifier = Modifier.size(23.dp).offset(x = 2.5.dp, y = 1.5.dp),
+                        modifier = Modifier.size(26.dp).offset(x = 2.5.dp, y = 1.5.dp),
                     )
                 }
             }

@@ -103,9 +103,10 @@ fun NotificationsScreen(
             onRefresh = { userId?.let { viewModel.load(it) } },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(bottom = contentPadding.calculateBottomPadding()),
+                .padding(innerPadding),
         ) {
+            // 탭바가 콘텐츠 위에 떠 있으므로 목록 하단을 비운다
+            val listBottomPad = PaddingValues(bottom = contentPadding.calculateBottomPadding())
             when {
                 isLoading && isEmpty -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -114,7 +115,7 @@ fun NotificationsScreen(
                 }
                 isEmpty && !refreshFailed -> {
                     // 스크롤 가능한 컨테이너여야 빈 상태에서도 당겨서 새로고침이 동작한다
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = listBottomPad) {
                         item {
                             Column(
                                 modifier = Modifier.fillParentMaxSize(),
@@ -129,7 +130,7 @@ fun NotificationsScreen(
                     }
                 }
                 else -> {
-                    LazyColumn(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+                    LazyColumn(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentPadding = listBottomPad) {
                         // ── Retry banner ──────────────────────────────────
                         if (refreshFailed) {
                             item {

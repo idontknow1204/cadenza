@@ -122,6 +122,7 @@ fun JobsScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             Column {
                 TopAppBar(
@@ -174,12 +175,15 @@ fun JobsScreen(
             onRefresh = { userId?.let { viewModel.load(it) } },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(bottom = contentPadding.calculateBottomPadding()),
+                .padding(innerPadding),
         ) {
             // 배경을 카드와 같은 surface로 두어, 목록 끝/짧은 목록에서 탭바 위에 회색 띠가 남지 않게 한다
             // (섹션 제목은 자체 배경색을 가지고 있어 그대로 회색 구분줄 역할)
-            LazyColumn(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+            // 탭바 높이만큼은 박스 padding이 아니라 목록 contentPadding으로 비워 그 영역도 surface로 채운다
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface),
+                contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
+            ) {
                 when {
                     waitingSearch || (isLoading && jobs.isEmpty() && !isSearching) -> {
                         item {
