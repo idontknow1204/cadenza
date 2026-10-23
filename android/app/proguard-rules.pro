@@ -12,3 +12,6 @@
 
 # ML Kit
 -keep class com.google.mlkit.** { *; }
+
+# slf4j (Ktor 로깅) — 바인더 구현체는 Android에 없음
+-dontwarn org.slf4j.impl.StaticLoggerBinder

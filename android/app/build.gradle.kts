@@ -14,6 +14,12 @@ val localProps = Properties().also { props ->
     val f = rootProject.file("local.properties")
     if (f.exists()) props.load(f.inputStream())
 }
+// 릴리스 서명 — keystore.properties(gitignore)가 있을 때만 적용
+val keystoreProps = Properties().also { props ->
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) props.load(f.inputStream())
+}
+
 fun gradleOrLocal(key: String): String =
     localProps.getProperty(key) ?: (project.findProperty(key) as? String) ?: ""
 
@@ -32,8 +38,20 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${gradleOrLocal("SUPABASE_ANON_KEY")}\"")
     }
 
+    signingConfigs {
+        if (keystoreProps.getProperty("storeFile") != null) {
+            create("release") {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfigs.findByName("release")?.let { signingConfig = it }
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
